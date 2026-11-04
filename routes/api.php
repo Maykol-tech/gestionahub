@@ -6,8 +6,7 @@ use App\Http\Controllers\Api\RegistroController;
 use App\Http\Controllers\Api\MercadoPagoController;
 use App\Http\Controllers\Api\SuperadminController;
 use App\Http\Controllers\Api\AuthController;
-
-Route::post('/login', [AuthController::class, 'login']);
+use App\Http\Controllers\CrmClienteController; // <-- Nueva ruta agregada
 
 // Ruta por defecto de Sanctum
 Route::get('/user', function (Request $request) {
@@ -16,11 +15,17 @@ Route::get('/user', function (Request $request) {
 
 // --- RUTAS DEL PROYECTO GESTIONAHUB ---
 
-// GEST-8: Registro de nuevos negocios (Tenants)
+// GEST-8: Registro
 Route::post('/public/registro', [RegistroController::class, 'register']);
 
-// GEST-9: Webhook para recibir notificaciones de Mercado Pago
+// GEST-9: Mercado Pago
 Route::post('/pagos/mercadopago/webhook', [MercadoPagoController::class, 'webhook']);
 
-// GEST-10: Panel de Superadmin (Listar todos los negocios)
+// GEST-10: Superadmin
 Route::get('/superadmin/tenants', [SuperadminController::class, 'index']);
+
+// GEST-12: Login
+Route::post('/login', [AuthController::class, 'login']);
+
+// GEST-15: CRUD Clientes
+Route::apiResource('clientes', CrmClienteController::class);
