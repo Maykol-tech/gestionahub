@@ -5,6 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\RegistroController;
 use App\Http\Controllers\Api\MercadoPagoController;
 use App\Http\Controllers\Api\SuperadminController;
+use App\Http\Controllers\Api\AuthController;
+
+Route::post('/login', [AuthController::class, 'login']);
 
 // Ruta por defecto de Sanctum
 Route::get('/user', function (Request $request) {
