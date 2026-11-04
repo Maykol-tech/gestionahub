@@ -5,11 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens; // <-- Importación correcta
+use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles; // <-- Importación de Spatie
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable; // <-- Uso correcto dentro de la clase
+    // <-- Agregamos HasRoles aquí
+    use HasApiTokens, HasFactory, Notifiable, HasRoles; 
 
     /**
      * The attributes that are mass assignable.
@@ -17,7 +19,7 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'tenant_id', // <-- Agregamos esto para que el registro funcione
+        'tenant_id', // <-- Nuestro multi-tenant
         'name',
         'email',
         'password',
@@ -46,7 +48,7 @@ class User extends Authenticatable
         ];
     }
 
-    // Relación: Un usuario pertenece a un tenant
+    // Relación: Un usuario pertenece a un tenant (negocio)
     public function tenant()
     {
         return $this->belongsTo(Tenant::class);
