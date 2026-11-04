@@ -21,11 +21,37 @@ class CrmClienteController extends Controller
             'fuente' => 'nullable|string',
         ]);
 
-        $validated['tenant_id'] = 1; // Forzamos el tenant 1 para que no falle
-
+        $validated['tenant_id'] = 1;
         $cliente = CrmCliente::create($validated);
 
         return response()->json(['success' => true, 'data' => $cliente, 'message' => 'Cliente creado'], 201);
+    }
+
+    public function importar()
+    {
+        $path = storage_path('app/clientes.csv');
+        
+        if (!file_exists($path)) {
+            return response()->json(['success' => false, 'message' => 'Archivo CSV no encontrado'], 404);
+        }
+
+        $file = fopen($path, 'r');
+        fgetcsv($file); // Saltar cabeceras
+        $count = 0;
+
+        while ($row = fgetcsv($file)) {
+            CrmCliente::create([
+                'tenant_id' => 1,
+                'nombre' => $row[0],
+                'telefono' => $row[1],
+                'email' => $row[2],
+                'fuente' => $row[3] ?? 'importacion',
+            ]);
+            $count++;
+        }
+        fclose($file);
+
+        return response()->json(['success' => true, 'message' => "Se importaron $count clientes correctamente"], 200);
     }
 
     public function show($id)
