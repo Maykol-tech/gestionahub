@@ -1,0 +1,20 @@
+services:
+  app:
+    build:
+      args:
+        INSTALL_DEV: "true"
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      PHP_OPCACHE_VALIDATE_TIMESTAMPS: "1"
+    volumes:
+      - .:/var/www/html
+      - storage_app:/var/www/html/storage/app
+  queue:
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      PHP_OPCACHE_VALIDATE_TIMESTAMPS: "1"
+    volumes:
+      - .:/var/www/html
+      - storage_app:/var/www/html/storage/app
