@@ -12,8 +12,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
 ->withMiddleware(function (Middleware $middleware) {
+    $middleware->redirectUsersTo('/admin');
     $middleware->alias([
         'tenant.active' => \App\Http\Middleware\EnsureTenantActive::class,
+        'modulo.permitido' => \App\Http\Middleware\EnsureModuloPermitido::class,
+        'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
     ]);
 })
     ->withExceptions(function (Exceptions $exceptions): void {

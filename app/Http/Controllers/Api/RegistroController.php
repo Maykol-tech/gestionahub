@@ -41,7 +41,9 @@ class RegistroController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        // Aquí a futuro se asignará el rol de 'admin' usando Spatie (lo haremos en la GEST-11)
+        // Rol de administrador del negocio (Spatie)
+        \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+        $user->assignRole('admin');
 
         return response()->json([
             'success' => true,

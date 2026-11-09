@@ -1,0 +1,2 @@
+# Agregar al final de tu .env (y tambien en .env.example)
+STOCK_ALERTA_TELEFONO=51999999999

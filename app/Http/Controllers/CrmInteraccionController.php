@@ -14,7 +14,10 @@ class CrmInteraccionController extends Controller
             'detalle' => 'required|string',
         ]);
 
-        $validated['tenant_id'] = 1;
+        // El cliente debe ser del mismo negocio que el usuario (404 si no lo es)
+        \App\Models\CrmCliente::findOrFail($cliente_id);
+
+        $validated['tenant_id'] = $request->user()->tenant_id;
         $validated['cliente_id'] = $cliente_id;
 
         $interaccion = CrmInteraccion::create($validated);
@@ -24,6 +27,7 @@ class CrmInteraccionController extends Controller
 
     public function index($cliente_id)
     {
+        \App\Models\CrmCliente::findOrFail($cliente_id);
         $interacciones = CrmInteraccion::where('cliente_id', $cliente_id)->orderBy('created_at', 'desc')->get();
         return response()->json($interacciones, 200);
     }
