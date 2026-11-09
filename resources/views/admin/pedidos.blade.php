@@ -9,7 +9,7 @@
 @section('acciones')
     <div class="search">
         <x-icon name="search" size="15" />
-        <input class="inp" placeholder="Buscar pedido o cliente…" x-data x-model="$store.pedidos.buscar">
+        <input class="inp" placeholder="Buscar pedido o clienteâ€¦" x-data x-model="$store.pedidos.buscar">
     </div>
     <div class="vseg" x-data>
         <button type="button" :class="{ on: $store.pedidos.vista === 'tablero' }" @click="$store.pedidos.vista = 'tablero'" title="Tablero"><x-icon name="grid" size="15" /></button>
@@ -41,7 +41,7 @@
             <div class="stat fade-in" style="animation-delay:.2s">
                 <div class="stat-lbl">Ventas de hoy <span class="stat-ico" style="background:var(--ctl);color:var(--cta)"><x-icon name="cash" size="14" /></span></div>
                 <div class="stat-val" x-text="gh.soles(totalDe(deHoy()))"></div>
-                <div class="stat-ch neutral" x-text="deHoy().length + ' pedidos · ' + deHoy().filter(p => !p.pagado).length + ' por cobrar'"></div>
+                <div class="stat-ch neutral" x-text="deHoy().length + ' pedidos Â· ' + deHoy().filter(p => !p.pagado).length + ' por cobrar'"></div>
             </div>
         </div>
 
@@ -73,12 +73,12 @@
                                 <div class="kc-cli" x-text="p.cliente"></div>
                                 <div class="kc-meta">
                                     <span x-text="p.hace"></span>
-                                    <span x-text="'· ' + p.items + (p.items === 1 ? ' producto' : ' productos')"></span>
-                                    <template x-if="p.tipo === 'delivery' && (p.distrito || p.direccion)"><span x-text="'· ' + (p.distrito || p.direccion)"></span></template>
+                                    <span x-text="'Â· ' + p.items + (p.items === 1 ? ' producto' : ' productos')"></span>
+                                    <template x-if="p.tipo === 'delivery' && (p.distrito || p.direccion)"><span x-text="'Â· ' + (p.distrito || p.direccion)"></span></template>
                                 </div>
                                 <div class="kc-foot">
                                     <span class="kc-tag" :class="'tipo-' + p.tipo" x-text="tipoTexto(p.tipo)"></span>
-                                    <span class="kc-tag" :class="{ 'kc-pag': p.pagado }" x-text="pagoTexto(p.metodo_pago) + (p.pagado ? ' · pagado' : '')"></span>
+                                    <span class="kc-tag" :class="{ 'kc-pag': p.pagado }" x-text="pagoTexto(p.metodo_pago) + (p.pagado ? ' Â· pagado' : '')"></span>
                                     <button class="kc-next" x-show="siguiente(p)" @click.stop="mover(p, siguiente(p))" :title="'Mover a ' + tituloDe(siguiente(p))">
                                         <span x-text="tituloDe(siguiente(p))"></span> <x-icon name="arrow-right" size="12" stroke="2.2" />
                                     </button>
@@ -144,7 +144,7 @@
                 <div style="font-weight:600;color:var(--fg2);">No hay pedidos con este filtro</div>
             </div>
             <div class="panel-ft" x-show="enLista.length > porPagina">
-                <span x-text="'Mostrando ' + ((pagina - 1) * porPagina + 1) + '–' + Math.min(pagina * porPagina, enLista.length) + ' de ' + enLista.length"></span>
+                <span x-text="'Mostrando ' + ((pagina - 1) * porPagina + 1) + 'â€“' + Math.min(pagina * porPagina, enLista.length) + ' de ' + enLista.length"></span>
                 <div class="pager">
                     <button @click="pagina--" :disabled="pagina === 1" aria-label="Anterior"><x-icon name="chev-l" size="14" /></button>
                     <span style="font-size:12px;padding:0 8px;" x-text="pagina + ' / ' + paginas"></span>

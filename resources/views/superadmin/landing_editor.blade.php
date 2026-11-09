@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Editor de la landing · GestionaHub</title>
+    <title>Editor de la landing Â· GestionaHub</title>
     <style>
         :root { --brand:#2B6EF6; --fg:#1A2332; --fg2:#475569; --fg3:#64748B; --border:#E2E8F0; --bg:#F6F8FB; --card:#fff; }
         @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --fg:#E2E8F0; --fg2:#94A3B8; --fg3:#64748B; --border:#1E293B; --bg:#0B1220; --card:#111A2B; } }
@@ -91,7 +91,7 @@
                 @forelse ($leads as $l)
                     <tr>
                         <td>{{ $l->nombre }}<div style="font-size:11px;color:var(--fg3);">{{ $l->created_at?->format('d/m/Y H:i') }}</div></td>
-                        <td>{{ $l->email ?: '—' }}<div style="font-size:11px;color:var(--fg3);">{{ $l->telefono }}</div></td>
+                        <td>{{ $l->email ?: 'â€”' }}<div style="font-size:11px;color:var(--fg3);">{{ $l->telefono }}</div></td>
                         <td>{{ $l->fuente }}@if (!empty($l->utm['utm_source'])) <div style="font-size:11px;color:var(--fg3);">{{ $l->utm['utm_source'] }} / {{ $l->utm['utm_campaign'] ?? '' }}</div>@endif</td>
                         <td>
                             <form method="POST" action="{{ route('superadmin.landing.lead', $l->id) }}">

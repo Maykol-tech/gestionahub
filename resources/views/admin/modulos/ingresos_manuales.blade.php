@@ -54,10 +54,10 @@
                     <tr class="row-in">
                         <td>{{ $i->fecha->format('d/m/Y') }}</td>
                         <td>{{ $i->concepto }}@if($i->notas)<div style="font-size:12px;color:var(--fg3);">{{ $i->notas }}</div>@endif</td>
-                        <td>{{ $i->categoria ?? '—' }}</td>
+                        <td>{{ $i->categoria ?? 'â€”' }}</td>
                         <td style="text-align:right;">S/ {{ number_format((float) $i->monto, 2) }}</td>
                         <td style="text-align:right;">
-                            <form method="POST" action="{{ route('admin.ingresos.eliminar', $i->id) }}" onsubmit="return confirm('¿Eliminar este ingreso?')">
+                            <form method="POST" action="{{ route('admin.ingresos.eliminar', $i->id) }}" onsubmit="return confirm('Â¿Eliminar este ingreso?')">
                                 @csrf
                                 @method('DELETE')
                                 <button class="btn btn-g" type="submit">Eliminar</button>

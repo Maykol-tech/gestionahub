@@ -92,7 +92,7 @@
                             <td>{{ $c->nombre }}<div style="font-size:11px;color:var(--fg3);">{{ $c->plantilla ? 'Plantilla: ' . $c->plantilla : 'Texto libre' }}</div></td>
                             <td>{{ \App\Models\CampanaWhatsapp::SEGMENTOS[$c->segmento] ?? $c->segmento }}</td>
                             <td>{{ $c->programada_para?->format('d/m/Y H:i') ?? 'Sin programar' }}</td>
-                            <td class="num">{{ $c->enviados }} @if ($c->fallidos)<span style="color:#B91C1C;">· {{ $c->fallidos }} fallidos</span>@endif</td>
+                            <td class="num">{{ $c->enviados }} @if ($c->fallidos)<span style="color:#B91C1C;">Â· {{ $c->fallidos }} fallidos</span>@endif</td>
                             <td><span class="estado-camp {{ $c->estado }}">{{ ucfirst($c->estado) }}</span></td>
                             <td>
                                 @if (in_array($c->estado, ['borrador', 'programada']))

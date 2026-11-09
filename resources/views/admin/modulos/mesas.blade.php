@@ -32,7 +32,7 @@
             @csrf
             <div>
                 <label class="lbl" for="nombre">Nombre de la mesa</label>
-                <input class="inp" id="nombre" name="nombre" maxlength="40" placeholder="Mesa 1, Terraza 3…" required>
+                <input class="inp" id="nombre" name="nombre" maxlength="40" placeholder="Mesa 1, Terraza 3â€¦" required>
             </div>
             <div>
                 <label class="lbl" for="capacidad">Capacidad</label>
@@ -46,7 +46,7 @@
         @forelse ($mesas as $mesa)
             <div class="panel mesa-card fade-in">
                 <div style="font-weight:700;font-size:16px;">{{ $mesa->nombre }}</div>
-                <div style="font-size:12px;color:var(--fg3);margin-bottom:8px;">{{ $mesa->capacidad }} personas · {{ $mesa->abiertas }} comandas abiertas</div>
+                <div style="font-size:12px;color:var(--fg3);margin-bottom:8px;">{{ $mesa->capacidad }} personas Â· {{ $mesa->abiertas }} comandas abiertas</div>
                 <span class="estado-mesa {{ $mesa->estado }}">{{ \App\Models\Mesa::ESTADOS[$mesa->estado] ?? $mesa->estado }}</span>
 
                 <div style="margin:12px 0;">

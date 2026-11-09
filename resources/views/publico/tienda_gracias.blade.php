@@ -21,11 +21,11 @@
 <body>
 <div class="wrap">
     <div class="card">
-        <h1>¡Gracias, {{ $negocio->nombre_negocio }} recibió tu pedido!</h1>
+        <h1>Â¡Gracias, {{ $negocio->nombre_negocio }} recibió tu pedido!</h1>
         <div style="color:var(--fg2);font-size:14px;">Código de pedido: <b>{{ $pedido->numero }}</b></div>
         <table>
             @foreach ($pedido->items as $item)
-                <tr><td>{{ $item->cantidad }} × {{ $item->nombre }}</td><td class="r">S/ {{ number_format((float) $item->subtotal, 2) }}</td></tr>
+                <tr><td>{{ $item->cantidad }} Ã— {{ $item->nombre }}</td><td class="r">S/ {{ number_format((float) $item->subtotal, 2) }}</td></tr>
             @endforeach
             @if ((float) $pedido->costo_envio > 0)
                 <tr><td>Envío</td><td class="r">S/ {{ number_format((float) $pedido->costo_envio, 2) }}</td></tr>

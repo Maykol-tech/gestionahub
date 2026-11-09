@@ -58,7 +58,7 @@
             <button type="submit" class="btn btn-p" :disabled="guardando">
                 <x-icon name="loader" size="15" class="spin" x-show="guardando" />
                 <x-icon name="check" size="15" stroke="2.4" x-show="!guardando" />
-                <span x-text="guardando ? 'Guardando…' : 'Guardar cambios'"></span>
+                <span x-text="guardando ? 'Guardandoâ€¦' : 'Guardar cambios'"></span>
             </button>
         </div>
     </form>
@@ -78,7 +78,7 @@
                 <div class="prev-card"></div><div class="prev-card" style="width:80%"></div><div class="prev-card" style="width:60%"></div>
             </div>
         </div>
-        <div class="hint" style="margin-top:8px;">Los cambios de color se ven en todo el panel al instante. Se guardan al presionar «Guardar cambios».</div>
+        <div class="hint" style="margin-top:8px;">Los cambios de color se ven en todo el panel al instante. Se guardan al presionar Â«Guardar cambiosÂ».</div>
     </div>
 </div>
 @endsection

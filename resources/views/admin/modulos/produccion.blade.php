@@ -71,7 +71,7 @@
                                 <div style="font-size:11px;color:var(--fg3);" x-text="recetaNombre(l.receta_id)"></div>
                             </td>
                             <td class="num" x-text="formato(l.cantidad) + ' und'"></td>
-                            <td class="num" x-text="l.costo_total !== null ? money(l.costo_total) : '—'"></td>
+                            <td class="num" x-text="l.costo_total !== null ? money(l.costo_total) : 'â€”'"></td>
                             <td>
                                 <select class="inp estado-sel"
                                         :style="'background:' + estados[l.estado].fondo + ';color:' + estados[l.estado].color"
@@ -238,7 +238,7 @@
             </div>
             <div class="modal-ft">
                 <button type="button" class="btn btn-g" @click="cerrar()">Cancelar</button>
-                <button type="submit" class="btn btn-p" :disabled="guardando" x-text="guardando ? 'Guardando…' : 'Guardar insumo'"></button>
+                <button type="submit" class="btn btn-p" :disabled="guardando" x-text="guardando ? 'Guardandoâ€¦' : 'Guardar insumo'"></button>
             </div>
         </form>
     </div>
@@ -276,7 +276,7 @@
                     <template x-for="(it, idx) in fReceta.items" :key="idx">
                         <div class="fila-item">
                             <select class="inp" x-model="it.insumo_id" aria-label="Insumo">
-                                <option value="">Elige un insumo…</option>
+                                <option value="">Elige un insumoâ€¦</option>
                                 <template x-for="s in insumos" :key="s.id"><option :value="s.id" x-text="s.nombre + ' (' + s.unidad + ')'"></option></template>
                             </select>
                             <input class="inp" type="number" min="0.001" step="0.001" x-model.number="it.cantidad" aria-label="Cantidad">
@@ -298,7 +298,7 @@
             </div>
             <div class="modal-ft">
                 <button type="button" class="btn btn-g" @click="cerrar()">Cancelar</button>
-                <button type="submit" class="btn btn-p" :disabled="guardando" x-text="guardando ? 'Guardando…' : 'Guardar receta'"></button>
+                <button type="submit" class="btn btn-p" :disabled="guardando" x-text="guardando ? 'Guardandoâ€¦' : 'Guardar receta'"></button>
             </div>
         </form>
     </div>
@@ -348,7 +348,7 @@
             </div>
             <div class="modal-ft">
                 <button type="button" class="btn btn-g" @click="cerrar()">Cancelar</button>
-                <button type="submit" class="btn btn-p" :disabled="guardando" x-text="guardando ? 'Guardando…' : 'Programar lote'"></button>
+                <button type="submit" class="btn btn-p" :disabled="guardando" x-text="guardando ? 'Guardandoâ€¦' : 'Programar lote'"></button>
             </div>
         </form>
     </div>
@@ -427,7 +427,7 @@
 
             async cambiarEstado(l, estado) {
                 if (estado === l.estado) return;
-                if (estado === 'terminada' && !confirm('Al terminar el lote se descontarán sus insumos del stock. ¿Continuar?')) {
+                if (estado === 'terminada' && !confirm('Al terminar el lote se descontarán sus insumos del stock. Â¿Continuar?')) {
                     gh.ir(location.pathname, false); return;
                 }
                 const r = await gh.api(urls.lotes + '/' + l.id + '/estado', { method: 'PATCH', body: { estado } });
@@ -437,7 +437,7 @@
 
             async eliminar(tipo, item) {
                 const nombre = item.nombre || item.titulo;
-                if (!confirm('¿Eliminar «' + nombre + '»?')) return;
+                if (!confirm('Â¿Eliminar Â«' + nombre + 'Â»?')) return;
                 const r = await gh.api(urls[tipo] + '/' + item.id, { method: 'DELETE' });
                 if (r.ok) { Alpine.store('toasts').push(r.data.message); gh.ir(location.pathname, false); }
                 else { Alpine.store('toasts').push(r.data.message || 'No se pudo eliminar.', 'error'); }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Reseñas · {{ $negocio->nombre_negocio }}</title>
+    <title>Reseñas Â· {{ $negocio->nombre_negocio }}</title>
     <style>
         :root { --brand:#2B6EF6; --fg:#1A2332; --fg2:#475569; --fg3:#64748B; --border:#E2E8F0; --bg:#F6F8FB; --card:#fff; --star:#F59E0B; }
         @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --fg:#E2E8F0; --fg2:#94A3B8; --fg3:#64748B; --border:#1E293B; --bg:#0B1220; --card:#111A2B; } }
@@ -29,7 +29,7 @@
     <div class="card">
         <h1>{{ $negocio->nombre_negocio }}</h1>
         @if ($promedio)
-            <div class="promedio"><span class="estrellas">{{ str_repeat('★', (int) round($promedio)) }}</span> {{ $promedio }} de 5 · {{ $resenas->count() }} reseñas</div>
+            <div class="promedio"><span class="estrellas">{{ str_repeat('â˜…', (int) round($promedio)) }}</span> {{ $promedio }} de 5 Â· {{ $resenas->count() }} reseñas</div>
         @else
             <div class="promedio">Todavía no hay reseñas publicadas.</div>
         @endif
@@ -41,7 +41,7 @@
         <div class="card">
             <div class="resena-hd">
                 <strong>{{ $r->cliente_nombre }}</strong>
-                <span class="estrellas">{{ str_repeat('★', $r->calificacion) }}{{ str_repeat('☆', 5 - $r->calificacion) }}</span>
+                <span class="estrellas">{{ str_repeat('â˜…', $r->calificacion) }}{{ str_repeat('â˜†', 5 - $r->calificacion) }}</span>
             </div>
             @if ($r->comentario)<p class="comentario">{{ $r->comentario }}</p>@endif
         </div>

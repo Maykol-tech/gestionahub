@@ -21,7 +21,7 @@
         <div class="sec-ttl" style="margin:0;">Planes disponibles</div>
         <div class="seg">
             <a href="#" :class="{ on: ciclo === 'mensual' }" @click.prevent="ciclo = 'mensual'">Mensual</a>
-            <a href="#" :class="{ on: ciclo === 'anual' }" @click.prevent="ciclo = 'anual'">Anual · 2 meses gratis</a>
+            <a href="#" :class="{ on: ciclo === 'anual' }" @click.prevent="ciclo = 'anual'">Anual Â· 2 meses gratis</a>
         </div>
     </div>
 

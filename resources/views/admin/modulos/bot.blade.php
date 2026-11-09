@@ -51,7 +51,7 @@
             <button type="submit" class="btn btn-p" :disabled="guardando">
                 <x-icon name="loader" size="15" class="spin" x-show="guardando" />
                 <x-icon name="check" size="15" stroke="2.4" x-show="!guardando" />
-                <span x-text="guardando ? 'Guardando…' : 'Guardar configuración'"></span>
+                <span x-text="guardando ? 'Guardandoâ€¦' : 'Guardar configuración'"></span>
             </button>
         </div>
     </form>
@@ -67,7 +67,7 @@
                 </div>
             </div>
             <div class="wa-bd">
-                <div class="wa-msg wa-in">Hola, ¿tienen delivery?</div>
+                <div class="wa-msg wa-in">Hola, Â¿tienen delivery?</div>
                 <div class="wa-msg wa-out" x-text="form.bot_bienvenida || 'Escribe tu mensaje de bienvenida'"></div>
                 <div class="wa-msg wa-out wa-menu">
                     1. Ver la carta ({{ $productos }} {{ $productos === 1 ? 'producto' : 'productos' }})<br>

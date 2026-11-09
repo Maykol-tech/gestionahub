@@ -27,7 +27,7 @@
                         <th>Cliente</th>
                         <th class="num">Pedidos</th>
                         <th class="num">Total comprado</th>
-                        <th>Última compra</th>
+                        <th>Ãšltima compra</th>
                     </tr>
                 </thead>
                 <tbody>

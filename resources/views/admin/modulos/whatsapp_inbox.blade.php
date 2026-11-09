@@ -42,8 +42,8 @@
                 <a class="fila-conv {{ $telefono === $s->telefono ? 'activa' : '' }}" href="{{ route('admin.whatsapp.inbox', ['telefono' => $s->telefono]) }}">
                     <div>{{ $s->telefono }}</div>
                     <div style="font-size:11px;color:var(--fg3);">
-                        {{ $s->ultimo_mensaje_at?->diffForHumans() }} · {{ $s->mensajes }} mensajes
-                        @if ($s->activa)<span class="chip-activa">· activa</span>@endif
+                        {{ $s->ultimo_mensaje_at?->diffForHumans() }} Â· {{ $s->mensajes }} mensajes
+                        @if ($s->activa)<span class="chip-activa">Â· activa</span>@endif
                     </div>
                 </a>
             @empty
@@ -58,7 +58,7 @@
                     @forelse ($hilo as $m)
                         <div class="chat-msg {{ $m->direccion === 'entrante' ? 'chat-in' : ($m->estado === 'fallido' ? 'chat-fallido' : 'chat-out') }}">
                             {{ $m->texto }}
-                            <div style="font-size:10px;color:var(--fg3);margin-top:4px;">{{ $m->created_at?->format('d/m H:i') }} · {{ $m->tipo }}</div>
+                            <div style="font-size:10px;color:var(--fg3);margin-top:4px;">{{ $m->created_at?->format('d/m H:i') }} Â· {{ $m->tipo }}</div>
                         </div>
                     @empty
                         <div style="font-size:13px;color:var(--fg3);">Sin mensajes.</div>

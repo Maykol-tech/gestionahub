@@ -60,7 +60,7 @@
 
     <section class="carrito" x-show="total_items() > 0" x-cloak>
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
-            <b x-text="total_items() + ' productos · S/ ' + total().toFixed(2)"></b>
+            <b x-text="total_items() + ' productos Â· S/ ' + total().toFixed(2)"></b>
             <button class="btn" type="button" @click="paso = 2">Continuar</button>
         </div>
 

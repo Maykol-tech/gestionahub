@@ -66,7 +66,7 @@
         @forelse ($pedidosPendientes as $p)
             <form method="POST" action="{{ route('admin.comprobantes.emitir', $p->id) }}" class="grid-2" style="padding:10px 0;border-top:1px dashed var(--border);">
                 @csrf
-                <div style="grid-column:1 / -1;font-weight:600;">Pedido {{ $p->numero }} · S/ {{ number_format($p->total, 2) }}</div>
+                <div style="grid-column:1 / -1;font-weight:600;">Pedido {{ $p->numero }} Â· S/ {{ number_format($p->total, 2) }}</div>
                 <div>
                     <select class="inp" name="tipo" required>
                         <option value="03">Boleta</option>

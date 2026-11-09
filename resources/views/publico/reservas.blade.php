@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Reserva de cita · {{ $negocio }}</title>
+    <title>Reserva de cita Â· {{ $negocio }}</title>
     <style>
         :root { --brand:#2B6EF6; --fg:#1A2332; --fg2:#475569; --fg3:#64748B; --border:#E2E8F0; --bg:#F6F8FB; }
         @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --fg:#E2E8F0; --fg2:#94A3B8; --fg3:#64748B; --border:#1E293B; --bg:#0B1220; } }
@@ -33,7 +33,7 @@
         <h1>Reserva tu cita</h1>
         <div class="sub">{{ $negocio }}</div>
 
-        <span class="estado {{ $abierto ? 'abierto' : 'cerrado' }}">{{ $abierto ? 'Abierto ahora' : 'Cerrado ahora · puedes reservar igual' }}</span>
+        <span class="estado {{ $abierto ? 'abierto' : 'cerrado' }}">{{ $abierto ? 'Abierto ahora' : 'Cerrado ahora Â· puedes reservar igual' }}</span>
 
         @if ($enviada)
             <div class="ok">Recibimos tu reserva. Te confirmaremos por WhatsApp.</div>
@@ -47,7 +47,7 @@
                 <label for="servicio">Servicio</label>
                 <select id="servicio" name="servicio_id" required>
                     @foreach ($servicios as $s)
-                        <option value="{{ $s->id }}" @selected(old('servicio_id') == $s->id)>{{ $s->nombre }} · S/ {{ number_format($s->precio, 2) }} · {{ $s->duracion_min }} min</option>
+                        <option value="{{ $s->id }}" @selected(old('servicio_id') == $s->id)>{{ $s->nombre }} Â· S/ {{ number_format($s->precio, 2) }} Â· {{ $s->duracion_min }} min</option>
                     @endforeach
                 </select>
                 @error('servicio_id') <div class="err">{{ $message }}</div> @enderror

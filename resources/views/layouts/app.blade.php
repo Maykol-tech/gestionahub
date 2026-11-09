@@ -85,7 +85,7 @@
             return { ok: res.ok, status: res.status, data };
         },
         soles(n) { return 'S/ ' + Number(n || 0).toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); },
-        norm(t) { return String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); },
+        norm(t) { return String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(); },
         badgePedidos(n) {
             const b = document.querySelector('[data-badge="pedidos"]');
             if (b) { b.textContent = n; b.style.display = n > 0 ? '' : 'none'; }
@@ -94,7 +94,7 @@
         csv(nombre, filas) {
             const txt = filas.map(f => f.map(v => '"' + String(v ?? '').replace(/"/g, '""') + '"').join(';')).join('\r\n');
             const a = document.createElement('a');
-            a.href = URL.createObjectURL(new Blob(['﻿' + txt], { type: 'text/csv;charset=utf-8' }));
+            a.href = URL.createObjectURL(new Blob(['\uFEFF' + txt], { type: 'text/csv;charset=utf-8' }));
             a.download = nombre; a.click();
             setTimeout(() => URL.revokeObjectURL(a.href), 1000);
         },
@@ -113,6 +113,19 @@
         });
     });
 </script>
+
+<style>
+    /* ELIMINAR CAMPANA FLOTANTE DEFINITIVAMENTE */
+    div[style*="position: fixed"][style*="bottom"],
+    button[style*="position: fixed"][style*="bottom"],
+    .floating-notification, .notification-bell, .fab, .fixed-bottom, .floating-btn, .fixed-bottom-left {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        z-index: -9999 !important;
+    }
+    body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+</style>
 </head>
 <body x-data="{ navOpen: false }" @gh-navegando.window="navOpen = false">
 <div id="gh-progress"></div>
@@ -233,8 +246,6 @@
     </template>
 </div>
 
-@include('admin.partials.campana')
-
 <script>
     // ===== Navegacion instantanea (sin recargar la pagina) =====
     // Al pasar el mouse sobre un enlace se pide la pagina por adelantado;
@@ -328,5 +339,6 @@
         document.body.appendChild(s);
     })();
 </script>
+
 </body>
 </html>

@@ -35,7 +35,7 @@
             <div class="panel kpi fade-in"><div class="n">S/ {{ number_format($datos['actual'], 2) }}</div><div class="l">Mes actual ({{ $datos['periodo_actual'] }})</div></div>
             <div class="panel kpi fade-in"><div class="n">S/ {{ number_format($datos['anterior'], 2) }}</div><div class="l">Mes anterior ({{ $datos['periodo_anterior'] }})</div></div>
             <div class="panel kpi fade-in">
-                <div class="n {{ ($datos['variacion'] ?? 0) >= 0 ? 'pos' : 'neg' }}">{{ $datos['variacion'] === null ? '—' : ($datos['variacion'] > 0 ? '+' : '') . $datos['variacion'] . '%' }}</div>
+                <div class="n {{ ($datos['variacion'] ?? 0) >= 0 ? 'pos' : 'neg' }}">{{ $datos['variacion'] === null ? 'â€”' : ($datos['variacion'] > 0 ? '+' : '') . $datos['variacion'] . '%' }}</div>
                 <div class="l">Variación frente al mes anterior</div>
             </div>
         </div>
@@ -63,7 +63,7 @@
                                 <td class="num">S/ {{ number_format($f['ingresos'], 2) }}</td>
                                 <td class="num">S/ {{ number_format($f['gastos'], 2) }}</td>
                                 <td class="num {{ $f['utilidad'] >= 0 ? 'pos' : 'neg' }}">S/ {{ number_format($f['utilidad'], 2) }}</td>
-                                <td class="num">{{ $f['margen'] === null ? '—' : $f['margen'] . '%' }}</td>
+                                <td class="num">{{ $f['margen'] === null ? 'â€”' : $f['margen'] . '%' }}</td>
                                 <td>
                                     <div class="barra-bg"><div class="barra" style="width: {{ round($f['ingresos'] / $maximo * 100) }}%"></div></div>
                                     <div class="barra-bg" style="margin-top:4px;"><div class="barra" style="width: {{ round($f['gastos'] / $maximo * 100) }}%;background:#F59E0B;"></div></div>
@@ -85,8 +85,8 @@
 
         <div class="kpis">
             <div class="panel kpi fade-in"><div class="n">{{ $datos['entregas'] }}</div><div class="l">Entregas</div></div>
-            <div class="panel kpi fade-in"><div class="n">{{ $datos['asignado_a_entrega'] ?? '—' }} min</div><div class="l">Promedio desde asignación</div></div>
-            <div class="panel kpi fade-in"><div class="n">{{ $datos['confirmado_a_entrega'] ?? '—' }} min</div><div class="l">Promedio desde confirmación</div></div>
+            <div class="panel kpi fade-in"><div class="n">{{ $datos['asignado_a_entrega'] ?? 'â€”' }} min</div><div class="l">Promedio desde asignación</div></div>
+            <div class="panel kpi fade-in"><div class="n">{{ $datos['confirmado_a_entrega'] ?? 'â€”' }} min</div><div class="l">Promedio desde confirmación</div></div>
         </div>
 
         <div class="panel fade-in" style="padding:0;">
@@ -105,8 +105,8 @@
                             <tr>
                                 <td>{{ $r['nombre'] }}</td>
                                 <td class="num">{{ $r['entregas'] }}</td>
-                                <td class="num">{{ $r['asignado_a_entrega'] ?? '—' }}</td>
-                                <td class="num">{{ $r['confirmado_a_entrega'] ?? '—' }}</td>
+                                <td class="num">{{ $r['asignado_a_entrega'] ?? 'â€”' }}</td>
+                                <td class="num">{{ $r['confirmado_a_entrega'] ?? 'â€”' }}</td>
                             </tr>
                         @endforeach
                     </tbody>

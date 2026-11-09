@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('titulo', 'Reportes')
-@section('subtitulo', $desdeTexto . ' – ' . $hastaTexto)
+@section('subtitulo', $desdeTexto . ' â€“ ' . $hastaTexto)
 
 @section('acciones')
     <div class="seg" role="tablist" aria-label="Periodo">
@@ -47,10 +47,10 @@
         <div class="panel-hd">
             <div>
                 <div class="panel-ttl">{{ $rango === 90 ? 'Ventas por semana' : 'Ventas por día' }}</div>
-                <div class="panel-sub">Últimos {{ $rango }} días</div>
+                <div class="panel-sub">Ãšltimos {{ $rango }} días</div>
             </div>
             <div style="margin-left:auto;font-size:12px;color:var(--fg3);" x-show="sel !== null" x-cloak>
-                <span x-text="sel !== null ? serie[sel].detalle : ''"></span> ·
+                <span x-text="sel !== null ? serie[sel].detalle : ''"></span> Â·
                 <strong style="color:var(--fg);" x-text="sel !== null ? gh.soles(serie[sel].monto) : ''"></strong>
             </div>
         </div>
@@ -86,7 +86,7 @@
                             <span style="font-weight:600;">{{ $f['texto'] }}</span>
                             <span style="font-weight:700;font-variant-numeric:tabular-nums;">S/ {{ number_format($f['monto'], 2) }}</span>
                         </div>
-                        <div style="font-size:11px;color:var(--fg3);">{{ $f['cantidad'] }} {{ $f['cantidad'] === 1 ? 'pedido' : 'pedidos' }} · {{ $ventas > 0 ? round($f['monto'] * 100 / $ventas) : 0 }}%</div>
+                        <div style="font-size:11px;color:var(--fg3);">{{ $f['cantidad'] }} {{ $f['cantidad'] === 1 ? 'pedido' : 'pedidos' }} Â· {{ $ventas > 0 ? round($f['monto'] * 100 / $ventas) : 0 }}%</div>
                         <div class="hbar"><span style="width:{{ $ventas > 0 ? round($f['monto'] * 100 / $ventas) : 0 }}%"></span></div>
                     </div>
                 @empty

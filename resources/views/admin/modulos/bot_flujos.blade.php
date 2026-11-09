@@ -36,11 +36,11 @@
             </div>
             <div class="field" style="grid-column:1 / -1;">
                 <label class="lbl" for="w-token">Token de acceso {{ $conexion && $conexion['tiene_token'] ? '(ya guardado; escribe uno nuevo solo si cambia)' : '*' }}</label>
-                <input class="inp" id="w-token" type="password" autocomplete="off" maxlength="600" x-model="conexion.token" :class="{ err: errores.token }" placeholder="{{ $conexion && $conexion['tiene_token'] ? '••••••••' : 'EAAG…' }}">
+                <input class="inp" id="w-token" type="password" autocomplete="off" maxlength="600" x-model="conexion.token" :class="{ err: errores.token }" placeholder="{{ $conexion && $conexion['tiene_token'] ? 'â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢' : 'EAAGâ€¦' }}">
                 <div class="ferr" x-show="errores.token" x-text="errores.token ? errores.token[0] : ''"></div>
             </div>
             <div style="grid-column:1 / -1;">
-                <button class="btn btn-p" type="submit" :disabled="guardandoConexion" x-text="guardandoConexion ? 'Guardando…' : 'Guardar número'"></button>
+                <button class="btn btn-p" type="submit" :disabled="guardandoConexion" x-text="guardandoConexion ? 'Guardandoâ€¦' : 'Guardar número'"></button>
             </div>
         </form>
     </div>
@@ -105,7 +105,7 @@
         <div class="empty" x-show="!flujos.length" x-cloak>
             <x-icon name="activity" size="34" />
             <div style="font-weight:600;color:var(--fg2);">Aún no hay flujos</div>
-            <div style="font-size:13px;color:var(--fg3);max-width:440px;text-align:center;">Crea uno, por ejemplo: si el cliente escribe «horario», el bot responde con tus horas de atención.</div>
+            <div style="font-size:13px;color:var(--fg3);max-width:440px;text-align:center;">Crea uno, por ejemplo: si el cliente escribe Â«horarioÂ», el bot responde con tus horas de atención.</div>
         </div>
     </div>
 
@@ -159,7 +159,7 @@
             </div>
             <div class="modal-ft">
                 <button type="button" class="btn btn-g" @click="modal = null">Cancelar</button>
-                <button type="submit" class="btn btn-p" :disabled="guardando" x-text="guardando ? 'Guardando…' : 'Guardar flujo'"></button>
+                <button type="submit" class="btn btn-p" :disabled="guardando" x-text="guardando ? 'Guardandoâ€¦' : 'Guardar flujo'"></button>
             </div>
         </form>
     </div>
@@ -213,7 +213,7 @@
             },
 
             async eliminar(x) {
-                if (!confirm('¿Eliminar el flujo «' + x.nombre + '»?')) return;
+                if (!confirm('Â¿Eliminar el flujo Â«' + x.nombre + 'Â»?')) return;
                 const r = await gh.api(base + '/' + x.id, { method: 'DELETE' });
                 if (r.ok) { Alpine.store('toasts').push(r.data.message); gh.ir(location.pathname, false); }
                 else { Alpine.store('toasts').push(r.data.message || 'No se pudo eliminar el flujo.', 'error'); }

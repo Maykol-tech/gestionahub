@@ -12,7 +12,7 @@
             <div class="stat-lbl">Ventas hoy</div>
             <div class="stat-val">S/ {{ number_format($datos['ventas_hoy'], 2) }}</div>
             <div class="stat-ch {{ $datos['ventas_variacion'] >= 0 ? 'up' : 'dn' }}">
-                {{ $datos['ventas_variacion'] >= 0 ? '↑' : '↓' }} {{ abs($datos['ventas_variacion']) }}% vs ayer
+                {{ $datos['ventas_variacion'] >= 0 ? 'â†‘' : 'â†“' }} {{ abs($datos['ventas_variacion']) }}% vs ayer
             </div>
         </div>
         <div class="stat fade-in" style="animation-delay:.08s">
@@ -23,7 +23,7 @@
         <div class="stat fade-in" style="animation-delay:.14s">
             <div class="stat-lbl">Clientes nuevos</div>
             <div class="stat-val">{{ $datos['clientes_nuevos'] }}</div>
-            <div class="stat-ch up">↑ esta semana · {{ $datos['clientes_total'] }} en total</div>
+            <div class="stat-ch up">â†‘ esta semana Â· {{ $datos['clientes_total'] }} en total</div>
         </div>
         <div class="stat fade-in" style="animation-delay:.2s">
             <div class="stat-lbl">Productos activos</div>
@@ -34,7 +34,7 @@
 
     <div class="card fade-in" style="background:#F0F5FF;border-color:#C7D9F8;border-left:4px solid var(--accent);margin-bottom:16px;animation-delay:.25s">
         <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);display:flex;align-items:center;gap:6px;margin-bottom:6px;">
-            <x-icon name="sparkles" size="13" /> IA · Resumen semanal
+            <x-icon name="sparkles" size="13" /> IA Â· Resumen semanal
         </div>
         <div style="font-size:15px;font-weight:700;">
             @if ($datos['ventas_semana'] > 0)
@@ -48,7 +48,7 @@
     <div class="two">
         <div class="fade-in" style="animation-delay:.3s">
             <div class="sec-ttl" style="display:flex;justify-content:space-between;">
-                Últimos pedidos <a href="{{ route('admin.pedidos') }}" style="color:var(--accent);font-size:12px;font-weight:600;">Ver todos</a>
+                Ãšltimos pedidos <a href="{{ route('admin.pedidos') }}" style="color:var(--accent);font-size:12px;font-weight:600;">Ver todos</a>
             </div>
             <div class="card tbl-wrap" style="padding:0;">
                 @if ($ultimosPedidos->isEmpty())
@@ -73,7 +73,7 @@
 
         <div class="fade-in" style="animation-delay:.36s">
             <div class="sec-ttl" style="display:flex;justify-content:space-between;">
-                Stock bajo — alerta <a href="{{ route('admin.productos') }}" style="color:var(--accent);font-size:12px;font-weight:600;">Ver productos</a>
+                Stock bajo â€” alerta <a href="{{ route('admin.productos') }}" style="color:var(--accent);font-size:12px;font-weight:600;">Ver productos</a>
             </div>
             <div class="card tbl-wrap" style="padding:0;">
                 @if ($stockBajo->isEmpty())

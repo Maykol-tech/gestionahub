@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ingresar · GestionaHub</title>
+    <title>Ingresar Â· GestionaHub</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -75,7 +75,7 @@
                 <div class="feat"><i><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 6l-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/></svg></i> Reportes y caja del día</div>
             </div>
         </div>
-        <div class="brand-foot">© {{ date('Y') }} GestionaHub · Intelecta Lab</div>
+        <div class="brand-foot">Â© {{ date('Y') }} GestionaHub Â· Intelecta Lab</div>
     </section>
 
     <section class="side">
@@ -99,7 +99,7 @@
                 <div class="fg">
                     <label class="fl" for="password">Contraseña</label>
                     <div class="inp-w">
-                        <input class="inp {{ $errors->has('password') ? 'err' : '' }}" id="password" name="password" type="password" placeholder="••••••••" autocomplete="current-password" required style="padding-right:44px;">
+                        <input class="inp {{ $errors->has('password') ? 'err' : '' }}" id="password" name="password" type="password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" autocomplete="current-password" required style="padding-right:44px;">
                         <button type="button" class="eye" aria-label="Mostrar contraseña" onclick="const i=document.getElementById('password');i.type=i.type==='password'?'text':'password';"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
                     </div>
                     @error('password')<div class="ferr">{{ $message }}</div>@enderror
@@ -113,11 +113,11 @@
             @if (app()->environment('local'))
                 <div class="demo">
                     <b>Acceso de demostración</b><br>
-                    Correo: <b>admin@gestionahub.pe</b> · Contraseña: <b>Admin2026!</b>
+                    Correo: <b>admin@gestionahub.pe</b> Â· Contraseña: <b>Admin2026!</b>
                 </div>
             @endif
 
-            <p class="legal">Conexión segura · Tus datos están protegidos</p>
+            <p class="legal">Conexión segura Â· Tus datos están protegidos</p>
         </div>
     </section>
 </div>

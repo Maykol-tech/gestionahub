@@ -52,9 +52,9 @@
                     @foreach ($pagos as $p)
                         <tr>
                             <td>{{ $metodos[$p->metodo] ?? $p->metodo }}</td>
-                            <td>{{ $p->pedido->numero ?? '—' }}</td>
+                            <td>{{ $p->pedido->numero ?? 'â€”' }}</td>
                             <td class="num">S/ {{ number_format($p->monto, 2) }}</td>
-                            <td>{{ $p->referencia ?: '—' }}</td>
+                            <td>{{ $p->referencia ?: 'â€”' }}</td>
                             <td class="estado-p {{ $p->estado }}">{{ ucfirst($p->estado) }}</td>
                             <td>
                                 @if ($p->estado === 'pendiente')
@@ -76,7 +76,7 @@
         <div class="panel-hd"><span style="font-weight:700;">Carritos sin pagar</span></div>
         <div class="tbl-wrap" @if ($abandonados->isEmpty()) style="display:none" @endif>
             <table class="tbl">
-                <thead><tr><th>Cliente</th><th class="num">Total</th><th>Último recordatorio</th><th>Acción</th></tr></thead>
+                <thead><tr><th>Cliente</th><th class="num">Total</th><th>Ãšltimo recordatorio</th><th>Acción</th></tr></thead>
                 <tbody>
                     @foreach ($abandonados as $c)
                         <tr>

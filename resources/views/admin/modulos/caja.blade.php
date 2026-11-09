@@ -63,7 +63,7 @@
                                 </td>
                                 <td><span class="badge b-n" x-text="m.metodo_texto"></span></td>
                                 <td class="num" style="font-weight:700;" :style="m.tipo === 'egreso' ? 'color:var(--red)' : 'color:var(--green)'"
-                                    x-text="(m.tipo === 'egreso' ? '− ' : '+ ') + gh.soles(m.monto)"></td>
+                                    x-text="(m.tipo === 'egreso' ? 'âˆ’ ' : '+ ') + gh.soles(m.monto)"></td>
                             </tr>
                         </template>
                     </tbody>

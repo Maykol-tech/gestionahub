@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>GestionaHub · Gestiona tu negocio</title>
+    <title>GestionaHub Â· Gestiona tu negocio</title>
     <meta name="description" content="{{ $contenido['hero']['subtitulo'] }}">
     <style>
         :root { --brand:#2B6EF6; --fg:#1A2332; --fg2:#475569; --fg3:#64748B; --border:#E2E8F0; --bg:#F6F8FB; --card:#fff; }
@@ -56,7 +56,7 @@
     @if (auth()->user()->hasRole('superadmin'))
         <div class="superbar">
             <span>Modo superadmin</span>
-            <span><a href="{{ route('superadmin.landing') }}">Editar landing</a> · <a href="{{ url('/superadmin') }}">Panel</a></span>
+            <span><a href="{{ route('superadmin.landing') }}">Editar landing</a> Â· <a href="{{ url('/superadmin') }}">Panel</a></span>
         </div>
     @endif
 @endauth
@@ -119,7 +119,7 @@
             <input class="full" name="nombre" placeholder="Tu nombre" required maxlength="150">
             <input name="email" type="email" placeholder="Correo" maxlength="150">
             <input name="telefono" placeholder="WhatsApp" maxlength="30">
-            <textarea class="full" name="mensaje" rows="3" placeholder="¿Qué negocio tienes?" maxlength="1000"></textarea>
+            <textarea class="full" name="mensaje" rows="3" placeholder="Â¿Qué negocio tienes?" maxlength="1000"></textarea>
             <input type="hidden" name="utm_source" data-utm="utm_source">
             <input type="hidden" name="utm_medium" data-utm="utm_medium">
             <input type="hidden" name="utm_campaign" data-utm="utm_campaign">

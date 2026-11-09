@@ -39,7 +39,7 @@
         <div class="panel-hd">
             <div class="search" style="flex:1;min-width:180px;max-width:320px;">
                 <x-icon name="search" size="15" />
-                <input class="inp" placeholder="Buscar negocio o correo…" x-model="buscar" aria-label="Buscar negocio">
+                <input class="inp" placeholder="Buscar negocio o correoâ€¦" x-model="buscar" aria-label="Buscar negocio">
             </div>
             <select class="inp" style="max-width:180px;" x-model="filtroEstado" aria-label="Filtrar por estado">
                 <option value="">Todos los estados</option>
@@ -64,7 +64,7 @@
                         <tr class="row-in" :style="'--d:' + (i * 30) + 'ms'">
                             <td>
                                 <div style="font-weight:600;" x-text="n.nombre"></div>
-                                <div style="font-size:11px;color:var(--fg3);" x-text="n.email + ' · alta ' + n.alta"></div>
+                                <div style="font-size:11px;color:var(--fg3);" x-text="n.email + ' Â· alta ' + n.alta"></div>
                             </td>
                             <td x-text="n.plan"></td>
                             <td x-text="n.vence_label"></td>
@@ -148,7 +148,7 @@
                     <label class="lbl" for="s-plan">Plan</label>
                     <select class="inp" id="s-plan" x-model="ext.plan_id">
                         <option value="">Mantener el plan actual</option>
-                        <template x-for="p in planes" :key="p.id"><option :value="p.id" x-text="p.nombre + ' · S/ ' + Number(p.precio_mensual).toFixed(2)"></option></template>
+                        <template x-for="p in planes" :key="p.id"><option :value="p.id" x-text="p.nombre + ' Â· S/ ' + Number(p.precio_mensual).toFixed(2)"></option></template>
                     </select>
                 </div>
                 <p style="font-size:13px;color:var(--fg2);margin:0;">Si el negocio está suspendido, al extender se vuelve a activar.</p>
@@ -240,7 +240,7 @@
             },
 
             async cambiarEstado(n, estado) {
-                if (estado === 'suspendido' && !confirm('¿Suspender a ' + n.nombre + '? Perderá acceso al panel y a la tienda.')) return;
+                if (estado === 'suspendido' && !confirm('Â¿Suspender a ' + n.nombre + '? Perderá acceso al panel y a la tienda.')) return;
                 const r = await gh.api(urlNegocios + '/' + n.id + '/estado', { method: 'PATCH', body: { estado } });
                 if (r.ok) { Alpine.store('toasts').push(r.data.message); gh.ir(location.pathname, false); }
                 else { Alpine.store('toasts').push(r.data.message || 'No se pudo cambiar el estado.', 'error'); }

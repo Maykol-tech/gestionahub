@@ -30,7 +30,7 @@
     <div class="stat-row">
         <div class="stat fade-in"><div class="stat-lbl">Gasto real</div><div class="stat-val">S/ {{ number_format($stats['gastado'], 2) }}</div></div>
         <div class="stat fade-in" style="animation-delay:.05s"><div class="stat-lbl">Ventas atribuidas</div><div class="stat-val">S/ {{ number_format($stats['ventas'], 2) }}</div></div>
-        <div class="stat fade-in" style="animation-delay:.1s"><div class="stat-lbl">ROAS</div><div class="stat-val">{{ $stats['roas'] !== null ? number_format($stats['roas'], 2) . 'x' : '—' }}</div></div>
+        <div class="stat fade-in" style="animation-delay:.1s"><div class="stat-lbl">ROAS</div><div class="stat-val">{{ $stats['roas'] !== null ? number_format($stats['roas'], 2) . 'x' : 'â€”' }}</div></div>
         <div class="stat fade-in" style="animation-delay:.15s"><div class="stat-lbl">Alcance / conversiones</div><div class="stat-val">{{ number_format($stats['alcance']) }} / {{ number_format($stats['conversiones']) }}</div></div>
     </div>
 
@@ -38,7 +38,7 @@
         <div class="panel-hd">
             <div class="search" style="flex:1;min-width:180px;max-width:320px;">
                 <x-icon name="search" size="15" />
-                <input class="inp" placeholder="Buscar campaña…" x-model="buscar" aria-label="Buscar campaña">
+                <input class="inp" placeholder="Buscar campañaâ€¦" x-model="buscar" aria-label="Buscar campaña">
             </div>
             <button class="btn btn-p" type="button" style="margin-left:auto;" @click="abrirNueva()">
                 <x-icon name="plus" size="15" stroke="2.4" /> Nueva campaña
@@ -64,7 +64,7 @@
                         <tr class="row-in" :style="'--d:' + (i * 35) + 'ms'">
                             <td>
                                 <div style="font-weight:600;" x-text="c.nombre"></div>
-                                <span class="canal-chip" x-text="c.canal_label + ' · ' + c.objetivo_label"></span>
+                                <span class="canal-chip" x-text="c.canal_label + ' Â· ' + c.objetivo_label"></span>
                             </td>
                             <td>
                                 <span class="estado-chip" :style="'background:' + estados[c.estado].fondo + ';color:' + estados[c.estado].color" x-text="estados[c.estado].nombre"></span>
@@ -73,11 +73,11 @@
                                 <div style="font-size:13px;"><span x-text="money(c.gastado)"></span> <span style="color:var(--fg3);" x-text="'/ ' + money(c.presupuesto)"></span></div>
                                 <div class="barra" :class="{ alerta: c.gastado > c.presupuesto }"><span :style="'width:' + c.progreso + '%'"></span></div>
                             </td>
-                            <td class="num" x-text="c.alcance !== null ? formato(c.alcance) : '—'"></td>
-                            <td class="num" x-text="c.clics !== null ? formato(c.clics) : '—'"></td>
-                            <td class="num" x-text="c.conversiones !== null ? formato(c.conversiones) : '—'"></td>
+                            <td class="num" x-text="c.alcance !== null ? formato(c.alcance) : 'â€”'"></td>
+                            <td class="num" x-text="c.clics !== null ? formato(c.clics) : 'â€”'"></td>
+                            <td class="num" x-text="c.conversiones !== null ? formato(c.conversiones) : 'â€”'"></td>
                             <td class="num">
-                                <strong x-text="c.roas !== null ? c.roas.toFixed(2) + 'x' : '—'"></strong>
+                                <strong x-text="c.roas !== null ? c.roas.toFixed(2) + 'x' : 'â€”'"></strong>
                             </td>
                             <td>
                                 <div class="acciones">
@@ -186,7 +186,7 @@
             </div>
             <div class="modal-ft">
                 <button type="button" class="btn btn-g" @click="cerrar()">Cancelar</button>
-                <button type="submit" class="btn btn-p" :disabled="guardando" x-text="guardando ? 'Guardando…' : 'Guardar campaña'"></button>
+                <button type="submit" class="btn btn-p" :disabled="guardando" x-text="guardando ? 'Guardandoâ€¦' : 'Guardar campaña'"></button>
             </div>
         </form>
     </div>
@@ -201,18 +201,18 @@
                 <div class="modal-ico"><x-icon name="activity" size="18" /></div>
                 <div>
                     <div class="modal-ttl" x-text="sel ? sel.nombre : ''"></div>
-                    <div class="modal-sub" x-text="sel ? 'Presupuesto ' + money(sel.presupuesto) + ' · ' + sel.estado : ''"></div>
+                    <div class="modal-sub" x-text="sel ? 'Presupuesto ' + money(sel.presupuesto) + ' Â· ' + sel.estado : ''"></div>
                 </div>
                 <button type="button" class="icon-btn sm" style="margin-left:auto;" @click="cerrar()" aria-label="Cerrar"><x-icon name="x" size="16" /></button>
             </div>
             <div class="modal-bd" x-show="sel">
                 <div class="metricas-modal">
                     <div><b x-text="sel ? money(sel.gastado) : ''"></b><small>Gastado</small></div>
-                    <div><b x-text="sel && sel.roas !== null ? sel.roas.toFixed(2) + 'x' : '—'"></b><small>ROAS</small></div>
-                    <div><b x-text="sel && sel.cpa !== null ? money(sel.cpa) : '—'"></b><small>Costo por conversión</small></div>
-                    <div><b x-text="sel && sel.ctr !== null ? sel.ctr + '%' : '—'"></b><small>CTR</small></div>
-                    <div><b x-text="sel && sel.cpc !== null ? money(sel.cpc) : '—'"></b><small>Costo por clic</small></div>
-                    <div><b x-text="sel && sel.ventas_atribuidas !== null ? money(sel.ventas_atribuidas) : '—'"></b><small>Ventas atribuidas</small></div>
+                    <div><b x-text="sel && sel.roas !== null ? sel.roas.toFixed(2) + 'x' : 'â€”'"></b><small>ROAS</small></div>
+                    <div><b x-text="sel && sel.cpa !== null ? money(sel.cpa) : 'â€”'"></b><small>Costo por conversión</small></div>
+                    <div><b x-text="sel && sel.ctr !== null ? sel.ctr + '%' : 'â€”'"></b><small>CTR</small></div>
+                    <div><b x-text="sel && sel.cpc !== null ? money(sel.cpc) : 'â€”'"></b><small>Costo por clic</small></div>
+                    <div><b x-text="sel && sel.ventas_atribuidas !== null ? money(sel.ventas_atribuidas) : 'â€”'"></b><small>Ventas atribuidas</small></div>
                 </div>
 
                 <form @submit.prevent="registrarGasto()" novalidate>
@@ -339,7 +339,7 @@
             },
 
             async eliminarGasto(g) {
-                if (!confirm('¿Eliminar este gasto de ' + this.money(g.monto) + '?')) return;
+                if (!confirm('Â¿Eliminar este gasto de ' + this.money(g.monto) + '?')) return;
                 const r = await gh.api(urlGastos + '/' + g.id, { method: 'DELETE' });
                 if (r.ok) {
                     this.sel.gastos = this.sel.gastos.filter(x => x.id !== g.id);
@@ -350,7 +350,7 @@
             },
 
             async eliminarCampana(c) {
-                if (!confirm('¿Eliminar la campaña «' + c.nombre + '» y todos sus gastos?')) return;
+                if (!confirm('Â¿Eliminar la campaña Â«' + c.nombre + 'Â» y todos sus gastos?')) return;
                 const r = await gh.api(urlCampanas + '/' + c.id, { method: 'DELETE' });
                 if (r.ok) { Alpine.store('toasts').push(r.data.message); gh.ir(location.pathname, false); }
                 else { Alpine.store('toasts').push(r.data.message || 'No se pudo eliminar la campaña.', 'error'); }

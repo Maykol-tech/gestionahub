@@ -108,7 +108,7 @@ Route::post('/web/{slug}/contacto', [LandingNegocioController::class, 'contacto'
 // Galeria publica de trabajos del negocio
 Route::get('/galeria/{slug}', [GaleriaController::class, 'publica'])->name('publico.galeria')->where('slug', '[a-z0-9-]{2,60}');
 
-// Reseñas publicas del negocio: ver y dejar una reseña
+// ReseÃ±as publicas del negocio: ver y dejar una reseÃ±a
 Route::get('/resenas/{slug}', [PublicResenaController::class, 'mostrar'])->name('publico.resenas')->where('slug', '[a-z0-9-]{2,60}');
 Route::post('/resenas/{slug}', [PublicResenaController::class, 'enviar'])->name('publico.resenas.enviar')
     ->where('slug', '[a-z0-9-]{2,60}')->middleware('throttle:5,1');
@@ -299,7 +299,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'tenant.active', 'mo
     Route::post('/galeria/{item}/alternar', [GaleriaController::class, 'alternar'])->whereNumber('item')->name('galeria.alternar');
     Route::delete('/galeria/{item}', [GaleriaController::class, 'eliminar'])->whereNumber('item')->name('galeria.eliminar');
 
-    // Reseñas de clientes: moderacion (/admin/resenas)
+    // ReseÃ±as de clientes: moderacion (/admin/resenas)
     Route::get('/resenas', [ResenasController::class, 'pagina'])->name('resenas');
     Route::post('/resenas/{resena}/estado', [ResenasController::class, 'estado'])->whereNumber('resena')->name('resenas.estado');
 
@@ -381,4 +381,7 @@ Route::prefix('superadmin')->name('superadmin.')->middleware(['auth', 'role:supe
     Route::post('/negocios/{id}/extender', [SuperadminController::class, 'extender'])->name('negocios.extender')->whereNumber('id');
     Route::post('/planes', [SuperadminController::class, 'guardarPlan'])->name('planes.guardar');
     Route::put('/planes/{id}', [SuperadminController::class, 'actualizarPlan'])->name('planes.actualizar')->whereNumber('id');
+});
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::post('/citas', [\App\Http\Controllers\Admin\CitaController::class, 'store'])->name('citas.store');
 });

@@ -42,7 +42,7 @@
                 @if (count($enCamino))
                     <div class="search" style="margin-left:auto;">
                         <x-icon name="search" size="15" />
-                        <input class="inp" placeholder="Buscar pedido o repartidor…" x-model="buscar">
+                        <input class="inp" placeholder="Buscar pedido o repartidorâ€¦" x-model="buscar">
                     </div>
                 @endif
             </div>
@@ -81,7 +81,7 @@
                 </div>
             @else
                 <x-vacio icono="truck" titulo="No hay pedidos en camino"
-                         texto="Cuando muevas un pedido a «En camino» en el tablero, aparecerá aquí con su repartidor.">
+                         texto="Cuando muevas un pedido a Â«En caminoÂ» en el tablero, aparecerá aquí con su repartidor.">
                     <a href="{{ route('admin.pedidos') }}" class="btn btn-g btn-sm">Ir al tablero de pedidos</a>
                 </x-vacio>
             @endif

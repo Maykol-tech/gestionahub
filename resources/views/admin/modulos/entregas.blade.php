@@ -48,11 +48,11 @@
                             <td>{{ $f->nombre }}</td>
                             <td>{{ $tipos[$f->tipo] ?? $f->tipo }}</td>
                             <td class="num">S/ {{ number_format($f->costo, 2) }}</td>
-                            <td>{{ $f->tiempo_estimado ?: '—' }}</td>
+                            <td>{{ $f->tiempo_estimado ?: 'â€”' }}</td>
                             <td>{{ $f->activa ? 'Activa' : 'Oculta' }}</td>
                             <td>
                                 <form method="POST" action="{{ route('admin.entregas.alternar', $f->id) }}" style="display:inline;">@csrf <button class="btn btn-g" type="submit">{{ $f->activa ? 'Ocultar' : 'Activar' }}</button></form>
-                                <form method="POST" action="{{ route('admin.entregas.eliminar', $f->id) }}" style="display:inline;" onsubmit="return confirm('¿Eliminar esta forma de entrega?')">@csrf @method('DELETE') <button class="btn btn-g" type="submit">Eliminar</button></form>
+                                <form method="POST" action="{{ route('admin.entregas.eliminar', $f->id) }}" style="display:inline;" onsubmit="return confirm('Â¿Eliminar esta forma de entrega?')">@csrf @method('DELETE') <button class="btn btn-g" type="submit">Eliminar</button></form>
                             </td>
                         </tr>
                     @endforeach

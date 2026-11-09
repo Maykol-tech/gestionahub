@@ -52,7 +52,7 @@
         <div class="stat fade-in" style="animation-delay:.15s">
             <div class="stat-lbl">Valor de inventario <span class="stat-ico" style="background:var(--ctl);color:var(--cta)"><x-icon name="cash" size="14" /></span></div>
             <div class="stat-val" x-text="gh.soles(valorInventario)"></div>
-            <div class="stat-ch neutral">Precio de venta × stock</div>
+            <div class="stat-ch neutral">Precio de venta Ã— stock</div>
         </div>
     </div>
 
@@ -78,7 +78,7 @@
                     </select>
                     <div class="search">
                         <x-icon name="search" size="15" />
-                        <input class="inp" placeholder="Buscar producto…" x-model="buscar" @input="pagina = 1">
+                        <input class="inp" placeholder="Buscar productoâ€¦" x-model="buscar" @input="pagina = 1">
                     </div>
                 </div>
             </div>
@@ -154,7 +154,7 @@
             </div>
 
             <div class="panel-ft" x-show="filtrados.length" x-cloak>
-                <span x-text="'Mostrando ' + desde + '–' + hasta + ' de ' + filtrados.length + ' productos'"></span>
+                <span x-text="'Mostrando ' + desde + 'â€“' + hasta + ' de ' + filtrados.length + ' productos'"></span>
                 <div class="pager">
                     <button @click="pagina--; animar()" :disabled="pagina === 1" aria-label="Anterior"><x-icon name="chev-l" size="14" /></button>
                     <template x-for="n in paginas" :key="n"><button :class="{ on: n === pagina }" @click="pagina = n; animar()" x-text="n"></button></template>
@@ -195,7 +195,7 @@
             <div class="empty" x-show="!categorias.length">
                 <x-icon name="layers" size="34" />
                 <div style="font-weight:600;color:var(--fg2);">Aún no tienes categorías</div>
-                <div>Agrupa tus productos (bebidas, postres, combos…) para ordenarlos en tu tienda.</div>
+                <div>Agrupa tus productos (bebidas, postres, combosâ€¦) para ordenarlos en tu tienda.</div>
                 <button class="btn btn-p" style="margin-top:6px;" @click="abrirCat()"><x-icon name="plus" size="15" /> Crear categoría</button>
             </div>
         </div>
