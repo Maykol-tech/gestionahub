@@ -36,11 +36,11 @@
             </div>
             <div class="field" style="grid-column:1 / -1;">
                 <label class="lbl" for="w-token">Token de acceso {{ $conexion && $conexion['tiene_token'] ? '(ya guardado; escribe uno nuevo solo si cambia)' : '*' }}</label>
-                <input class="inp" id="w-token" type="password" autocomplete="off" maxlength="600" x-model="conexion.token" :class="{ err: errores.token }" placeholder="{{ $conexion && $conexion['tiene_token'] ? 'â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢' : 'EAAGâ€¦' }}">
+                <input class="inp" id="w-token" type="password" autocomplete="off" maxlength="600" x-model="conexion.token" :class="{ err: errores.token }" placeholder="{{ $conexion && $conexion['tiene_token'] ? ' ' : 'EAAG¦' }}">
                 <div class="ferr" x-show="errores.token" x-text="errores.token ? errores.token[0] : ''"></div>
             </div>
             <div style="grid-column:1 / -1;">
-                <button class="btn btn-p" type="submit" :disabled="guardandoConexion" x-text="guardandoConexion ? 'Guardandoâ€¦' : 'Guardar número'"></button>
+                <button class="btn btn-p" type="submit" :disabled="guardandoConexion" x-text="guardandoConexion ? 'Guardando¦' : 'Guardar número'"></button>
             </div>
         </form>
     </div>
@@ -159,7 +159,7 @@
             </div>
             <div class="modal-ft">
                 <button type="button" class="btn btn-g" @click="modal = null">Cancelar</button>
-                <button type="submit" class="btn btn-p" :disabled="guardando" x-text="guardando ? 'Guardandoâ€¦' : 'Guardar flujo'"></button>
+                <button type="submit" class="btn btn-p" :disabled="guardando" x-text="guardando ? 'Guardando¦' : 'Guardar flujo'"></button>
             </div>
         </form>
     </div>

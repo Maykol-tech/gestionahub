@@ -34,7 +34,7 @@
         <div class="stat fade-in" style="animation-delay:.15s">
             <div class="stat-lbl">Nuevos <span class="stat-ico" style="background:var(--ambl);color:var(--amber)"><x-icon name="user-plus" size="14" /></span></div>
             <div class="stat-val" x-text="contar('nuevos')"></div>
-            <div class="stat-ch neutral">Ãšltimos 7 días</div>
+            <div class="stat-ch neutral">Ultimos 7 días</div>
         </div>
     </div>
 
@@ -50,7 +50,7 @@
             </div>
             <div class="search" style="margin-left:auto;">
                 <x-icon name="search" size="15" />
-                <input class="inp" placeholder="Buscar clienteâ€¦" x-model="buscar" @input="pagina = 1">
+                <input class="inp" placeholder="Buscar cliente¦" x-model="buscar" @input="pagina = 1">
             </div>
         </div>
         <div class="loadbar" x-show="cargando" x-cloak></div>
@@ -64,7 +64,7 @@
                         <th>Distrito</th>
                         <th class="sortable num" :class="{ sorted: orden.campo === 'pedidos' }" @click="ordenar('pedidos')">Pedidos <x-icon name="sort" size="11" /></th>
                         <th class="sortable num" :class="{ sorted: orden.campo === 'total' }" @click="ordenar('total')">Total gastado <x-icon name="sort" size="11" /></th>
-                        <th>Ãšltimo pedido</th>
+                        <th>Último pedido</th>
                         <th>Estado</th>
                         <th style="width:52px;"></th>
                     </tr>
@@ -81,8 +81,8 @@
                                     </div>
                                 </div>
                             </td>
-                            <td style="font-variant-numeric:tabular-nums;" x-text="c.telefono || 'â€”'"></td>
-                            <td style="color:var(--fg2);" x-text="c.distrito || 'â€”'"></td>
+                            <td style="font-variant-numeric:tabular-nums;" x-text="c.telefono || ' ”'"></td>
+                            <td style="color:var(--fg2);" x-text="c.distrito || ' ”'"></td>
                             <td class="num"><span class="badge" :class="c.pedidos >= 10 ? 'b-g' : (c.pedidos >= 3 ? 'b-a' : 'b-n')" x-text="c.pedidos"></span></td>
                             <td class="num" style="font-weight:700;" x-text="gh.soles(c.total)"></td>
                             <td :style="c.dias_sin_comprar > 14 ? 'color:var(--red)' : 'color:var(--fg3)'" x-text="c.ultimo || 'Sin pedidos'"></td>
@@ -107,7 +107,7 @@
         </div>
 
         <div class="panel-ft" x-show="filtrados.length" x-cloak>
-            <span x-text="'Mostrando ' + desde + 'â€“' + hasta + ' de ' + filtrados.length + ' clientes'"></span>
+            <span x-text="'Mostrando ' + desde + '–' + hasta + ' de ' + filtrados.length + ' clientes'"></span>
             <div class="pager">
                 <button @click="pagina--; animar()" :disabled="pagina === 1" aria-label="Anterior"><x-icon name="chev-l" size="14" /></button>
                 <template x-for="n in paginas" :key="n">
@@ -156,8 +156,7 @@
                         <input class="inp" :class="{ err: errores.dni }" x-model="form.dni" maxlength="12" placeholder="12345678" inputmode="numeric">
                         <div class="ferr" x-show="errores.dni" x-text="errores.dni?.[0]"></div>
                     </div>
-                    <div class="field">
-                        <label class="lbl">Â¿Cómo llegó?</label>
+                    <div class="field">                        <label class="lbl">¿Cómo llegó?</label>
                         <select class="inp" x-model="form.fuente">
                             <option value="manual">Registro manual</option>
                             <option value="whatsapp">WhatsApp</option>
@@ -179,7 +178,7 @@
                 </div>
                 <div class="field" style="margin-bottom:0;">
                     <label class="lbl">Notas</label>
-                    <textarea class="inp" x-model="form.notas" rows="2" maxlength="1000" placeholder="Preferencias, alergias, horariosâ€¦"></textarea>
+                    <textarea class="inp" x-model="form.notas" rows="2" maxlength="1000" placeholder="Preferencias, alergias, horarios ¦"></textarea>
                 </div>
                 <div class="ferr" x-show="errorGeneral" x-text="errorGeneral" style="margin-top:10px;"></div>
             </div>
@@ -189,7 +188,7 @@
                 <button type="submit" class="btn btn-p" :disabled="guardando">
                     <x-icon name="loader" size="15" class="spin" x-show="guardando" />
                     <x-icon name="check" size="15" stroke="2.4" x-show="!guardando" />
-                    <span x-text="guardando ? 'Guardandoâ€¦' : 'Guardar cliente'"></span>
+                    <span x-text="guardando ? 'Guardando ¦' : 'Guardar cliente'"></span>
                 </button>
             </div>
         </form>
@@ -265,7 +264,7 @@
                 return n.length === 9 ? '51' + n : n;
             },
             exportar() {
-                gh.csv('clientes.csv', [['Nombre', 'Teléfono', 'Correo', 'Distrito', 'Pedidos', 'Total gastado', 'Ãšltimo pedido', 'Estado'],
+                gh.csv('clientes.csv', [['Nombre', 'Teléfono', 'Correo', 'Distrito', 'Pedidos', 'Total gastado', 'Ultimo pedido', 'Estado'],
                     ...this.filtrados.map(c => [c.nombre, c.telefono, c.email, c.distrito, c.pedidos, c.total, c.ultimo || '', c.activo ? 'Activo' : 'Inactivo'])]);
                 Alpine.store('toasts').push('Se descargó clientes.csv', 'info');
             },

@@ -39,7 +39,7 @@
         </template>
 
         <div class="ferr" x-show="error" x-text="error"></div>
-        <button class="btn btn-p" type="button" style="margin-top:14px;" :disabled="guardando" @click="guardar()" x-text="guardando ? 'Guardandoâ€¦' : 'Guardar horarios'"></button>
+        <button class="btn btn-p" type="button" style="margin-top:14px;" :disabled="guardando" @click="guardar()" x-text="guardando ? 'Guardando¦' : 'Guardar horarios'"></button>
     </div>
 </div>
 

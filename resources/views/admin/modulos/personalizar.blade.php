@@ -58,7 +58,7 @@
             <button type="submit" class="btn btn-p" :disabled="guardando">
                 <x-icon name="loader" size="15" class="spin" x-show="guardando" />
                 <x-icon name="check" size="15" stroke="2.4" x-show="!guardando" />
-                <span x-text="guardando ? 'Guardandoâ€¦' : 'Guardar cambios'"></span>
+                <span x-text="guardando ? 'Guardando¦' : 'Guardar cambios'"></span>
             </button>
         </div>
     </form>

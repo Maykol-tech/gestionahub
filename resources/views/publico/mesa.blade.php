@@ -52,7 +52,7 @@
 
             <div class="barra">
                 <div class="inner">
-                    <textarea name="notas" rows="1" maxlength="255" placeholder="Notas (sin cebolla, bien cocidoâ€¦)"></textarea>
+                    <textarea name="notas" rows="1" maxlength="255" placeholder="Notas (sin cebolla, bien cocido¦)"></textarea>
                     <button type="submit">Enviar a cocina</button>
                 </div>
             </div>

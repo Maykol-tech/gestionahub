@@ -42,7 +42,7 @@
                 @if (count($enCamino))
                     <div class="search" style="margin-left:auto;">
                         <x-icon name="search" size="15" />
-                        <input class="inp" placeholder="Buscar pedido o repartidorâ€¦" x-model="buscar">
+                        <input class="inp" placeholder="Buscar pedido o repartidor¦" x-model="buscar">
                     </div>
                 @endif
             </div>

@@ -12,7 +12,7 @@
             <div class="stat-lbl">Ventas hoy</div>
             <div class="stat-val">S/ {{ number_format($datos['ventas_hoy'], 2) }}</div>
             <div class="stat-ch {{ $datos['ventas_variacion'] >= 0 ? 'up' : 'dn' }}">
-                {{ $datos['ventas_variacion'] >= 0 ? 'â†‘' : 'â†“' }} {{ abs($datos['ventas_variacion']) }}% vs ayer
+                {{ $datos['ventas_variacion'] >= 0 ? ' ‘' : ' “' }} {{ abs($datos['ventas_variacion']) }}% vs ayer
             </div>
         </div>
         <div class="stat fade-in" style="animation-delay:.08s">
@@ -23,7 +23,7 @@
         <div class="stat fade-in" style="animation-delay:.14s">
             <div class="stat-lbl">Clientes nuevos</div>
             <div class="stat-val">{{ $datos['clientes_nuevos'] }}</div>
-            <div class="stat-ch up">â†‘ esta semana Â· {{ $datos['clientes_total'] }} en total</div>
+            <div class="stat-ch up"> ‘ esta semana · {{ $datos['clientes_total'] }} en total</div>
         </div>
         <div class="stat fade-in" style="animation-delay:.2s">
             <div class="stat-lbl">Productos activos</div>
@@ -48,7 +48,7 @@
     <div class="two">
         <div class="fade-in" style="animation-delay:.3s">
             <div class="sec-ttl" style="display:flex;justify-content:space-between;">
-                Ãšltimos pedidos <a href="{{ route('admin.pedidos') }}" style="color:var(--accent);font-size:12px;font-weight:600;">Ver todos</a>
+                Ultimos pedidos <a href="{{ route('admin.pedidos') }}" style="color:var(--accent);font-size:12px;font-weight:600;">Ver todos</a>
             </div>
             <div class="card tbl-wrap" style="padding:0;">
                 @if ($ultimosPedidos->isEmpty())
@@ -73,7 +73,7 @@
 
         <div class="fade-in" style="animation-delay:.36s">
             <div class="sec-ttl" style="display:flex;justify-content:space-between;">
-                Stock bajo â€” alerta <a href="{{ route('admin.productos') }}" style="color:var(--accent);font-size:12px;font-weight:600;">Ver productos</a>
+                Stock bajo ” alerta <a href="{{ route('admin.productos') }}" style="color:var(--accent);font-size:12px;font-weight:600;">Ver productos</a>
             </div>
             <div class="card tbl-wrap" style="padding:0;">
                 @if ($stockBajo->isEmpty())

@@ -33,7 +33,7 @@
         <div class="panel fade-in" style="padding:16px;">
             <div class="search" style="margin-bottom:12px;">
                 <x-icon name="search" size="15" />
-                <input class="inp" placeholder="Buscar productoâ€¦" x-model="buscar" aria-label="Buscar producto" x-ref="buscar">
+                <input class="inp" placeholder="Buscar producto¦" x-model="buscar" aria-label="Buscar producto" x-ref="buscar">
             </div>
             <div class="prod-grid">
                 <template x-for="(p, i) in filtrados" :key="p.id">
@@ -97,7 +97,7 @@
             <div class="ferr" x-show="errores.items" x-text="errores.items ? errores.items[0] : ''"></div>
 
             <button class="btn btn-p" type="button" style="width:100%;margin-top:12px;" :disabled="!carrito.length || guardando" @click="cobrar()"
-                    x-text="guardando ? 'Cobrandoâ€¦' : 'Cobrar ' + money(total)"></button>
+                    x-text="guardando ? 'Cobrando¦' : 'Cobrar ' + money(total)"></button>
             <button class="btn btn-g" type="button" style="width:100%;margin-top:8px;" x-show="carrito.length" x-cloak @click="vaciar()">Vaciar venta</button>
         </div>
     </div>

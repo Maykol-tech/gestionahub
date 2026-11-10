@@ -60,7 +60,7 @@
                     @foreach ($prospectos as $p)
                         <tr>
                             <td>{{ $p->nombre }}<div style="font-size:11px;color:var(--fg3);">{{ $p->rubro }}</div></td>
-                            <td>{{ $p->telefono ?: 'â€”' }}<div style="font-size:11px;color:var(--fg3);">{{ $p->email }}</div></td>
+                            <td>{{ $p->telefono ?: '”' }}<div style="font-size:11px;color:var(--fg3);">{{ $p->email }}</div></td>
                             <td>{{ $p->fuente }}</td>
                             <td>
                                 <form method="POST" action="{{ route('admin.prospectos.estado', $p->id) }}">

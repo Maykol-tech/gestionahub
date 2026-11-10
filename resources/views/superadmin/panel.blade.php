@@ -39,7 +39,7 @@
         <div class="panel-hd">
             <div class="search" style="flex:1;min-width:180px;max-width:320px;">
                 <x-icon name="search" size="15" />
-                <input class="inp" placeholder="Buscar negocio o correoâ€¦" x-model="buscar" aria-label="Buscar negocio">
+                <input class="inp" placeholder="Buscar negocio o correo¦" x-model="buscar" aria-label="Buscar negocio">
             </div>
             <select class="inp" style="max-width:180px;" x-model="filtroEstado" aria-label="Filtrar por estado">
                 <option value="">Todos los estados</option>

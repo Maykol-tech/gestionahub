@@ -40,11 +40,11 @@
         <div class="panel-hd" style="padding-bottom:0;border-bottom:none;">
             <div>
                 <div class="panel-ttl">Pedidos y cobros</div>
-                <div class="panel-sub">Ãšltimos 300 pedidos, sin contar cancelados</div>
+                <div class="panel-sub">Ultimos 300 pedidos, sin contar cancelados</div>
             </div>
             <div class="search" style="margin-left:auto;">
                 <x-icon name="search" size="15" />
-                <input class="inp" placeholder="Buscar pedido o clienteâ€¦" x-model="buscar">
+                <input class="inp" placeholder="Buscar pedido o cliente¦" x-model="buscar">
             </div>
         </div>
         <div class="tabs" style="margin-top:6px;">

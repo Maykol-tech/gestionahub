@@ -32,7 +32,7 @@
             @csrf
             <div>
                 <label class="lbl" for="nombre">Nombre de la mesa</label>
-                <input class="inp" id="nombre" name="nombre" maxlength="40" placeholder="Mesa 1, Terraza 3â€¦" required>
+                <input class="inp" id="nombre" name="nombre" maxlength="40" placeholder="Mesa 1, Terraza 3¦" required>
             </div>
             <div>
                 <label class="lbl" for="capacidad">Capacidad</label>

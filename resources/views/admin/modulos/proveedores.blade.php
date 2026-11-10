@@ -21,14 +21,14 @@
     {{-- Indicadores --}}
     <div class="stat-row">
         <div class="stat fade-in"><div class="stat-lbl">Proveedores</div><div class="stat-val">{{ $stats['proveedores'] }}</div></div>
-        <div class="stat fade-in" style="animation-delay:.05s"><div class="stat-lbl">Ã“rdenes abiertas</div><div class="stat-val">{{ $stats['abiertas'] }}</div></div>
+        <div class="stat fade-in" style="animation-delay:.05s"><div class="stat-lbl">Ordenes abiertas</div><div class="stat-val">{{ $stats['abiertas'] }}</div></div>
         <div class="stat fade-in" style="animation-delay:.1s"><div class="stat-lbl">Compras recibidas (mes)</div><div class="stat-val">S/ {{ number_format($stats['gasto_mes'], 2) }}</div></div>
     </div>
 
     {{-- Ordenes de compra --}}
     <div class="panel fade-in" style="animation-delay:.1s">
         <div class="panel-hd">
-            <span style="font-weight:700;">Ã“rdenes de compra</span>
+            <span style="font-weight:700;">Ordenes de compra</span>
             <button class="btn btn-p" type="button" style="margin-left:auto;" @click="abrirNueva()" :disabled="!proveedores.length">
                 <x-icon name="plus" size="15" stroke="2.4" /> Nueva orden
             </button>
@@ -142,7 +142,7 @@
             </div>
             <div class="modal-ft">
                 <button type="button" class="btn btn-g" @click="cerrar()">Cancelar</button>
-                <button type="submit" class="btn btn-p" :disabled="guardando" x-text="guardando ? 'Guardandoâ€¦' : 'Crear orden'"></button>
+                <button type="submit" class="btn btn-p" :disabled="guardando" x-text="guardando ? 'Guardando¦' : 'Crear orden'"></button>
             </div>
         </form>
     </div>

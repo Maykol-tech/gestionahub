@@ -87,7 +87,7 @@
                 </div>
                 <div class="field" style="margin-bottom:0;">
                     <label class="lbl">Descripción</label>
-                    <textarea class="inp" x-model="form.descripcion" rows="2" maxlength="2000" placeholder="Ingredientes, tamaño, presentaciónâ€¦"></textarea>
+                    <textarea class="inp" x-model="form.descripcion" rows="2" maxlength="2000" placeholder="Ingredientes, tamaño, presentación¦"></textarea>
                 </div>
             </div>
 
@@ -97,7 +97,7 @@
                     <input type="checkbox" x-model="form.tiene_variantes" @change="if (form.tiene_variantes && !form.variantes.length) agregarVariante()">
                     <span class="track"><span class="thumb"></span></span>
                     <span style="font-size:13px;font-weight:600;">Este producto tiene variantes</span>
-                    <span style="font-size:12px;color:var(--fg3);">(tamaño, presentación, sabor, tallaâ€¦)</span>
+                    <span style="font-size:12px;color:var(--fg3);">(tamaño, presentación, sabor, talla¦)</span>
                 </label>
                 <div class="ferr" x-show="errores.variantes" x-text="errores.variantes?.[0]" style="margin:-6px 0 10px;"></div>
 
@@ -184,7 +184,7 @@
             <button type="submit" class="btn btn-p" :disabled="guardando">
                 <x-icon name="loader" size="15" class="spin" x-show="guardando" />
                 <x-icon name="check" size="15" stroke="2.4" x-show="!guardando" />
-                <span x-text="guardando ? 'Guardandoâ€¦' : (editando ? 'Guardar cambios' : 'Crear producto')"></span>
+                <span x-text="guardando ? 'Guardando¦' : (editando ? 'Guardar cambios' : 'Crear producto')"></span>
             </button>
         </div>
     </form>

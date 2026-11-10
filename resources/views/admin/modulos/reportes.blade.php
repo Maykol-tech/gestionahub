@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('titulo', 'Reportes')
-@section('subtitulo', $desdeTexto . ' â€“ ' . $hastaTexto)
+@section('subtitulo', $desdeTexto . ' - ' . $hastaTexto)
 
 @section('acciones')
     <div class="seg" role="tablist" aria-label="Periodo">
@@ -47,7 +47,7 @@
         <div class="panel-hd">
             <div>
                 <div class="panel-ttl">{{ $rango === 90 ? 'Ventas por semana' : 'Ventas por día' }}</div>
-                <div class="panel-sub">Ãšltimos {{ $rango }} días</div>
+                <div class="panel-sub">Ultimos {{ $rango }} días</div>
             </div>
             <div style="margin-left:auto;font-size:12px;color:var(--fg3);" x-show="sel !== null" x-cloak>
                 <span x-text="sel !== null ? serie[sel].detalle : ''"></span> Â·

@@ -28,7 +28,7 @@
                 </div>
 
                 @foreach ($c->items as $linea)
-                    <div class="linea"><span>{{ $linea['cantidad'] }} Ã— {{ $linea['nombre'] }}</span></div>
+                    <div class="linea"><span>{{ $linea['cantidad'] }} — {{ $linea['nombre'] }}</span></div>
                 @endforeach
 
                 @if ($c->notas)

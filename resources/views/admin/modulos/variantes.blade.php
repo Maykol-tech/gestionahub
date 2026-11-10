@@ -31,7 +31,7 @@
             <div style="margin-top:6px;">
                 @forelse ($p['variantes'] as $v)
                     <span class="chip">{{ $v->nombre }} Â· S/ {{ number_format($v->precio, 2) }} Â· stock {{ $v->stock }}
-                        <form method="POST" action="{{ route('admin.variantes.eliminar', $v->id) }}" style="display:inline;">@csrf @method('DELETE')<button type="submit" style="background:none;border:0;color:#B91C1C;cursor:pointer;" aria-label="Eliminar variante">Ã—</button></form>
+                        <form method="POST" action="{{ route('admin.variantes.eliminar', $v->id) }}" style="display:inline;">@csrf @method('DELETE')<button type="submit" style="background:none;border:0;color:#B91C1C;cursor:pointer;" aria-label="Eliminar variante">—</button></form>
                     </span>
                 @empty
                     <span style="font-size:12px;color:var(--fg3);">Sin variantes</span>

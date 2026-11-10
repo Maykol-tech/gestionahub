@@ -100,7 +100,7 @@
                         <label class="lbl" for="c-notas">Notas</label>
                         <textarea class="inp" id="c-notas" rows="2" maxlength="500" x-model="notas"></textarea>
                     </div>
-                    <button type="submit" class="btn btn-p" :disabled="guardando" x-text="guardando ? 'Cerrandoâ€¦' : 'Cerrar caja'"></button>
+                    <button type="submit" class="btn btn-p" :disabled="guardando" x-text="guardando ? 'Cerrando¦' : 'Cerrar caja'"></button>
                 </div>
                 <div class="arqueo-total">
                     <div><span>Monto inicial</span><span x-text="money(monto_inicial)"></span></div>

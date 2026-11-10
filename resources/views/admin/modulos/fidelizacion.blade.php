@@ -31,7 +31,7 @@
             <div class="nivel-card fade-in" style="animation-delay: {{ $loop->index * .06 }}s">
                 <span class="nivel-chip" style="background:{{ $n['fondo'] }};color:{{ $n['color'] }}">{{ $n['nombre'] }}</span>
                 <div style="font-size:13px;color:var(--fg2);margin-top:10px;">
-                    Desde <strong>{{ number_format($n['desde']) }}</strong> puntos ganados Â· gana <strong>Ã—{{ number_format($n['multiplicador'], 1) }}</strong> puntos por compra
+                    Desde <strong>{{ number_format($n['desde']) }}</strong> puntos ganados Â· gana <strong>—{{ number_format($n['multiplicador'], 1) }}</strong> puntos por compra
                 </div>
                 <div style="font-size:12px;color:var(--fg3);margin-top:8px;">{{ $n['clientes'] }} {{ $n['clientes'] === 1 ? 'cliente' : 'clientes' }} en este nivel</div>
             </div>
@@ -66,7 +66,7 @@
         <div class="panel-hd">
             <div class="search" style="flex:1;min-width:180px;max-width:360px;">
                 <x-icon name="search" size="15" />
-                <input class="inp" placeholder="Buscar clienteâ€¦" x-model="buscar" aria-label="Buscar cliente">
+                <input class="inp" placeholder="Buscar cliente¦" x-model="buscar" aria-label="Buscar cliente">
             </div>
             <span style="font-size:12px;color:var(--fg3);margin-left:auto;" x-text="filtrados.length + ' clientes'"></span>
         </div>
@@ -147,7 +147,7 @@
             </div>
             <div class="modal-ft">
                 <button type="button" class="btn btn-g" @click="cerrar()">Cancelar</button>
-                <button type="submit" class="btn btn-p" :disabled="guardando" x-text="guardando ? 'Canjeandoâ€¦' : 'Confirmar canje'"></button>
+                <button type="submit" class="btn btn-p" :disabled="guardando" x-text="guardando ? 'Canjeando¦' : 'Confirmar canje'"></button>
             </div>
         </form>
     </div>
@@ -180,7 +180,7 @@
             </div>
             <div class="modal-ft">
                 <button type="button" class="btn btn-g" @click="cerrar()">Cancelar</button>
-                <button type="submit" class="btn btn-p" :disabled="guardando" x-text="guardando ? 'Guardandoâ€¦' : 'Aplicar ajuste'"></button>
+                <button type="submit" class="btn btn-p" :disabled="guardando" x-text="guardando ? 'Guardando¦' : 'Aplicar ajuste'"></button>
             </div>
         </form>
     </div>

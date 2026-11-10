@@ -22,7 +22,7 @@
         </div>
         <div class="col-md-3">
             <div class="card p-3 shadow-sm border-0">
-                <small class="text-muted fw-bold" style="font-size: 11px;">PRÃ“XIMAS CITAS</small>
+                <small class="text-muted fw-bold" style="font-size: 11px;">PRÓXIMAS CITAS</small>
                 <h3 class="mb-0 fw-normal">0</h3>
             </div>
         </div>
@@ -34,7 +34,7 @@
         </div>
     </div>
 
-    <!-- 2. BARRA DE BÃšSQUEDA Y BOTÃ“N -->
+    <!-- 2. BARRA DE BÚSQUEDA Y BOTÓN -->
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-body d-flex justify-content-between align-items-center">
             <div class="d-flex gap-2 w-50">
@@ -51,7 +51,7 @@
         </div>
     </div>
 
-    <!-- 3. AGENDA VACÃA -->
+    <!-- 3. AGENDA VACÍA -->
     <div class="card shadow-sm border-0 mb-4 text-center py-5">
         <div class="card-body">
             <i class="bi bi-wrench text-muted" style="font-size: 2rem;"></i>
@@ -60,7 +60,7 @@
         </div>
     </div>
 
-    <!-- 4. CATÃLOGO DE SERVICIOS -->
+    <!-- 4. CATALOGO DE SERVICIOS -->
     <div class="mb-3">
         <h6 class="fw-bold">Catálogo de servicios</h6>
     </div>

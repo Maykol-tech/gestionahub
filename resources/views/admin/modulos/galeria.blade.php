@@ -30,7 +30,7 @@
             @csrf
             <div><label class="lbl" for="titulo">Título del trabajo</label><input class="inp" id="titulo" name="titulo" maxlength="120" required></div>
             <div><label class="lbl" for="orden">Orden (menor primero)</label><input class="inp" id="orden" name="orden" type="number" min="0" value="0"></div>
-            <div style="grid-column:1 / -1;"><label class="lbl" for="imagen_url">Enlace de la foto (https://â€¦)</label><input class="inp" id="imagen_url" name="imagen_url" type="url" maxlength="500" required></div>
+            <div style="grid-column:1 / -1;"><label class="lbl" for="imagen_url">Enlace de la foto (https://¦)</label><input class="inp" id="imagen_url" name="imagen_url" type="url" maxlength="500" required></div>
             <div style="grid-column:1 / -1;"><label class="lbl" for="descripcion">Descripción</label><input class="inp" id="descripcion" name="descripcion" maxlength="255"></div>
             <div style="grid-column:1 / -1;"><button class="btn btn-p" type="submit">Agregar trabajo</button></div>
         </form>

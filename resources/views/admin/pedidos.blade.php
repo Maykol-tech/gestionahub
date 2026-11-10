@@ -9,7 +9,7 @@
 @section('acciones')
     <div class="search">
         <x-icon name="search" size="15" />
-        <input class="inp" placeholder="Buscar pedido o clienteâ€¦" x-data x-model="$store.pedidos.buscar">
+        <input class="inp" placeholder="Buscar pedido o cliente¦" x-data x-model="$store.pedidos.buscar">
     </div>
     <div class="vseg" x-data>
         <button type="button" :class="{ on: $store.pedidos.vista === 'tablero' }" @click="$store.pedidos.vista = 'tablero'" title="Tablero"><x-icon name="grid" size="15" /></button>
@@ -144,7 +144,7 @@
                 <div style="font-weight:600;color:var(--fg2);">No hay pedidos con este filtro</div>
             </div>
             <div class="panel-ft" x-show="enLista.length > porPagina">
-                <span x-text="'Mostrando ' + ((pagina - 1) * porPagina + 1) + 'â€“' + Math.min(pagina * porPagina, enLista.length) + ' de ' + enLista.length"></span>
+                <span x-text="'Mostrando ' + ((pagina - 1) * porPagina + 1) + '–' + Math.min(pagina * porPagina, enLista.length) + ' de ' + enLista.length"></span>
                 <div class="pager">
                     <button @click="pagina--" :disabled="pagina === 1" aria-label="Anterior"><x-icon name="chev-l" size="14" /></button>
                     <span style="font-size:12px;padding:0 8px;" x-text="pagina + ' / ' + paginas"></span>

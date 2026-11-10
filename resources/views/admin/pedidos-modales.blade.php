@@ -23,9 +23,9 @@
                     <div class="field" x-show="!form.cliente_nuevo">
                         <div style="display:flex;gap:6px;">
                             <select class="inp" :class="{ err: errores.cliente_id }" x-model="form.cliente_id" @change="alElegirCliente()">
-                                <option value="">Elige un clienteâ€¦</option>
+                                <option value="">Elige un cliente¦</option>
                                 <template x-for="c in clientes" :key="c.id">
-                                    <option :value="c.id" x-text="c.nombre + (c.telefono ? ' Â· ' + c.telefono : '')" :selected="String(c.id) === String(form.cliente_id)"></option>
+                                    <option :value="c.id" x-text="c.nombre + (c.telefono ? ' · ' + c.telefono : '')" :selected="String(c.id) === String(form.cliente_id)"></option>
                                 </template>
                             </select>
                             <button type="button" class="btn btn-g" @click="form.cliente_nuevo = true; form.cliente_id = ''">+ Nuevo</button>
@@ -51,7 +51,7 @@
                         <div class="search" style="width:100%;">
                             <x-icon name="search" size="15" />
                             <input class="inp" x-ref="buscarProd" x-model="buscador.q" @focus="buscador.abierto = true" @input="buscador.abierto = true"
-                                   @keydown.enter.prevent="sugerencias[0] && agregar(sugerencias[0])" placeholder="Busca un producto para agregarloâ€¦">
+                                   @keydown.enter.prevent="sugerencias[0] && agregar(sugerencias[0])" placeholder="Busca un producto para agregarlo¦">
                         </div>
                         <div class="pf-sug" x-show="buscador.abierto && sugerencias.length" x-cloak>
                             <template x-for="p in sugerencias" :key="p.id">
@@ -78,7 +78,7 @@
                                     <div style="font-weight:600;font-size:13px;" x-text="prod(l).nombre || 'Producto eliminado'"></div>
                                     <template x-if="prod(l).variantes?.length">
                                         <select class="inp inp-sm" :class="{ err: errores['items.' + i + '.variante_id'] }" x-model="l.variante_id">
-                                            <option value="">Elige la varianteâ€¦</option>
+                                            <option value="">Elige la variante¦</option>
                                             <template x-for="v in prod(l).variantes" :key="v.id">
                                                 <option :value="v.id" :selected="String(v.id) === String(l.variante_id)" x-text="v.nombre + ' Â· ' + gh.soles(v.precio) + ' Â· ' + disponible(l, v) + ' disp.'"></option>
                                             </template>
@@ -143,7 +143,7 @@
                     </div>
                     <div class="field">
                         <label class="lbl">Notas</label>
-                        <textarea class="inp" rows="2" x-model="form.notas" maxlength="1000" placeholder="Sin cebolla, tocar el timbreâ€¦"></textarea>
+                        <textarea class="inp" rows="2" x-model="form.notas" maxlength="1000" placeholder="Sin cebolla, tocar el timbre¦"></textarea>
                     </div>
 
                     <div class="pf-res">
@@ -217,7 +217,7 @@
             <div class="det-items">
                 <template x-for="l in detalle?.lineas || []" :key="l.nombre + l.cantidad">
                     <div class="det-it">
-                        <span class="det-q" x-text="l.cantidad + 'Ã—'"></span>
+                        <span class="det-q" x-text="l.cantidad + '—'"></span>
                         <span style="flex:1;"><span x-text="l.nombre"></span><span class="sub" x-show="l.notas" x-text="' Â· ' + l.notas"></span></span>
                         <span class="sub" x-text="gh.soles(l.precio_unit)"></span>
                         <b x-text="gh.soles(l.subtotal)"></b>
@@ -270,7 +270,7 @@
             <div class="conf-ico"><x-icon name="alert" size="22" /></div>
             <div class="modal-ttl" style="margin-bottom:6px;" x-text="'Â¿Cancelar el pedido ' + (confirmar?.numero || '') + '?'"></div>
             <div style="font-size:13px;color:var(--fg2);margin-bottom:12px;">Los productos vuelven al stock. Esta acción no se puede deshacer.</div>
-            <input class="inp" x-model="motivo" maxlength="200" placeholder="Motivo (opcional): cliente no contestóâ€¦">
+            <input class="inp" x-model="motivo" maxlength="200" placeholder="Motivo (opcional): cliente no contestó¦">
         </div>
         <div class="modal-ft" style="justify-content:center;">
             <button type="button" class="btn btn-g" @click="confirmar = null">Volver</button>
