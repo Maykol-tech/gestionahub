@@ -59,7 +59,7 @@
                                     <span class="pf-th" :style="p.imagen_url ? 'background-image:url(' + p.imagen_url + ')' : ''"><x-icon name="package" size="14" x-show="!p.imagen_url" /></span>
                                     <span style="flex:1;min-width:0;">
                                         <span style="font-weight:600;" x-text="p.nombre"></span>
-                                        <span class="sub" x-text="(p.categoria || 'Sin categoría') + (p.variantes.length ? ' Â· ' + p.variantes.length + ' variantes' : '')"></span>
+                                        <span class="sub" x-text="(p.categoria || 'Sin categoría') + (p.variantes.length ? ' · ' + p.variantes.length + ' variantes' : '')"></span>
                                     </span>
                                     <span style="text-align:right;">
                                         <b x-text="(p.variantes.length > 1 ? 'desde ' : '') + gh.soles(precioDesde(p))"></b>
@@ -80,16 +80,16 @@
                                         <select class="inp inp-sm" :class="{ err: errores['items.' + i + '.variante_id'] }" x-model="l.variante_id">
                                             <option value="">Elige la variante¦</option>
                                             <template x-for="v in prod(l).variantes" :key="v.id">
-                                                <option :value="v.id" :selected="String(v.id) === String(l.variante_id)" x-text="v.nombre + ' Â· ' + gh.soles(v.precio) + ' Â· ' + disponible(l, v) + ' disp.'"></option>
+                                                <option :value="v.id" :selected="String(v.id) === String(l.variante_id)" x-text="v.nombre + '  ' + gh.soles(v.precio) + '  ' + disponible(l, v) + ' disp.'"></option>
                                             </template>
                                         </select>
                                     </template>
-                                    <div class="sub" x-show="!prod(l).variantes?.length" x-text="gh.soles(precio(l)) + ' c/u Â· ' + disponible(l) + ' disponibles'"></div>
+                                    <div class="sub" x-show="!prod(l).variantes?.length" x-text="gh.soles(precio(l)) + ' c/u · ' + disponible(l) + ' disponibles'"></div>
                                     <div class="ferr" x-text="errores['items.' + i + '.variante_id']?.[0] || errores['items.' + i + '.cantidad']?.[0] || errores['items.' + i + '.producto_id']?.[0]"></div>
                                     <div class="ferr" x-show="!errores['items.' + i + '.cantidad'] && l.cantidad > disponible(l)" x-text="'Solo hay ' + disponible(l) + ' disponibles'"></div>
                                 </div>
                                 <div class="qty">
-                                    <button type="button" @click="l.cantidad = Math.max(1, l.cantidad - 1); delete errores['items.' + i + '.cantidad']" aria-label="Menos">âˆ’</button>
+                                    <button type="button" @click="l.cantidad = Math.max(1, l.cantidad - 1); delete errores['items.' + i + '.cantidad']" aria-label="Menos"> </button>
                                     <input type="number" min="1" max="999" x-model.number="l.cantidad" @input="delete errores['items.' + i + '.cantidad']">
                                     <button type="button" @click="l.cantidad++" aria-label="Más">+</button>
                                 </div>
@@ -148,7 +148,7 @@
 
                     <div class="pf-res">
                         <div><span>Subtotal</span><span x-text="gh.soles(resumen.subtotal)"></span></div>
-                        <div x-show="resumen.descuento > 0"><span>Descuento</span><span x-text="'âˆ’ ' + gh.soles(resumen.descuento)"></span></div>
+                        <div x-show="resumen.descuento > 0"><span>Descuento</span><span x-text="' ' + gh.soles(resumen.descuento)"></span></div>
                         <div x-show="form.tipo === 'delivery'"><span>Envío</span><span x-text="gh.soles(resumen.envio)"></span></div>
                         <div class="pf-tot"><span>Total</span><span x-text="gh.soles(resumen.total)"></span></div>
                         <div class="sub" style="text-align:right;" x-text="'Incluye IGV ' + gh.soles(resumen.total - resumen.total / 1.18)"></div>
@@ -181,7 +181,7 @@
                     <span x-text="'Pedido ' + (detalle?.numero || '')"></span>
                     <span class="badge" :class="detalle?.badge" x-text="detalle?.estado_texto"></span>
                 </div>
-                <div class="modal-sub" x-text="(detalle?.fecha || '') + ' Â· ' + canalTexto(detalle?.canal) + ' Â· ' + tipoTexto(detalle?.tipo)"></div>
+                <div class="modal-sub" x-text="(detalle?.fecha || '') + ' · ' + canalTexto(detalle?.canal) + ' · ' + tipoTexto(detalle?.tipo)"></div>
             </div>
             <button type="button" class="icon-btn sm" style="margin-left:auto;" @click="detalle = null" aria-label="Cerrar"><x-icon name="x" size="16" /></button>
         </div>
@@ -218,14 +218,14 @@
                 <template x-for="l in detalle?.lineas || []" :key="l.nombre + l.cantidad">
                     <div class="det-it">
                         <span class="det-q" x-text="l.cantidad + '—'"></span>
-                        <span style="flex:1;"><span x-text="l.nombre"></span><span class="sub" x-show="l.notas" x-text="' Â· ' + l.notas"></span></span>
+                        <span style="flex:1;"><span x-text="l.nombre"></span><span class="sub" x-show="l.notas" x-text="'  ' + l.notas"></span></span>
                         <span class="sub" x-text="gh.soles(l.precio_unit)"></span>
                         <b x-text="gh.soles(l.subtotal)"></b>
                     </div>
                 </template>
                 <div class="pf-res" style="margin-top:8px;">
                     <div><span>Subtotal</span><span x-text="gh.soles(detalle?.subtotal)"></span></div>
-                    <div x-show="detalle?.descuento > 0"><span>Descuento</span><span x-text="'âˆ’ ' + gh.soles(detalle?.descuento)"></span></div>
+                    <div x-show="detalle?.descuento > 0"><span>Descuento</span><span x-text="' ' + gh.soles(detalle?.descuento)"></span></div>
                     <div x-show="detalle?.costo_envio > 0"><span>Envío</span><span x-text="gh.soles(detalle?.costo_envio)"></span></div>
                     <div class="pf-tot"><span>Total</span><span x-text="gh.soles(detalle?.total)"></span></div>
                 </div>
@@ -268,7 +268,7 @@
     <div class="modal" style="max-width:420px;">
         <div class="modal-bd" style="text-align:center;padding-top:24px;">
             <div class="conf-ico"><x-icon name="alert" size="22" /></div>
-            <div class="modal-ttl" style="margin-bottom:6px;" x-text="'Â¿Cancelar el pedido ' + (confirmar?.numero || '') + '?'"></div>
+            <div class="modal-ttl" style="margin-bottom:6px;" x-text="'¿Cancelar el pedido ' + (confirmar?.numero || '') + '?'"></div>
             <div style="font-size:13px;color:var(--fg2);margin-bottom:12px;">Los productos vuelven al stock. Esta acción no se puede deshacer.</div>
             <input class="inp" x-model="motivo" maxlength="200" placeholder="Motivo (opcional): cliente no contestó¦">
         </div>

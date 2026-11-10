@@ -105,7 +105,7 @@
         <div class="empty" x-show="!flujos.length" x-cloak>
             <x-icon name="activity" size="34" />
             <div style="font-weight:600;color:var(--fg2);">Aún no hay flujos</div>
-            <div style="font-size:13px;color:var(--fg3);max-width:440px;text-align:center;">Crea uno, por ejemplo: si el cliente escribe Â«horarioÂ», el bot responde con tus horas de atención.</div>
+            <div style="font-size:13px;color:var(--fg3);max-width:440px;text-align:center;">Crea uno, por ejemplo: si el cliente escribe «horario», el bot responde con tus horas de atención.</div>
         </div>
     </div>
 
@@ -213,7 +213,7 @@
             },
 
             async eliminar(x) {
-                if (!confirm('Â¿Eliminar el flujo Â«' + x.nombre + 'Â»?')) return;
+                if (!confirm('¿Eliminar el flujo «' + x.nombre + '»?')) return;
                 const r = await gh.api(base + '/' + x.id, { method: 'DELETE' });
                 if (r.ok) { Alpine.store('toasts').push(r.data.message); gh.ir(location.pathname, false); }
                 else { Alpine.store('toasts').push(r.data.message || 'No se pudo eliminar el flujo.', 'error'); }

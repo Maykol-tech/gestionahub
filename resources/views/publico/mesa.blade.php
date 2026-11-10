@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $mesa->nombre }} Â· {{ $negocio }}</title>
+    <title>{{ $mesa->nombre }} · {{ $negocio }}</title>
     <style>
         :root { --brand:#2B6EF6; --fg:#1A2332; --fg2:#475569; --fg3:#64748B; --border:#E2E8F0; --bg:#F6F8FB; }
         @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --fg:#E2E8F0; --fg2:#94A3B8; --fg3:#64748B; --border:#1E293B; --bg:#0B1220; } }
@@ -28,7 +28,7 @@
 <body>
 <div class="wrap">
     <h1>{{ $mesa->nombre }}</h1>
-    <div class="sub">{{ $negocio }} Â· Elige lo que quieres y envíalo a cocina</div>
+    <div class="sub">{{ $negocio }} · Elige lo que quieres y envíalo a cocina</div>
 
     @if ($enviada)
         <div class="ok">{{ $enviada }}</div>

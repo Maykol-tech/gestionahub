@@ -34,7 +34,7 @@
 
     <div class="card fade-in" style="background:#F0F5FF;border-color:#C7D9F8;border-left:4px solid var(--accent);margin-bottom:16px;animation-delay:.25s">
         <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);display:flex;align-items:center;gap:6px;margin-bottom:6px;">
-            <x-icon name="sparkles" size="13" /> IA Â· Resumen semanal
+            <x-icon name="sparkles" size="13" /> IA · Resumen semanal
         </div>
         <div style="font-size:15px;font-weight:700;">
             @if ($datos['ventas_semana'] > 0)

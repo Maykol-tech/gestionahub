@@ -427,7 +427,7 @@
 
             async cambiarEstado(l, estado) {
                 if (estado === l.estado) return;
-                if (estado === 'terminada' && !confirm('Al terminar el lote se descontarán sus insumos del stock. Â¿Continuar?')) {
+                if (estado === 'terminada' && !confirm('Al terminar el lote se descontarán sus insumos del stock. ¿Continuar?')) {
                     gh.ir(location.pathname, false); return;
                 }
                 const r = await gh.api(urls.lotes + '/' + l.id + '/estado', { method: 'PATCH', body: { estado } });
@@ -437,7 +437,7 @@
 
             async eliminar(tipo, item) {
                 const nombre = item.nombre || item.titulo;
-                if (!confirm('Â¿Eliminar Â«' + nombre + 'Â»?')) return;
+                if (!confirm('¿Eliminar «' + nombre + '»?')) return;
                 const r = await gh.api(urls[tipo] + '/' + item.id, { method: 'DELETE' });
                 if (r.ok) { Alpine.store('toasts').push(r.data.message); gh.ir(location.pathname, false); }
                 else { Alpine.store('toasts').push(r.data.message || 'No se pudo eliminar.', 'error'); }

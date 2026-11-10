@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Galería Â· {{ $negocio->nombre_negocio }}</title>
+    <title>Galería · {{ $negocio->nombre_negocio }}</title>
     <style>
         :root { --fg:#1A2332; --fg2:#475569; --fg3:#64748B; --border:#E2E8F0; --bg:#F6F8FB; --card:#fff; }
         @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --fg:#E2E8F0; --fg2:#94A3B8; --fg3:#64748B; --border:#1E293B; --bg:#0B1220; --card:#111A2B; } }
@@ -22,7 +22,7 @@
 </head>
 <body>
 <div class="wrap">
-    <h1>{{ $negocio->nombre_negocio }} Â· Trabajos</h1>
+    <h1>{{ $negocio->nombre_negocio }} · Trabajos</h1>
     <div class="grid">
         @forelse ($items as $item)
             <figure>

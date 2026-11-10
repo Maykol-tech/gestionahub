@@ -6,6 +6,8 @@
 @push('styles')
     @include('admin.modulos._base')
     <style>
+        .stat-row-3 { grid-template-columns:repeat(3,1fr); }
+        @media (max-width: 900px) { .stat-row-3 { grid-template-columns:1fr; } }
         .estado-chip { display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; padding:3px 10px; border-radius:99px; white-space:nowrap; }
         .acciones { display:flex; gap:6px; justify-content:flex-end; align-items:center; flex-wrap:wrap; }
         .campos-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
@@ -19,16 +21,16 @@
 <div x-data="ordenesCompra(@js($proveedores), @js($insumos), @js($ordenes))" @keydown.escape.window="cerrar()">
 
     {{-- Indicadores --}}
-    <div class="stat-row">
+    <div class="stat-row stat-row-3">
         <div class="stat fade-in"><div class="stat-lbl">Proveedores</div><div class="stat-val">{{ $stats['proveedores'] }}</div></div>
-        <div class="stat fade-in" style="animation-delay:.05s"><div class="stat-lbl">Ordenes abiertas</div><div class="stat-val">{{ $stats['abiertas'] }}</div></div>
+        <div class="stat fade-in" style="animation-delay:.05s"><div class="stat-lbl">Órdenes abiertas</div><div class="stat-val">{{ $stats['abiertas'] }}</div></div>
         <div class="stat fade-in" style="animation-delay:.1s"><div class="stat-lbl">Compras recibidas (mes)</div><div class="stat-val">S/ {{ number_format($stats['gasto_mes'], 2) }}</div></div>
     </div>
 
     {{-- Ordenes de compra --}}
     <div class="panel fade-in" style="animation-delay:.1s">
         <div class="panel-hd">
-            <span style="font-weight:700;">Ordenes de compra</span>
+            <span style="font-weight:700;">Órdenes de compra</span>
             <button class="btn btn-p" type="button" style="margin-left:auto;" @click="abrirNueva()" :disabled="!proveedores.length">
                 <x-icon name="plus" size="15" stroke="2.4" /> Nueva orden
             </button>
@@ -78,9 +80,10 @@
         </div>
     </div>
 
-    {{-- Proveedores (mismo CRUD que el resto de modulos) --}}
-    <h2 style="font-size:15px;font-weight:700;margin:24px 0 10px;">Proveedores</h2>
-    @include('admin.crud', ['cfg' => $cfgProveedores])
+    {{-- Proveedores: listar, crear, editar y eliminar (GEST-69) --}}
+    <div style="margin-top:16px;">
+        @include('admin.partials.proveedores_crud', ['lista' => $proveedoresLista])
+    </div>
 
     {{-- Ventana: nueva orden --}}
     <div class="modal-bg" x-show="modal === 'orden'" x-cloak
@@ -142,7 +145,7 @@
             </div>
             <div class="modal-ft">
                 <button type="button" class="btn btn-g" @click="cerrar()">Cancelar</button>
-                <button type="submit" class="btn btn-p" :disabled="guardando" x-text="guardando ? 'Guardando¦' : 'Crear orden'"></button>
+                <button type="submit" class="btn btn-p" :disabled="guardando" x-text="guardando ? 'Guardando…' : 'Crear orden'"></button>
             </div>
         </form>
     </div>
@@ -197,15 +200,15 @@
             },
 
             async cambiar(o, estado) {
-                if (estado === 'recibida' && !confirm('Al recibir la orden se sumará la mercadería al stock de los insumos vinculados. Â¿Continuar?')) return;
-                if (estado === 'cancelada' && !confirm('Â¿Cancelar la orden ' + o.numero + '?')) return;
+                if (estado === 'recibida' && !confirm('Al recibir la orden se sumará la mercadería al stock de los insumos vinculados. ¿Continuar?')) return;
+                if (estado === 'cancelada' && !confirm('¿Cancelar la orden ' + o.numero + '?')) return;
                 const r = await gh.api(url + '/' + o.id + '/estado', { method: 'PATCH', body: { estado } });
                 if (r.ok) { Alpine.store('toasts').push(r.data.message); gh.ir(location.pathname, false); }
                 else { Alpine.store('toasts').push(r.data.message || 'No se pudo cambiar la orden.', 'error'); }
             },
 
             async eliminar(o) {
-                if (!confirm('Â¿Eliminar la orden ' + o.numero + '?')) return;
+                if (!confirm('¿Eliminar la orden ' + o.numero + '?')) return;
                 const r = await gh.api(url + '/' + o.id, { method: 'DELETE' });
                 if (r.ok) { Alpine.store('toasts').push(r.data.message); gh.ir(location.pathname, false); }
                 else { Alpine.store('toasts').push(r.data.message || 'No se pudo eliminar la orden.', 'error'); }

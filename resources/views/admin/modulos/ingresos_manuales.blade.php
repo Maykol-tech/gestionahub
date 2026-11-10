@@ -55,7 +55,7 @@
                         <td>{{ $i->categoria ?? '”' }}</td>
                         <td style="text-align:right;">S/ {{ number_format((float) $i->monto, 2) }}</td>
                         <td style="text-align:right;">
-                            <form method="POST" action="{{ route('admin.ingresos.eliminar', $i->id) }}" onsubmit="return confirm('Â¿Eliminar este ingreso?')">
+                            <form method="POST" action="{{ route('admin.ingresos.eliminar', $i->id) }}" onsubmit="return confirm('¿Eliminar este ingreso?')">
                                 @csrf
                                 @method('DELETE')
                                 <button class="btn btn-g" type="submit">Eliminar</button>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Prueba gratis Â· GestionaHub</title>
+    <title>Prueba gratis · GestionaHub</title>
     <style>
         :root { --brand:#2B6EF6; --fg:#1A2332; --fg2:#475569; --fg3:#64748B; --border:#E2E8F0; --bg:#F6F8FB; --card:#fff; }
         @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --fg:#E2E8F0; --fg2:#94A3B8; --fg3:#64748B; --border:#1E293B; --bg:#0B1220; --card:#111A2B; } }
@@ -53,7 +53,7 @@
             <label for="plan">Plan que quieres después de la prueba</label>
             <select id="plan" name="plan" required>
                 @foreach ($planes as $p)
-                    <option value="{{ $p->slug }}" @selected(old('plan', $plan) === $p->slug)>{{ $p->nombre }} Â· S/ {{ number_format($p->precio_mensual, 2) }}/mes</option>
+                    <option value="{{ $p->slug }}" @selected(old('plan', $plan) === $p->slug)>{{ $p->nombre }} · S/ {{ number_format($p->precio_mensual, 2) }}/mes</option>
                 @endforeach
             </select>
             @error('plan') <div class="err">{{ $message }}</div> @enderror

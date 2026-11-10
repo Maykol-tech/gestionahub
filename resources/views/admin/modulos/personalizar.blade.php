@@ -78,7 +78,7 @@
                 <div class="prev-card"></div><div class="prev-card" style="width:80%"></div><div class="prev-card" style="width:60%"></div>
             </div>
         </div>
-        <div class="hint" style="margin-top:8px;">Los cambios de color se ven en todo el panel al instante. Se guardan al presionar Â«Guardar cambiosÂ».</div>
+        <div class="hint" style="margin-top:8px;">Los cambios de color se ven en todo el panel al instante. Se guardan al presionar «Guardar cambios».</div>
     </div>
 </div>
 @endsection

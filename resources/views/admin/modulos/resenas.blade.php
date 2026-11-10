@@ -46,7 +46,7 @@
                     @foreach ($resenas as $r)
                         <tr>
                             <td>{{ $r->cliente_nombre }}<div style="font-size:11px;color:var(--fg3);">{{ $r->created_at?->format('d/m/Y') }}</div></td>
-                            <td><span class="estrellas">{{ str_repeat('â˜…', $r->calificacion) }}</span></td>
+                            <td><span class="estrellas">{{ str_repeat('˜…', $r->calificacion) }}</span></td>
                             <td style="max-width:320px;">{{ $r->comentario ?: '”' }}</td>
                             <td>
                                 <form method="POST" action="{{ route('admin.resenas.estado', $r->id) }}" style="display:flex;gap:6px;align-items:center;">

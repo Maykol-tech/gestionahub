@@ -1,0 +1,38 @@
+GestionaHub - Entrega 10/11/2026 (hecha sobre tu repositorio Maykol-tech/gestionahub)
+=====================================================================================
+REEMPLAZA a las entregas anteriores de hoy (GestionaHub_Kanban_Seeders y
+GestionaHub_Repartos_Proveedores). Usa solo esta.
+
+1) Copia todas las carpetas sobre la raiz del proyecto gestionahub (reemplaza):
+
+  Pedidos (Kanban con arrastrar y soltar + selector de estado)
+    app/Http/Controllers/PedidosPanelController.php
+    resources/views/admin/pedidos.blade.php
+    resources/views/admin/pedidos-script.blade.php
+  Correcciones (crear pedidos y el seeder fallaban)
+    app/Models/PedidoItem.php
+    app/Models/ProductoVariante.php
+  Seeders
+    database/seeders/CatalogoDemoSeeder.php   (nuevo)
+    database/seeders/GestionaHubSeeder.php
+  Repartos
+    resources/views/admin/modulos/repartos.blade.php
+    resources/views/admin/partials/mapa_repartidores.blade.php
+  Proveedores
+    app/Http/Controllers/ProveedorController.php
+    resources/views/admin/modulos/proveedores.blade.php
+    resources/views/admin/partials/proveedores_crud.blade.php
+
+   Si antes copiaste resources/views/admin/leaflet.blade.php puedes dejarlo o borrarlo:
+   esta version de pedidos ya no lo usa.
+
+2) routes/web.php: debajo de la linea de 'eliminarOrden' (rutas de proveedores) pega:
+
+    Route::post('/proveedores/lista', [ProveedorController::class, 'guardarProveedor'])->name('proveedores.lista.guardar');
+    Route::put('/proveedores/lista/{id}', [ProveedorController::class, 'actualizarProveedor'])->name('proveedores.lista.actualizar')->whereNumber('id');
+    Route::delete('/proveedores/lista/{id}', [ProveedorController::class, 'eliminarProveedor'])->name('proveedores.lista.eliminar')->whereNumber('id');
+
+3) PowerShell, desde la carpeta gestionahub:
+    docker compose exec app php artisan db:seed --class=CatalogoDemoSeeder --force
+    docker compose exec app php artisan optimize:clear
+    docker compose exec app php artisan view:clear

@@ -26,11 +26,11 @@
 
     @foreach ($productos as $p)
         <div class="panel prod fade-in">
-            <div style="font-weight:700;">{{ $p['nombre'] }} <span style="font-weight:400;color:var(--fg3);">Â· S/ {{ number_format($p['precio'], 2) }}</span></div>
+            <div style="font-weight:700;">{{ $p['nombre'] }} <span style="font-weight:400;color:var(--fg3);">· S/ {{ number_format($p['precio'], 2) }}</span></div>
 
             <div style="margin-top:6px;">
                 @forelse ($p['variantes'] as $v)
-                    <span class="chip">{{ $v->nombre }} Â· S/ {{ number_format($v->precio, 2) }} Â· stock {{ $v->stock }}
+                    <span class="chip">{{ $v->nombre }} · S/ {{ number_format($v->precio, 2) }} · stock {{ $v->stock }}
                         <form method="POST" action="{{ route('admin.variantes.eliminar', $v->id) }}" style="display:inline;">@csrf @method('DELETE')<button type="submit" style="background:none;border:0;color:#B91C1C;cursor:pointer;" aria-label="Eliminar variante">—</button></form>
                     </span>
                 @empty
@@ -63,7 +63,7 @@
                 <label class="lbl">Pedido</label>
                 <select class="inp" name="pedido_id_ref" onchange="this.form.action = this.form.action.replace(/\/\d+\/peso$/, '/' + this.value + '/peso')">
                     @foreach ($pedidosKilo as $ped)
-                        <option value="{{ $ped->id }}">{{ $ped->numero }} Â· S/ {{ number_format($ped->total, 2) }}</option>
+                        <option value="{{ $ped->id }}">{{ $ped->numero }} · S/ {{ number_format($ped->total, 2) }}</option>
                     @endforeach
                 </select>
             </div>

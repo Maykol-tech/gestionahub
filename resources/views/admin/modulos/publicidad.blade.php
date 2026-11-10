@@ -64,7 +64,7 @@
                         <tr class="row-in" :style="'--d:' + (i * 35) + 'ms'">
                             <td>
                                 <div style="font-weight:600;" x-text="c.nombre"></div>
-                                <span class="canal-chip" x-text="c.canal_label + ' Â· ' + c.objetivo_label"></span>
+                                <span class="canal-chip" x-text="c.canal_label + ' · ' + c.objetivo_label"></span>
                             </td>
                             <td>
                                 <span class="estado-chip" :style="'background:' + estados[c.estado].fondo + ';color:' + estados[c.estado].color" x-text="estados[c.estado].nombre"></span>
@@ -201,7 +201,7 @@
                 <div class="modal-ico"><x-icon name="activity" size="18" /></div>
                 <div>
                     <div class="modal-ttl" x-text="sel ? sel.nombre : ''"></div>
-                    <div class="modal-sub" x-text="sel ? 'Presupuesto ' + money(sel.presupuesto) + ' Â· ' + sel.estado : ''"></div>
+                    <div class="modal-sub" x-text="sel ? 'Presupuesto ' + money(sel.presupuesto) + ' · ' + sel.estado : ''"></div>
                 </div>
                 <button type="button" class="icon-btn sm" style="margin-left:auto;" @click="cerrar()" aria-label="Cerrar"><x-icon name="x" size="16" /></button>
             </div>
@@ -339,7 +339,7 @@
             },
 
             async eliminarGasto(g) {
-                if (!confirm('Â¿Eliminar este gasto de ' + this.money(g.monto) + '?')) return;
+                if (!confirm('¿Eliminar este gasto de ' + this.money(g.monto) + '?')) return;
                 const r = await gh.api(urlGastos + '/' + g.id, { method: 'DELETE' });
                 if (r.ok) {
                     this.sel.gastos = this.sel.gastos.filter(x => x.id !== g.id);
@@ -350,7 +350,7 @@
             },
 
             async eliminarCampana(c) {
-                if (!confirm('Â¿Eliminar la campaña Â«' + c.nombre + 'Â» y todos sus gastos?')) return;
+                if (!confirm('¿Eliminar la campaña «' + c.nombre + '» y todos sus gastos?')) return;
                 const r = await gh.api(urlCampanas + '/' + c.id, { method: 'DELETE' });
                 if (r.ok) { Alpine.store('toasts').push(r.data.message); gh.ir(location.pathname, false); }
                 else { Alpine.store('toasts').push(r.data.message || 'No se pudo eliminar la campaña.', 'error'); }

@@ -2,18 +2,15 @@
 
 namespace Database\Seeders;
 
-use App\Models\Categoria;
 use App\Models\CrmCliente;
 use App\Models\Pedido;
 use App\Models\Producto;
-use App\Models\ProductoVariante;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
@@ -81,92 +78,19 @@ class GestionaHubSeeder extends Seeder
         $admin->syncRoles(['admin']);
 
         // 5) Catalogo, clientes y pedidos (solo si el negocio aun no tiene datos)
+        //    Los datos vienen de CatalogoDemoSeeder (una sola fuente, sin duplicar listas)
+        $demo = new CatalogoDemoSeeder();
         if (! Producto::withoutGlobalScopes()->where('tenant_id', $tenant->id)->exists()) {
-            $this->catalogo($tenant->id);
+            $demo->catalogo($tenant->id);
         }
         if (! CrmCliente::withoutGlobalScopes()->where('tenant_id', $tenant->id)->exists()) {
-            $this->clientes($tenant->id);
+            $demo->clientes($tenant->id);
         }
         if (Schema::hasTable('pedidos') && ! Pedido::withoutGlobalScopes()->where('tenant_id', $tenant->id)->exists()) {
             $this->pedidos($tenant->id);
         }
 
         $this->command?->info('Usuario admin: ' . self::ADMIN_EMAIL . ' / ' . self::ADMIN_PASSWORD);
-    }
-
-    private function catalogo(int $t): void
-    {
-        // [categoria, nombre, precio, oferta, stock, minimo, descripcion, variantes [nombre, precio, stock, minimo]]
-        $items = [
-            ['Pollos a la brasa', 'Pollo a la brasa', 68.00, null, 0, 10, 'Pollo a la leña con papas fritas, ensalada y cremas de la casa.', [
-                ['1 pollo entero', 68.00, 24, 8], ['1/2 pollo', 36.00, 30, 10], ['1/4 de pollo', 19.90, 6, 10],
-            ]],
-            ['Pollos a la brasa', 'Mostrito', 24.90, 22.90, 35, 10, '1/4 de pollo con chaufa, papas y ensalada.', []],
-            ['Parrillas', 'Parrilla familiar', 89.00, null, 12, 5, 'Bife, chorizo, anticucho, pollo y mollejas para 4 personas.', []],
-            ['Parrillas', 'Anticuchos de corazón', 22.00, null, 4, 8, 'Dos palitos con papa dorada y choclo.', []],
-            ['Parrillas', 'Chuleta de cerdo', 29.90, null, 18, 6, 'Chuleta a la parrilla con papas y ensalada.', []],
-            ['Bebidas', 'Inca Kola', 0, null, 0, 10, 'Gaseosa helada.', [
-                ['500 ml', 4.50, 60, 20], ['1 L', 8.00, 28, 12], ['1.5 L', 10.50, 9, 12],
-            ]],
-            ['Bebidas', 'Chicha morada', 12.00, null, 22, 8, 'Jarra de 1 litro, preparada en casa.', []],
-            ['Bebidas', 'Limonada frozen', 14.00, 12.00, 15, 6, 'Jarra de 1 litro.', []],
-            ['Postres', 'Torta de chocolate', 9.90, null, 0, 5, 'Tajada de torta húmeda de chocolate.', []],
-            ['Postres', 'Suspiro limeño', 8.50, null, 11, 4, 'Postre tradicional en vaso.', []],
-            ['Acompañamientos', 'Papas fritas', 9.00, null, 40, 15, 'Porción familiar de papas amarillas.', []],
-            ['Acompañamientos', 'Ensalada clásica', 7.50, null, 3, 6, 'Lechuga, tomate, pepino y zanahoria.', []],
-        ];
-
-        $categorias = [];
-        foreach ($items as $orden => [$cat, $nombre, $precio, $oferta, $stock, $minimo, $desc, $variantes]) {
-            $categorias[$cat] ??= Categoria::withoutGlobalScopes()->firstOrCreate(
-                ['tenant_id' => $t, 'nombre' => $cat],
-                ['slug' => Str::slug($cat), 'orden' => count($categorias), 'activo' => true]
-            )->id;
-
-            $producto = Producto::withoutGlobalScopes()->create([
-                'tenant_id' => $t, 'categoria_id' => $categorias[$cat], 'nombre' => $nombre, 'slug' => Str::slug($nombre),
-                'descripcion' => $desc, 'precio' => $variantes ? $variantes[0][1] : $precio, 'precio_oferta' => $oferta,
-                'stock' => $stock, 'stock_minimo' => $minimo, 'sku' => 'EC-' . str_pad((string) ($orden + 1), 3, '0', STR_PAD_LEFT),
-                'tiene_variantes' => (bool) $variantes, 'activo' => true,
-            ]);
-
-            foreach ($variantes as $i => [$vn, $vp, $vs, $vm]) {
-                ProductoVariante::withoutGlobalScopes()->create([
-                    'tenant_id' => $t, 'producto_id' => $producto->id, 'nombre' => $vn, 'atributos' => ['presentacion' => $vn],
-                    'sku' => $producto->sku . '-' . ($i + 1), 'precio' => $vp, 'stock' => $vs, 'stock_minimo' => $vm, 'orden' => $i, 'activo' => true,
-                ]);
-            }
-            if ($variantes) {
-                $producto->update(['stock' => array_sum(array_column($variantes, 2))]);
-            }
-        }
-    }
-
-    private function clientes(int $t): void
-    {
-        $lista = [
-            ['María Fernanda Quispe', '987123456', 'Miraflores', 'Av. Larco 742', 'whatsapp'],
-            ['Jorge Luis Ramírez', '965874123', 'San Isidro', 'Calle Las Begonias 415', 'landing'],
-            ['Carmen Rosa Huamán', '912345678', 'Surco', 'Av. Primavera 1250', 'manual'],
-            ['Luis Alberto Torres', '934567812', 'San Borja', 'Av. Aviación 2980', 'referido'],
-            ['Ana Lucía Mendoza', '956781234', 'Lince', 'Jr. Risso 330', 'whatsapp'],
-            ['Pedro Pablo Castillo', '978123654', 'Jesús María', 'Av. Brasil 1540', 'manual'],
-            ['Rosa Elena Vargas', '945612378', 'Magdalena', 'Jr. Castilla 812', 'landing'],
-            ['Diego Alonso Chávez', '923456781', 'Pueblo Libre', 'Av. Bolívar 1023', 'whatsapp'],
-            ['Valeria Sofía Rojas', '967812345', 'Barranco', 'Av. Grau 455', 'referido'],
-            ['Miguel Ángel Paredes', '989456123', 'La Molina', 'Av. Raúl Ferrero 1180', 'manual'],
-            ['Lucía Gabriela Flores', '936985214', 'Miraflores', 'Calle Schell 220', 'whatsapp'],
-            ['Ricardo Andrés Salazar', '958741236', 'Surquillo', 'Av. Angamos Este 1660', 'landing'],
-        ];
-
-        foreach ($lista as $i => [$nombre, $tel, $distrito, $direccion, $fuente]) {
-            CrmCliente::withoutGlobalScopes()->create([
-                'tenant_id' => $t, 'nombre' => $nombre, 'telefono' => $tel, 'distrito' => $distrito,
-                'direccion' => $direccion, 'fuente' => $fuente, 'activo' => true,
-                'email' => Str::slug(Str::before($nombre, ' ')) . '.' . Str::slug(Str::afterLast($nombre, ' ')) . '@gmail.com',
-                'created_at' => now()->subDays(40 - $i * 3), 'updated_at' => now()->subDays(40 - $i * 3),
-            ]);
-        }
     }
 
     private function pedidos(int $t): void

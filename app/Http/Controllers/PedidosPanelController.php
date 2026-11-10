@@ -77,17 +77,22 @@ class PedidosPanelController extends DashboardController
         return $this->persistir($request, $pedido);
     }
 
-    /** Cambia el estado: acepta una columna del tablero o un estado exacto. */
+    /**
+     * Cambia el estado: acepta una columna del tablero (arrastrar y soltar o selector
+     * rapido) o un estado exacto. Puede saltar etapas (de Pendiente a Entregado).
+     *
+     * Efectos en la base de datos:
+     *  - El stock ya se descontó al registrar el pedido; aquí no se vuelve a descontar.
+     *    Si el pedido se suelta en "Cancelar" se delega en cancelar(), que lo devuelve.
+     *  - confirmado_at / entregado_at alimentan el historial y los KPI del panel.
+     *  - Al entregar, un pago que no es en efectivo queda como pagado.
+     *  - Pedido::updated suma o revierte los puntos de fidelización.
+     */
     public function mover(Request $request, $id)
     {
         $datos = $request->validate([
             'estado' => ['required', Rule::in(array_merge(array_keys(self::COLUMNAS), self::ESTADOS))],
         ], self::MENSAJES);
-
-        $pedido = Pedido::with('items')->findOrFail($id);
-        if ($pedido->estado === 'cancelado') {
-            return response()->json(['message' => 'El pedido está cancelado y no se puede mover.'], 422);
-        }
 
         $estado = isset(self::COLUMNAS[$datos['estado']]) && ! in_array($datos['estado'], self::ESTADOS, true)
             ? self::COLUMNAS[$datos['estado']][3] : $datos['estado'];
@@ -96,19 +101,43 @@ class PedidosPanelController extends DashboardController
             return $this->cancelar($request, $id);
         }
 
-        $cambios = ['estado' => $estado];
-        if ($estado !== 'pendiente' && ! $pedido->confirmado_at) {
-            $cambios['confirmado_at'] = now();
+        $resultado = DB::transaction(function () use ($id, $estado) {
+            // Bloquea la fila: dos personas moviendo el mismo pedido no se pisan
+            $pedido = Pedido::lockForUpdate()->findOrFail($id);
+            if ($pedido->estado === 'cancelado') {
+                return [$pedido, 'cancelado'];
+            }
+
+            // Repetir el mismo estado (doble clic, dos pestañas abiertas) no cambia nada
+            if ($pedido->estado === $estado) {
+                return [$pedido, 'igual'];
+            }
+
+            $cambios = ['estado' => $estado];
+            if ($estado !== 'pendiente' && ! $pedido->confirmado_at) {
+                $cambios['confirmado_at'] = now();
+            }
+            $cambios['entregado_at'] = $estado === 'entregado' ? ($pedido->entregado_at ?? now()) : null;
+            if ($estado === 'entregado' && $pedido->metodo_pago !== 'efectivo') {
+                $cambios['pagado'] = true;
+            }
+            $pedido->update($cambios);
+
+            return [$pedido, 'movido'];
+        });
+
+        [$pedido, $resultadoMovimiento] = $resultado;
+
+        if ($resultadoMovimiento === 'cancelado') {
+            return response()->json(['message' => 'El pedido está cancelado y no se puede mover.'], 422);
         }
-        $cambios['entregado_at'] = $estado === 'entregado' ? ($pedido->entregado_at ?? now()) : null;
-        if ($estado === 'entregado' && $pedido->metodo_pago !== 'efectivo') {
-            $cambios['pagado'] = true;
-        }
-        $pedido->update($cambios);
+        $pedido = $pedido->fresh(['cliente']);
 
         return response()->json([
-            'message' => "Pedido {$pedido->numero} movido a " . (self::ESTADOS_TEXTO[$estado] ?? $estado),
-            'data' => $this->formatearTarjeta($pedido->fresh()),
+            'message' => $resultadoMovimiento === 'igual'
+                ? "Pedido {$pedido->numero} ya estaba en " . (self::ESTADOS_TEXTO[$pedido->estado] ?? $pedido->estado)
+                : "Pedido {$pedido->numero} movido a " . (self::ESTADOS_TEXTO[$estado] ?? $estado),
+            'data' => $this->formatearTarjeta($pedido),
         ]);
     }
 

@@ -145,7 +145,7 @@
                        @drop.prevent="arrastrando = false; agregarImagenes($event.dataTransfer.files)">
                     <x-icon name="upload" size="22" />
                     <div><b style="color:var(--fg);">Arrastra tus fotos aquí</b> o haz clic para elegir</div>
-                    <div style="font-size:11px;">JPG, PNG o WEBP Â· máximo 4 MB cada una Â· hasta 8 por producto</div>
+                    <div style="font-size:11px;">JPG, PNG o WEBP · máximo 4 MB cada una · hasta 8 por producto</div>
                     <input type="file" accept="image/png,image/jpeg,image/webp" multiple hidden @change="agregarImagenes($event.target.files); $event.target.value = ''">
                 </label>
                 <div class="ferr" x-show="errGaleria" x-text="errGaleria" style="margin-top:8px;"></div>
@@ -172,7 +172,7 @@
                     </template>
                 </div>
                 <div class="hint" x-show="galeria.length > 1" style="margin-top:8px;">Arrastra las fotos para cambiar el orden. La principal es la que se ve en el catálogo.</div>
-                <div class="hint" x-show="nuevas.length" style="margin-top:8px;">Las fotos marcadas Â«Por subirÂ» se guardan al presionar el botón de abajo.</div>
+                <div class="hint" x-show="nuevas.length" style="margin-top:8px;">Las fotos marcadas «Por subir» se guardan al presionar el botón de abajo.</div>
             </div>
 
             <div class="ferr" x-show="errorGeneral" x-text="errorGeneral" style="margin-top:10px;"></div>
@@ -237,7 +237,7 @@
                 <select class="inp" :class="{ err: repo.errores.variante_id }" x-model="repo.variante_id">
                     <option value="">Elige una variante</option>
                     <template x-for="v in (repo.producto?.variantes || [])" :key="v.id">
-                        <option :value="v.id" :selected="String(v.id) === String(repo.variante_id)" x-text="v.nombre + ' Â· ' + v.stock + ' und. (mín. ' + v.stock_minimo + ')'"></option>
+                        <option :value="v.id" :selected="String(v.id) === String(repo.variante_id)" x-text="v.nombre + ' · ' + v.stock + ' und. (mín. ' + v.stock_minimo + ')'"></option>
                     </template>
                 </select>
                 <div class="ferr" x-show="repo.errores.variante_id" x-text="repo.errores.variante_id?.[0]"></div>
@@ -267,7 +267,7 @@
     <div class="modal" style="max-width:400px;">
         <div class="modal-bd" style="text-align:center;padding:26px 24px 18px;">
             <div class="conf-ico"><x-icon name="trash" size="20" /></div>
-            <div class="modal-ttl" style="margin-bottom:6px;" x-text="confirmar?.tipo === 'categoria' ? 'Â¿Eliminar la categoría?' : 'Â¿Eliminar el producto?'"></div>
+            <div class="modal-ttl" style="margin-bottom:6px;" x-text="confirmar?.tipo === 'categoria' ? '¿Eliminar la categoría?' : '¿Eliminar el producto?'"></div>
             <div style="font-size:13px;color:var(--fg2);">
                 <b x-text="confirmar?.item?.nombre"></b>
                 <span x-text="confirmar?.tipo === 'categoria' ? ' se eliminará. Sus productos no se borran: quedarán sin categoría.' : ' se eliminará junto con sus variantes e imágenes. Los pedidos anteriores no se modifican.'"></span>

@@ -1,0 +1,40 @@
+GEST-69: CRUD de proveedores (GestionaHub)
+
+ARCHIVOS DE ESTA CARPETA (copiar sobre las mismas rutas del proyecto)
+  1. app/Http/Controllers/ProveedorController.php        (reemplaza el archivo completo)
+  2. resources/views/admin/partials/proveedores_crud.blade.php   (archivo nuevo)
+
+DOS CAMBIOS MANUALES (son 2 líneas)
+
+A) routes/web.php
+   Dentro del grupo de admin, junto a las rutas de /proveedores (hoy son las líneas 214 a 217),
+   agrega estas tres líneas debajo de la de eliminarOrden:
+
+    Route::post('/proveedores/lista', [ProveedorController::class, 'guardarProveedor'])->name('proveedores.lista.guardar');
+    Route::put('/proveedores/lista/{id}', [ProveedorController::class, 'actualizarProveedor'])->name('proveedores.lista.actualizar')->whereNumber('id');
+    Route::delete('/proveedores/lista/{id}', [ProveedorController::class, 'eliminarProveedor'])->name('proveedores.lista.eliminar')->whereNumber('id');
+
+B) resources/views/admin/modulos/proveedores.blade.php
+   Busca esta línea:
+    @include('admin.crud', ['cfg' => $cfgProveedores])
+   y reemplázala por:
+    @include('admin.partials.proveedores_crud', ['lista' => $proveedoresLista])
+
+PASOS FINALES (en la terminal, dentro de la carpeta del proyecto)
+  php artisan route:clear
+  php artisan view:clear
+  php artisan config:clear
+
+PRUEBA
+  Entra a /admin/proveedores y revisa:
+  - "+ Nuevo proveedor" crea un registro y aparece en la tabla.
+  - "Editar" cambia los datos.
+  - "Eliminar" borra el proveedor, salvo que tenga órdenes de compra (en ese caso sale un aviso).
+  - Un RUC que no tenga 11 dígitos muestra un error en el campo.
+
+NOTAS
+  - Ya no se usa CrudModulos ni GestionModuloController para proveedores. Puedes dejarlos como están.
+  - Las categorías de proveedores NO están incluidas: la tabla proveedores no tiene columna de categoría.
+    Eso necesita una migración nueva; se hace después de confirmar este CRUD.
+  - Los nombres de campos (nombre, ruc, contacto, telefono, email, notas, activo) salen del modelo
+    Proveedor.php y la migración que tienes en el repo.

@@ -6,9 +6,12 @@
         const toast = (t, tipo) => Alpine.store('toasts').push(t, tipo);
         let uid = 0;
 
+        let d = null;   // arrastre en curso (fuera de la reactividad de Alpine)
+
         Alpine.data('pedidosPage', (inicial, columnas, clientes, catalogo) => ({
             pedidos: inicial, columnas, clientes, catalogo,
             arrastrado: null, sobre: null, movido: null, cargando: false, reloj: null, moviendo: false,
+            menu: null, clickBloqueado: 0,
             filtro: 'activos', pagina: 1, porPagina: 15,
             filtros: [
                 { clave: 'activos', titulo: 'En curso' }, { clave: 'hoy', titulo: 'Hoy' },
@@ -33,12 +36,12 @@
                 this.$watch('$store.pedidos.vista', v => { try { localStorage.setItem('gh-pedidos-vista', v); } catch (e) {} });
                 this.$watch('$store.pedidos.buscar', () => this.pagina = 1);
                 this.reloj = setInterval(() => {
-                    if (!this.arrastrado && !this.form.abierto && !this.detalle && !document.hidden) this.recargar();
+                    if (!this.arrastrado && !this.menu && !this.moviendo && !this.form.abierto && !this.detalle && !this.confirmar && !document.hidden) this.recargar();
                 }, 30000);
                 const q = new URLSearchParams(location.search);
                 if (q.get('nuevo')) this.$nextTick(() => this.abrirForm());
             },
-            destroy() { clearInterval(this.reloj); },
+            destroy() { clearInterval(this.reloj); this.terminarArrastre(); },
 
             // ---------- Filtros y totales ----------
             coincide(p) {
@@ -93,16 +96,132 @@
                 toast('Se descargó pedidos.csv', 'info');
             },
 
-            // ---------- Kanban: arrastrar y mover ----------
-            arrastrar(e, p) {
-                this.arrastrado = p.id;
-                e.dataTransfer.effectAllowed = 'move';
-                e.dataTransfer.setData('text/plain', p.id);
+            // ---------- Kanban: arrastrar y soltar (mouse, tactil y lapiz) ----------
+            // Con mouse el arrastre empieza al mover 5px; en pantallas tactiles, al mantener
+            // presionada la tarjeta 220 ms (asi el dedo puede seguir desplazando la pagina).
+            iniciarArrastre(e, p) {
+                if (e.button > 0 || p.estado === 'cancelado' || this.moviendo) return;
+                if (e.target.closest('button, a, input, select, textarea')) return;
+                this.terminarArrastre();
+                const tactil = e.pointerType !== 'mouse';
+                d = { p, el: e.currentTarget, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, activo: false, tactil, timer: null, fantasma: null, scroll: null };
+                d.mover = (ev) => this.moverArrastre(ev);
+                d.soltar = (ev) => this.soltarArrastre(ev);
+                d.cancelar = () => this.terminarArrastre();
+                d.bloquearScroll = (ev) => { if (d && d.activo) ev.preventDefault(); };
+                d.tecla = (ev) => { if (ev.key === 'Escape') this.terminarArrastre(); };
+                d.menuContexto = (ev) => ev.preventDefault();   // la pulsacion larga no abre el menu del navegador
+                window.addEventListener('pointermove', d.mover);
+                window.addEventListener('pointerup', d.soltar);
+                window.addEventListener('pointercancel', d.cancelar);
+                window.addEventListener('keydown', d.tecla);
+                window.addEventListener('touchmove', d.bloquearScroll, { passive: false });
+                if (tactil) window.addEventListener('contextmenu', d.menuContexto);
+                if (tactil) d.timer = setTimeout(() => d && this.empezarArrastre(), 220);
             },
-            soltar(clave) {
-                const p = this.pedidos.find(x => x.id === this.arrastrado);
-                this.sobre = null; this.arrastrado = null;
-                if (p && p.columna !== clave) this.mover(p, clave);
+            empezarArrastre() {
+                const r = d.el.getBoundingClientRect();
+                d.activo = true;
+                d.ox = d.x0 - r.left; d.oy = d.y0 - r.top;
+                const f = d.el.cloneNode(true);
+                f.setAttribute('x-ignore', '');           // Alpine no debe procesar la copia
+                f.classList.add('kghost');
+                f.classList.remove('kcard-moved', 'kcard-drag');
+                Object.assign(f.style, { width: r.width + 'px', left: '0px', top: '0px', animation: 'none' });
+                document.body.appendChild(f);
+                d.fantasma = f;
+                document.body.classList.add('kdragging');
+                this.arrastrado = d.p.id;
+                this.menu = null;
+                if (d.tactil) navigator.vibrate?.(12);
+                this.ubicarFantasma();
+                // Desplaza el tablero o la pagina al acercarse a los bordes
+                d.scroll = setInterval(() => {
+                    if (!d || !d.activo) return;
+                    const board = this.$refs.board, br = board?.getBoundingClientRect();
+                    if (br) {
+                        if (d.x > br.right - 60) board.scrollLeft += 14;
+                        else if (d.x < br.left + 60) board.scrollLeft -= 14;
+                    }
+                    if (d.y > innerHeight - 50) window.scrollBy(0, 14);
+                    else if (d.y < 70) window.scrollBy(0, -14);
+                    const lista = document.elementFromPoint(d.x, d.y)?.closest('.klist');
+                    if (lista) {
+                        const lr = lista.getBoundingClientRect();
+                        if (d.y > lr.bottom - 40) lista.scrollTop += 10; else if (d.y < lr.top + 40) lista.scrollTop -= 10;
+                    }
+                }, 16);
+            },
+            moverArrastre(e) {
+                if (!d) return;
+                d.x = e.clientX; d.y = e.clientY;
+                const dist = Math.hypot(d.x - d.x0, d.y - d.y0);
+                if (!d.activo) {
+                    if (d.tactil) { if (dist > 8) this.terminarArrastre(); }   // el dedo esta desplazando la pagina
+                    else if (dist > 5) this.empezarArrastre();
+                    return;
+                }
+                e.preventDefault();
+                this.ubicarFantasma();
+                const zona = document.elementFromPoint(d.x, d.y)?.closest('[data-col]');
+                const clave = zona ? zona.dataset.col : null;
+                this.sobre = clave && this.puedeSoltar(d.p, clave) ? clave : null;
+            },
+            ubicarFantasma() {
+                if (d?.fantasma) d.fantasma.style.transform = `translate(${d.x - d.ox}px, ${d.y - d.oy}px) rotate(2deg) scale(1.03)`;
+            },
+            puedeSoltar(p, clave) {
+                if (clave === 'cancelar') return this.editable(p);
+                return clave !== p.columna;
+            },
+            soltarArrastre() {
+                if (!d) return;
+                const p = d.p, activo = d.activo, destino = this.sobre;
+                this.terminarArrastre();
+                if (!activo) return;                       // fue un clic: lo maneja @click
+                this.clickBloqueado = Date.now();          // evita abrir el detalle al soltar
+                if (!destino) return;
+                if (destino === 'cancelar') this.pedirCancelar(p);
+                else this.mover(p, destino);
+            },
+            terminarArrastre() {
+                if (d) {
+                    clearTimeout(d.timer); clearInterval(d.scroll);
+                    window.removeEventListener('pointermove', d.mover);
+                    window.removeEventListener('pointerup', d.soltar);
+                    window.removeEventListener('pointercancel', d.cancelar);
+                    window.removeEventListener('keydown', d.tecla);
+                    window.removeEventListener('touchmove', d.bloquearScroll);
+                    window.removeEventListener('contextmenu', d.menuContexto);
+                    d.fantasma?.remove();
+                }
+                d = null;
+                document.body.classList.remove('kdragging');
+                this.arrastrado = null; this.sobre = null;
+            },
+            abrirTarjeta(p) {
+                if (Date.now() - this.clickBloqueado < 350) return;
+                this.verDetalle(p);
+            },
+
+            // ---------- Selector rapido de estado (tarjetas, bandeja y detalle) ----------
+            abrirMenu(e, p) {
+                const r = e.currentTarget.getBoundingClientRect();
+                if (this.menu && this.menu.p.id === p.id) { this.menu = null; return; }
+                const ancho = 220, alto = 56 + this.columnas.length * 38 + (this.editable(p) ? 46 : 0);
+                const x = Math.max(8, Math.min(r.left, innerWidth - ancho - 8));
+                const y = r.bottom + alto + 8 > innerHeight ? Math.max(8, r.top - alto - 6) : r.bottom + 6;
+                this.menu = { p: this.pedidos.find(x => x.id === p.id) || p, x, y };
+                this.$nextTick(() => this.$refs.menuEstado?.querySelector('button:not([disabled])')?.focus());
+            },
+            async elegirEstado(clave) {
+                const p = this.menu?.p;
+                this.menu = null;
+                if (!p) return;
+                if (clave === 'cancelar') { this.pedirCancelar(p); return; }
+                if (clave === p.columna) return;
+                await this.mover(p, clave);
+                if (this.detalle && this.detalle.id === p.id) await this.cargarDetalle(p.id);
             },
             reemplazar(dato) {
                 const i = this.pedidos.findIndex(x => x.id === dato.id);
@@ -112,6 +231,7 @@
             },
             async mover(p, clave) {
                 const enLista = this.pedidos.find(x => x.id === p.id) || p;
+                if (!clave || enLista.columna === clave) return;
                 const anterior = { ...enLista };
                 const col = this.columnas.find(c => c.clave === clave);
                 // Movimiento optimista: la tarjeta cambia de columna al instante
@@ -119,7 +239,7 @@
                 this.moviendo = true;
                 const r = await gh.api(URL_BASE + '/' + p.id + '/estado', { method: 'PATCH', body: { estado: clave } });
                 this.moviendo = false;
-                if (!r.ok) { Object.assign(enLista, anterior); toast(r.data.message || 'No se pudo mover el pedido', 'error'); return; }
+                if (!r.ok) { Object.assign(enLista, anterior); toast(r.data.message || (r.data.errors ? Object.values(r.data.errors)[0][0] : 'No se pudo mover el pedido'), 'error'); return; }
                 this.reemplazar(r.data.data);
                 toast(r.data.message);
             },

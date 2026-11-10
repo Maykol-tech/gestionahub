@@ -67,7 +67,7 @@
                 </div>
             </div>
             <div class="wa-bd">
-                <div class="wa-msg wa-in">Hola, Â¿tienen delivery?</div>
+                <div class="wa-msg wa-in">Hola, ¿tienen delivery?</div>
                 <div class="wa-msg wa-out" x-text="form.bot_bienvenida || 'Escribe tu mensaje de bienvenida'"></div>
                 <div class="wa-msg wa-out wa-menu">
                     1. Ver la carta ({{ $productos }} {{ $productos === 1 ? 'producto' : 'productos' }})<br>

@@ -60,7 +60,7 @@
                         <div style="font-weight:600;" x-text="l.nombre"></div>
                         <div style="font-size:11px;color:var(--fg3);" x-text="money(l.precio) + ' c/u'"></div>
                     </div>
-                    <button class="icon-btn sm" type="button" @click="quitar(l)" aria-label="Quitar uno">âˆ’</button>
+                    <button class="icon-btn sm" type="button" @click="quitar(l)" aria-label="Quitar uno">ˆ’</button>
                     <span style="min-width:24px;text-align:center;font-weight:700;" x-text="l.cantidad"></span>
                     <button class="icon-btn sm" type="button" @click="agregar(l)" :disabled="enCarritoStock({ id: l.producto_id }) >= stockDe(l.producto_id)" aria-label="Agregar uno">+</button>
                 </div>

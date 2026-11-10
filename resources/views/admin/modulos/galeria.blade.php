@@ -44,7 +44,7 @@
                 <div style="font-size:12px;color:var(--fg3);">{{ $item->descripcion }}</div>
                 <div style="display:flex;gap:6px;margin-top:8px;">
                     <form method="POST" action="{{ route('admin.galeria.alternar', $item->id) }}">@csrf <button class="btn btn-g" type="submit">{{ $item->activo ? 'Ocultar' : 'Mostrar' }}</button></form>
-                    <form method="POST" action="{{ route('admin.galeria.eliminar', $item->id) }}" onsubmit="return confirm('Â¿Eliminar este trabajo?')">@csrf @method('DELETE') <button class="btn btn-g" type="submit">Eliminar</button></form>
+                    <form method="POST" action="{{ route('admin.galeria.eliminar', $item->id) }}" onsubmit="return confirm('¿Eliminar este trabajo?')">@csrf @method('DELETE') <button class="btn btn-g" type="submit">Eliminar</button></form>
                 </div>
             </div>
         @empty

@@ -154,7 +154,7 @@
             },
             avisarStock(p) {
                 if (p.activo && ['bajo', 'sin_stock'].includes(p.estado)) {
-                    Alpine.store('toasts').push(p.estado === 'sin_stock' ? `Â«${p.nombre}Â» está sin stock` : `Â«${p.nombre}Â» está en su stock mínimo`, 'error');
+                    Alpine.store('toasts').push(p.estado === 'sin_stock' ? `«${p.nombre}» está sin stock` : `«${p.nombre}» está en su stock mínimo`, 'error');
                 }
             },
             async alternar(p) {
@@ -176,8 +176,8 @@
                 const archivos = [...(lista || [])];
                 for (const f of archivos) {
                     const tipos = ['image/jpeg', 'image/png', 'image/webp'];
-                    if (!tipos.includes(f.type)) { this.errGaleria = `Â«${f.name}Â» no es JPG, PNG o WEBP.`; continue; }
-                    if (f.size > 4 * 1024 * 1024) { this.errGaleria = `Â«${f.name}Â» pesa más de 4 MB.`; continue; }
+                    if (!tipos.includes(f.type)) { this.errGaleria = `«${f.name}» no es JPG, PNG o WEBP.`; continue; }
+                    if (f.size > 4 * 1024 * 1024) { this.errGaleria = `«${f.name}» pesa más de 4 MB.`; continue; }
                     if (this.galeria.length + this.nuevas.length >= 8) { this.errGaleria = 'Cada producto admite hasta 8 imágenes.'; break; }
                     this.nuevas.push({ k: ++clave, archivo: f, url: URL.createObjectURL(f) });
                 }

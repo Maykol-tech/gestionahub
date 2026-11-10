@@ -1,0 +1,13 @@
+IMPLEMENTAR EN TU PROYECTO (GestionaHub)
+
+Copia estos archivos a las mismas rutas dentro de tu proyecto gestionahub
+(reemplaza el archivo si ya existe):
+
+1. resources/views/auth/login.blade.php          -> login nuevo
+2. resources/views/admin/partials/mapa_repartidores.blade.php -> mapa de repartidores (GEST-24)
+3. resources/views/admin/modulos/repartos.blade.php -> vista de repartos con el mapa
+
+Luego, en la terminal de la carpeta gestionahub:
+  php artisan view:clear
+
+No se usa en esta entrega: tema_mejorado.blade.php (no se agrega).

@@ -31,7 +31,7 @@
             <div class="nivel-card fade-in" style="animation-delay: {{ $loop->index * .06 }}s">
                 <span class="nivel-chip" style="background:{{ $n['fondo'] }};color:{{ $n['color'] }}">{{ $n['nombre'] }}</span>
                 <div style="font-size:13px;color:var(--fg2);margin-top:10px;">
-                    Desde <strong>{{ number_format($n['desde']) }}</strong> puntos ganados Â· gana <strong>—{{ number_format($n['multiplicador'], 1) }}</strong> puntos por compra
+                    Desde <strong>{{ number_format($n['desde']) }}</strong> puntos ganados · gana <strong>—{{ number_format($n['multiplicador'], 1) }}</strong> puntos por compra
                 </div>
                 <div style="font-size:12px;color:var(--fg3);margin-top:8px;">{{ $n['clientes'] }} {{ $n['clientes'] === 1 ? 'cliente' : 'clientes' }} en este nivel</div>
             </div>
@@ -127,7 +127,7 @@
                 <div class="modal-ico"><x-icon name="heart" size="18" /></div>
                 <div>
                     <div class="modal-ttl">Canjear recompensa</div>
-                    <div class="modal-sub" x-text="seleccionado ? seleccionado.nombre + ' Â· saldo ' + formato(seleccionado.saldo) + ' puntos' : ''"></div>
+                    <div class="modal-sub" x-text="seleccionado ? seleccionado.nombre + ' · saldo ' + formato(seleccionado.saldo) + ' puntos' : ''"></div>
                 </div>
                 <button type="button" class="icon-btn sm" style="margin-left:auto;" @click="cerrar()" aria-label="Cerrar"><x-icon name="x" size="16" /></button>
             </div>
@@ -136,7 +136,7 @@
                     <label class="lbl" for="f-recompensa">Recompensa *</label>
                     <select class="inp" id="f-recompensa" x-model="recompensaId" :class="{ err: errores.recompensa_id }">
                         <template x-for="r in recompensas" :key="r.id">
-                            <option :value="r.id" x-text="r.nombre + ' Â· ' + formato(r.puntos_requeridos) + ' puntos'"></option>
+                            <option :value="r.id" x-text="r.nombre + ' · ' + formato(r.puntos_requeridos) + ' puntos'"></option>
                         </template>
                     </select>
                     <div class="ferr" x-show="errores.recompensa_id" x-text="errores.recompensa_id ? errores.recompensa_id[0] : ''"></div>

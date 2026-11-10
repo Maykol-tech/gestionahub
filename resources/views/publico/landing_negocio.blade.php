@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $c['titulo'] }} Â· {{ $negocio->nombre_negocio }}</title>
+    <title>{{ $c['titulo'] }} · {{ $negocio->nombre_negocio }}</title>
     <meta name="description" content="{{ $c['subtitulo'] }}">
     <style>
         :root { --brand: {{ $negocio->color_primario ?? '#2B6EF6' }}; --fg:#1A2332; --fg2:#475569; --fg3:#64748B; --border:#E2E8F0; --bg:#F6F8FB; --card:#fff; }
@@ -49,7 +49,7 @@
             @csrf
             <input name="nombre" placeholder="Tu nombre" required maxlength="150">
             <input name="telefono" placeholder="Tu WhatsApp" required maxlength="30">
-            <textarea name="mensaje" rows="3" placeholder="Â¿En qué te podemos ayudar?" maxlength="500"></textarea>
+            <textarea name="mensaje" rows="3" placeholder="¿En qué te podemos ayudar?" maxlength="500"></textarea>
             <button class="btn" type="submit">Enviar</button>
         </form>
     </div>

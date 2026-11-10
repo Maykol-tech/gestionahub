@@ -125,7 +125,7 @@
             },
             recordatorio(c) {
                 const n = (c.telefono || '').replace(/\D/g, '');
-                const texto = 'Hola ' + c.cliente + ', te recordamos el pago de tu pedido #' + c.numero + ' por ' + gh.soles(c.total) + '. Â¡Gracias!';
+                const texto = 'Hola ' + c.cliente + ', te recordamos el pago de tu pedido #' + c.numero + ' por ' + gh.soles(c.total) + '. ¡Gracias!';
                 return 'https://wa.me/' + (n.length === 9 ? '51' + n : n) + '?text=' + encodeURIComponent(texto);
             },
             async marcar(c) {

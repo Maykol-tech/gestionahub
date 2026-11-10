@@ -28,7 +28,7 @@
             <label class="lbl" for="c-fecha" style="margin:0;">Día</label>
             <input class="inp" id="c-fecha" type="date" name="fecha" value="{{ $dia }}" style="max-width:200px;">
             <button class="btn btn-g" type="submit">Ver día</button>
-            <span style="font-size:13px;color:var(--fg3);margin-left:auto;">{{ $dia_label }} Â· {{ $resumen['pedidos'] }} {{ $resumen['pedidos'] === 1 ? 'pedido pagado' : 'pedidos pagados' }}</span>
+            <span style="font-size:13px;color:var(--fg3);margin-left:auto;">{{ $dia_label }} · {{ $resumen['pedidos'] }} {{ $resumen['pedidos'] === 1 ? 'pedido pagado' : 'pedidos pagados' }}</span>
         </form>
     </div>
 
@@ -69,7 +69,7 @@
                 <div class="arqueo-total">
                     <div><span>Monto inicial</span><span>S/ {{ number_format($cierre['monto_inicial'], 2) }}</span></div>
                     <div><span>+ Ventas en efectivo</span><span>S/ {{ number_format($cierre['ventas_efectivo'], 2) }}</span></div>
-                    <div><span>âˆ’ Gastos en efectivo</span><span>S/ {{ number_format($cierre['gastos_efectivo'], 2) }}</span></div>
+                    <div><span>ˆ’ Gastos en efectivo</span><span>S/ {{ number_format($cierre['gastos_efectivo'], 2) }}</span></div>
                     <div style="font-weight:700;border-top:1px dashed var(--border);margin-top:6px;padding-top:8px;"><span>Esperado</span><span>S/ {{ number_format($cierre['esperado'], 2) }}</span></div>
                     <div style="font-weight:700;"><span>Contado</span><span>S/ {{ number_format($cierre['contado'], 2) }}</span></div>
                     <div style="font-weight:800;"><span>Diferencia</span><span class="{{ $cierre['diferencia'] == 0 ? 'dif-ok' : 'dif-mal' }}">S/ {{ number_format($cierre['diferencia'], 2) }}</span></div>
@@ -105,7 +105,7 @@
                 <div class="arqueo-total">
                     <div><span>Monto inicial</span><span x-text="money(monto_inicial)"></span></div>
                     <div><span>+ Ventas en efectivo</span><span x-text="money(resumen.ventas_efectivo)"></span></div>
-                    <div><span>âˆ’ Gastos en efectivo</span><span x-text="money(resumen.gastos_efectivo)"></span></div>
+                    <div><span>ˆ’ Gastos en efectivo</span><span x-text="money(resumen.gastos_efectivo)"></span></div>
                     <div style="font-weight:700;border-top:1px dashed var(--border);margin-top:6px;padding-top:8px;"><span>Esperado</span><span x-text="money(esperado)"></span></div>
                     <div style="font-weight:700;"><span>Contado</span><span x-text="money(contado)"></span></div>
                     <div style="font-weight:800;"><span>Diferencia</span><span :class="diferencia === 0 ? 'dif-ok' : 'dif-mal'" x-text="(diferencia > 0 ? '+' : '') + money(diferencia)"></span></div>
