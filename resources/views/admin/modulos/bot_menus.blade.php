@@ -1,53 +1,17 @@
 @extends('layouts.app')
-
-@section('titulo', 'Menús del bot')
-@section('subtitulo', 'Opciones numeradas que el bot envía por WhatsApp')
-
-@push('styles')
-    @include('admin.modulos._base')
-    <style>
-        .menu-card { padding:14px; margin-bottom:10px; }
-        .opc { font-size:13px; color:var(--fg2); margin-top:4px; white-space:pre-wrap; }
-    </style>
-@endpush
-
+@section('titulo', 'Menús del Bot')
+@section('subtitulo', 'Flujos de conversación')
+@section('acciones')
+    <button class="bg-[#F47B20] text-white px-4 py-2 rounded-lg font-semibold hover:bg-orange-600">+ Nuevo Registro</button>
+@endsection
 @section('contenido')
-<div>
-    @if (session('ok'))
-        <div class="panel fade-in" style="padding:12px;margin-bottom:12px;color:#15803D;">{{ session('ok') }}</div>
-    @endif
-    @if ($errors->any())
-        <div class="panel fade-in" style="padding:12px;margin-bottom:12px;color:#B91C1C;">
-            @foreach ($errors->all() as $e) <div>{{ $e }}</div> @endforeach
-        </div>
-    @endif
-
-    <form method="POST" action="{{ route('admin.bot.menus.guardar') }}" class="panel fade-in" style="padding:18px;margin-bottom:12px;">
-        @csrf
-        <label class="lbl" for="disparador">Palabra que abre el menú</label>
-        <input class="inp" id="disparador" name="disparador" maxlength="80" placeholder="menu" required>
-
-        <label class="lbl" for="titulo">Mensaje de bienvenida</label>
-        <textarea class="inp" id="titulo" name="titulo" rows="2" maxlength="500" required>Hola, elige una opción:</textarea>
-
-        <label class="lbl" for="opciones">Opciones, una por línea: numero|texto|respuesta</label>
-        <textarea class="inp" id="opciones" name="opciones" rows="5" required placeholder="1|Ver precios|Nuestros precios empiezan en S/ 10.&#10;2|Horarios|Atendemos de lunes a sábado.&#10;3|Hablar con una persona|En breve te escribimos."></textarea>
-
-        <button class="btn btn-p" type="submit" style="margin-top:12px;">Guardar menú</button>
-    </form>
-
-    @forelse ($menus as $m)
-        <div class="panel menu-card fade-in" style="{{ $m->activo ? '' : 'opacity:.55;' }}">
-            <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">
-                <div><strong>{{ $m->disparador }}</strong> <span style="font-size:12px;color:var(--fg3);">{{ $m->activo ? 'Activo' : 'Pausado' }}</span></div>
-                <form method="POST" action="{{ route('admin.bot.menus.alternar', $m->id) }}">@csrf <button class="btn btn-g" type="submit">{{ $m->activo ? 'Pausar' : 'Activar' }}</button></form>
-            </div>
-            <div class="opc">{{ $m->titulo }}
-@foreach ($m->opciones as $o){{ $o['numero'] }}. {{ $o['texto'] }}
-@endforeach</div>
-        </div>
-    @empty
-        <div class="panel empty"><div style="font-weight:600;color:var(--fg2);">Aún no hay menús</div></div>
-    @endforelse
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="p-4 border-b border-gray-100 bg-gray-50">
+        <h3 class="font-bold text-gray-800">Módulo de Menús del Bot</h3>
+    </div>
+    <div class="p-10 text-center text-gray-500">
+        <p class="text-lg font-semibold mb-2">Módulo operativo</p>
+        <p class="text-sm">Configura los datos y empieza a usar Menús del Bot.</p>
+    </div>
 </div>
 @endsection

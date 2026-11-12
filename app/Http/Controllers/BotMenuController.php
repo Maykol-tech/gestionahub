@@ -10,7 +10,7 @@ use Illuminate\Validation\ValidationException;
 /** Administracion de menus numerados del bot (GEST-30). Cada opcion va en una linea: numero|texto|respuesta. */
 class BotMenuController extends DashboardController
 {
-    public function pagina()
+    public function index() { return $this->pagina(); } public function pagina()
     {
         $this->compartirLayout();
 

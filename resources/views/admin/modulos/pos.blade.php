@@ -1,157 +1,158 @@
 @extends('layouts.app')
-
-@section('titulo', 'Punto de venta')
-@section('subtitulo', 'Venta rápida de mostrador con cobro y descuento de stock')
-
-@push('styles')
-    @include('admin.modulos._base')
-    <style>
-        .pos { display:grid; grid-template-columns: 1fr 360px; gap:16px; align-items:start; }
-        .prod-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:10px; }
-        .prod { border:1px solid var(--border); border-radius:12px; padding:12px; background:#fff; text-align:left; cursor:pointer; transition: transform .15s var(--ease), box-shadow .15s var(--ease); }
-        .prod:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(26,35,50,.09); }
-        .prod:disabled { opacity:.45; cursor:not-allowed; transform:none; box-shadow:none; }
-        .linea { display:flex; align-items:center; gap:8px; padding:8px 0; border-top:1px dashed var(--border); font-size:13px; }
-        .metodos { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
-        .metodo { border:1px solid var(--border); border-radius:10px; padding:8px; background:#fff; font-size:12px; font-weight:700; cursor:pointer; }
-        .metodo.on { background:var(--brand, #2B6EF6); border-color:var(--brand, #2B6EF6); color:#fff; }
-        .total { font-size:26px; font-weight:800; font-variant-numeric: tabular-nums; }
-        @media (max-width: 900px) { .pos { grid-template-columns:1fr; } }
-    </style>
-@endpush
+@section('titulo', 'Punto de Venta')
+@section('subtitulo', 'Cobra rápido')
 
 @section('contenido')
-<div x-data="pos(@js($productos), @js($metodos))" x-init="iniciar()">
-
-    <div class="stat-row">
-        <div class="stat fade-in"><div class="stat-lbl">Ventas de hoy</div><div class="stat-val">{{ $stats['ventas_hoy'] }}</div></div>
-        <div class="stat fade-in" style="animation-delay:.05s"><div class="stat-lbl">Cobrado hoy</div><div class="stat-val">S/ {{ number_format($stats['total_hoy'], 2) }}</div></div>
+<div x-data="posApp()" class="flex flex-col lg:flex-row gap-4 h-[calc(100vh-140px)]">
+    
+    <!-- KPIs arriba -->
+    <div class="lg:hidden grid grid-cols-2 gap-2 mb-2">
+        <div class="bg-white p-3 rounded-lg border"><p class="text-xs text-gray-500">Ventas Hoy</p><p class="text-lg font-bold">{{ $ventasHoy }}</p></div>
+        <div class="bg-white p-3 rounded-lg border"><p class="text-xs text-gray-500">Cobrado</p><p class="text-lg font-bold text-green-600">S/ {{ number_format($cobradoHoy, 2) }}</p></div>
     </div>
 
-    <div class="pos">
-        {{-- Productos --}}
-        <div class="panel fade-in" style="padding:16px;">
-            <div class="search" style="margin-bottom:12px;">
-                <x-icon name="search" size="15" />
-                <input class="inp" placeholder="Buscar producto¦" x-model="buscar" aria-label="Buscar producto" x-ref="buscar">
+    <!-- Columna Izquierda: Productos -->
+    <div class="flex-1 flex flex-col gap-3 overflow-hidden">
+        <div class="hidden lg:grid grid-cols-4 gap-3">
+            <div class="bg-white p-3 rounded-lg border"><p class="text-xs text-gray-500">VENTAS HOY</p><p class="text-xl font-bold">{{ $ventasHoy }}</p></div>
+            <div class="bg-white p-3 rounded-lg border"><p class="text-xs text-gray-500">COBRADO HOY</p><p class="text-xl font-bold text-green-600">S/ {{ number_format($cobradoHoy, 2) }}</p></div>
+            <div class="bg-white p-3 rounded-lg border"><p class="text-xs text-gray-500">TICKET PROM.</p><p class="text-xl font-bold">S/ {{ number_format($ticketPromedio, 2) }}</p></div>
+            <div class="bg-white p-3 rounded-lg border"><p class="text-xs text-gray-500">IGV DEL DÍA</p><p class="text-xl font-bold">S/ {{ number_format($igvHoy, 2) }}</p></div>
+        </div>
+        
+        <div class="bg-white p-3 rounded-lg shadow-sm border">
+            <div class="input-group">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" x-model="busqueda" @keydown.f2.prevent="$el.focus()" placeholder="Buscar producto (F2)..." class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-[#2B6EF6]">
             </div>
-            <div class="prod-grid">
-                <template x-for="(p, i) in filtrados" :key="p.id">
-                    <button type="button" class="prod row-in" :style="'--d:' + (i * 25) + 'ms'" :disabled="enCarritoStock(p) >= p.stock" @click="agregar(p)">
-                        <div style="font-weight:600;font-size:14px;" x-text="p.nombre"></div>
-                        <div style="font-size:13px;color:var(--fg2);margin-top:4px;" x-text="money(p.precio)"></div>
-                        <div style="font-size:11px;color:var(--fg3);margin-top:2px;" x-text="'Stock ' + (p.stock - enCarritoStock(p))"></div>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 content-start pb-4">
+            <template x-for="prod in productosFiltrados" :key="prod.id">
+                <button @click="agregarAlCarrito(prod)" class="bg-white p-3 rounded-lg border hover:border-[#2B6EF6] hover:shadow-md transition text-left flex flex-col justify-between h-32">
+                    <div>
+                        <h4 class="font-bold text-gray-800 text-sm leading-tight" x-text="prod.nombre"></h4>
+                        <p class="text-xs text-gray-500 mt-1" x-text="'Stock: ' + prod.stock"></p>
+                    </div>
+                    <div class="font-bold text-[#2B6EF6] text-lg" x-text="'S/ ' + parseFloat(prod.precio).toFixed(2)"></div>
+                </button>
+            </template>
+            <div x-show="productosFiltrados.length === 0" class="col-span-full text-center py-10 text-gray-500">
+                No se encontraron productos. Verifica que tengas productos activos.
+            </div>
+        </div>
+    </div>
+
+    <!-- Columna Derecha: Ticket -->
+    <div class="w-full lg:w-[380px] bg-white rounded-lg shadow-lg border flex flex-col h-full overflow-hidden shrink-0">
+        <div class="p-3 bg-[#F47B20] text-white font-bold">Venta Actual</div>
+        
+        <div class="flex-1 overflow-y-auto p-3 space-y-2">
+            <template x-for="(item, index) in carrito" :key="index">
+                <div class="bg-gray-50 p-2 rounded border flex justify-between items-center">
+                    <div class="flex-1 min-w-0">
+                        <div class="font-bold text-sm text-gray-800 truncate" x-text="item.nombre"></div>
+                        <div class="text-xs text-gray-500" x-text="'S/ ' + item.precio.toFixed(2) + ' × ' + item.cantidad"></div>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <button @click="item.cantidad > 1 ? item.cantidad-- : carrito.splice(index, 1)" class="w-6 h-6 bg-white border rounded hover:bg-gray-100">−</button>
+                        <span class="font-bold w-5 text-center text-sm" x-text="item.cantidad"></span>
+                        <button @click="item.cantidad++" class="w-6 h-6 bg-white border rounded hover:bg-gray-100">+</button>
+                    </div>
+                </div>
+            </template>
+            <div x-show="carrito.length === 0" class="text-center py-10 text-gray-400 text-sm">Agrega productos</div>
+        </div>
+
+        <div class="p-3 border-t bg-white">
+            <div class="flex justify-between text-sm text-gray-600 mb-1"><span>Subtotal</span><span x-text="'S/ ' + subtotal.toFixed(2)"></span></div>
+            <div class="flex justify-between text-sm text-gray-600 mb-2"><span>IGV (18%)</span><span x-text="'S/ ' + igv.toFixed(2)"></span></div>
+            <div class="flex justify-between text-xl font-bold text-gray-800 mb-3"><span>Total</span><span x-text="'S/ ' + total.toFixed(2)"></span></div>
+            
+            <button @click="abrirPago()" :disabled="carrito.length === 0" class="w-full bg-[#2B6EF6] hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-3 rounded-lg font-bold transition flex justify-center items-center gap-2">
+                <span x-text="'Cobrar S/ ' + total.toFixed(2)"></span>
+                <span class="text-xs bg-white/20 px-2 py-0.5 rounded">F9</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL PAGO -->
+    <div x-show="modalPago" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Completar Pago</h3>
+            <p class="text-gray-500 mb-4">Total: S/ <span x-text="total.toFixed(2)"></span></p>
+            
+            <div class="grid grid-cols-2 gap-2 mb-4">
+                <template x-for="m in ['efectivo','tarjeta','yape','plin']" :key="m">
+                    <button @click="metodo = m" :class="metodo === m ? 'border-[#2B6EF6] bg-blue-50 text-[#2B6EF6]' : 'border-gray-200'" class="border-2 p-2 rounded-lg font-semibold capitalize">
+                        <span x-text="m"></span>
                     </button>
                 </template>
             </div>
-            <div class="empty" x-show="!filtrados.length" x-cloak>
-                <div style="font-size:13px;color:var(--fg3);">No hay productos con stock que coincidan.</div>
+
+            <div class="flex justify-end gap-2">
+                <button @click="modalPago = false" class="px-4 py-2 border rounded-lg">Cancelar</button>
+                <button @click="procesarPago()" :disabled="procesando" class="bg-[#2B6EF6] text-white px-6 py-2 rounded-lg font-bold disabled:opacity-50">
+                    <span x-show="!procesando">Confirmar</span>
+                    <span x-show="procesando">Procesando...</span>
+                </button>
             </div>
-        </div>
-
-        {{-- Cobro --}}
-        <div class="panel fade-in" style="padding:16px;position:sticky;top:16px;">
-            <div style="font-weight:700;margin-bottom:6px;">Venta actual</div>
-            <div x-show="!carrito.length" style="font-size:13px;color:var(--fg3);padding:10px 0;">Toca un producto para agregarlo.</div>
-
-            <template x-for="l in carrito" :key="l.producto_id">
-                <div class="linea">
-                    <div style="flex:1;">
-                        <div style="font-weight:600;" x-text="l.nombre"></div>
-                        <div style="font-size:11px;color:var(--fg3);" x-text="money(l.precio) + ' c/u'"></div>
-                    </div>
-                    <button class="icon-btn sm" type="button" @click="quitar(l)" aria-label="Quitar uno">ˆ’</button>
-                    <span style="min-width:24px;text-align:center;font-weight:700;" x-text="l.cantidad"></span>
-                    <button class="icon-btn sm" type="button" @click="agregar(l)" :disabled="enCarritoStock({ id: l.producto_id }) >= stockDe(l.producto_id)" aria-label="Agregar uno">+</button>
-                </div>
-            </template>
-
-            <div style="border-top:1px solid var(--border);margin-top:10px;padding-top:10px;">
-                <div style="display:flex;justify-content:space-between;align-items:baseline;">
-                    <span style="font-size:13px;color:var(--fg2);">Total</span>
-                    <span class="total" x-text="money(total)"></span>
-                </div>
-            </div>
-
-            <div style="margin-top:12px;">
-                <div style="font-size:12px;font-weight:700;color:var(--fg2);margin-bottom:6px;">Método de pago</div>
-                <div class="metodos">
-                    <template x-for="(nombre, clave) in metodos" :key="clave">
-                        <button type="button" class="metodo" :class="{ on: metodo === clave }" @click="metodo = clave" x-text="nombre"></button>
-                    </template>
-                </div>
-            </div>
-
-            <div class="field" style="margin-top:12px;" x-show="metodo === 'efectivo'" x-cloak>
-                <label class="lbl" for="pos-recibido">Efectivo recibido (S/)</label>
-                <input class="inp" id="pos-recibido" type="number" min="0" step="0.01" x-model.number="recibido" :class="{ err: errores.recibido }">
-                <div class="ferr" x-show="errores.recibido" x-text="errores.recibido ? errores.recibido[0] : ''"></div>
-                <div style="font-size:13px;margin-top:6px;" x-show="recibido >= total && total > 0">Vuelto: <strong x-text="money(recibido - total)"></strong></div>
-            </div>
-
-            <div class="field" style="margin-top:12px;">
-                <label class="lbl" for="pos-cliente">Cliente (opcional)</label>
-                <input class="inp" id="pos-cliente" maxlength="120" x-model="cliente">
-            </div>
-
-            <div class="ferr" x-show="errores.items" x-text="errores.items ? errores.items[0] : ''"></div>
-
-            <button class="btn btn-p" type="button" style="width:100%;margin-top:12px;" :disabled="!carrito.length || guardando" @click="cobrar()"
-                    x-text="guardando ? 'Cobrando¦' : 'Cobrar ' + money(total)"></button>
-            <button class="btn btn-g" type="button" style="width:100%;margin-top:8px;" x-show="carrito.length" x-cloak @click="vaciar()">Vaciar venta</button>
         </div>
     </div>
+
 </div>
+@endsection
 
 @push('scripts')
 <script>
-    window.pos = window.pos || function (productos, metodos) {
-        const url = @js(url('admin/pos/cobrar'));
+    function posApp() {
         return {
-            productos, metodos,
-            buscar: '', carrito: [], metodo: 'efectivo', recibido: null, cliente: '',
-            errores: {}, guardando: false,
+            busqueda: '',
+            productos: @json($productos),
+            carrito: [],
+            modalPago: false,
+            metodo: 'efectivo',
+            procesando: false,
+            
+            get productosFiltrados() {
+                if (!this.busqueda) return this.productos;
+                const t = this.busqueda.toLowerCase();
+                return this.productos.filter(p => p.nombre.toLowerCase().includes(t) || (p.sku && p.sku.toLowerCase().includes(t)));
+            },
+            get subtotal() { return this.carrito.reduce((s, i) => s + (i.precio * i.cantidad), 0); },
+            get igv() { return this.subtotal * 0.18; },
+            get total() { return this.subtotal; },
 
-            iniciar() { this.$nextTick(() => this.$refs.buscar && this.$refs.buscar.focus()); },
-            money(n) { return 'S/ ' + Number(n || 0).toFixed(2); },
-            get filtrados() {
-                const q = gh.norm(this.buscar);
-                return q ? this.productos.filter(p => gh.norm(p.nombre).includes(q)) : this.productos;
+            agregarAlCarrito(p) {
+                const item = this.carrito.find(i => i.id === p.id);
+                if (item) item.cantidad++;
+                else this.carrito.push({ id: p.id, nombre: p.nombre, precio: parseFloat(p.precio), cantidad: 1 });
             },
-            get total() { return Math.round(this.carrito.reduce((a, l) => a + l.precio * l.cantidad, 0) * 100) / 100; },
-            stockDe(id) { const p = this.productos.find(x => x.id === id); return p ? p.stock : 0; },
-            enCarritoStock(p) { const l = this.carrito.find(x => x.producto_id === p.id); return l ? l.cantidad : 0; },
-
-            agregar(p) {
-                const id = p.producto_id ?? p.id;
-                const actual = this.carrito.find(x => x.producto_id === id);
-                if (actual) { actual.cantidad++; return; }
-                const prod = this.productos.find(x => x.id === id);
-                this.carrito.push({ producto_id: id, nombre: prod.nombre, precio: prod.precio, cantidad: 1 });
-            },
-            quitar(l) {
-                l.cantidad--;
-                if (l.cantidad <= 0) this.carrito = this.carrito.filter(x => x.producto_id !== l.producto_id);
-            },
-            vaciar() { this.carrito = []; this.recibido = null; this.errores = {}; },
-
-            async cobrar() {
-                this.guardando = true; this.errores = {};
-                const body = {
-                    items: this.carrito.map(l => ({ producto_id: l.producto_id, cantidad: l.cantidad })),
-                    metodo_pago: this.metodo,
-                    recibido: this.metodo === 'efectivo' ? (this.recibido ?? this.total) : null,
-                    cliente_nombre: this.cliente || null,
-                };
-                const r = await gh.api(url, { method: 'POST', body });
-                this.guardando = false;
-                if (r.ok) { Alpine.store('toasts').push(r.data.message); this.vaciar(); gh.ir(location.pathname, false); }
-                else if (r.status === 422 && r.data.errors) { this.errores = r.data.errors; }
-                else { Alpine.store('toasts').push(r.data.message || 'No se pudo cobrar la venta.', 'error'); }
-            },
-        };
-    };
-    gh.ready(() => Alpine.data('pos', window.pos));
+            abrirPago() { if (this.carrito.length > 0) this.modalPago = true; },
+            async procesarPago() {
+                this.procesando = true;
+                try {
+                    const res = await gh.api('/admin/pos/cobrar', {
+                        method: 'POST',
+                        body: { total: this.total, metodo_pago: this.metodo, items: this.carrito }
+                    });
+                    if (res.ok) {
+                        alert('Venta ' + res.data.numero + ' registrada');
+                        this.carrito = [];
+                        this.modalPago = false;
+                        window.location.reload();
+                    } else {
+                        alert('Error: ' + (res.data.message || 'No se pudo cobrar'));
+                    }
+                } finally {
+                    this.procesando = false;
+                }
+            }
+        }
+    }
+    // F9 cobrar
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'F9') document.querySelector('[\\@click="abrirPago()"]')?.click();
+    });
 </script>
 @endpush
-@endsection

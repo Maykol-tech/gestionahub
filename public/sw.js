@@ -1,41 +1,14 @@
-// Service worker de GestionaHub: instalable y con pagina de respaldo sin conexion.
-// No guarda en cache paginas del panel ni respuestas de la API, porque contienen datos de cada negocio.
-const VERSION = 'gh-v1';
-const SHELL = ['/icons/icon.svg', '/manifest.webmanifest'];
+const CACHE = 'gh-v1';
+const STATIC = ['/', '/img/icon-192.png', '/img/icon-512.png'];
 
-self.addEventListener('install', (event) => {
-    event.waitUntil(caches.open(VERSION).then((c) => c.addAll(SHELL)));
-    self.skipWaiting();
+self.addEventListener('install', (e) => {
+    e.waitUntil(caches.open(CACHE).then(c => c.addAll(STATIC)));
 });
 
-self.addEventListener('activate', (event) => {
-    event.waitUntil(
-        caches.keys()
-            .then((keys) => Promise.all(keys.filter((k) => k !== VERSION).map((k) => caches.delete(k))))
-            .then(() => self.clients.claim())
+self.addEventListener('fetch', (e) => {
+    // No cachear rutas del panel ni CSRF
+    if (e.request.url.includes('/admin') || e.request.headers.get('X-CSRF-TOKEN')) return;
+    e.respondWith(
+        caches.match(e.request).then(r => r || fetch(e.request).catch(() => caches.match('/offline')))
     );
-});
-
-self.addEventListener('fetch', (event) => {
-    const req = event.request;
-
-    // Solo navegaciones GET y recursos del shell; lo demas va directo a la red
-    if (req.method !== 'GET') {
-        return;
-    }
-
-    if (req.mode === 'navigate') {
-        event.respondWith(
-            fetch(req).catch(() => new Response(
-                '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
-                '<body style="font-family:system-ui;padding:24px"><h1>Sin conexión</h1><p>Vuelve a intentarlo cuando tengas internet.</p></body>',
-                { headers: { 'Content-Type': 'text/html; charset=utf-8' }, status: 503 }
-            ))
-        );
-        return;
-    }
-
-    if (SHELL.some((p) => new URL(req.url).pathname === p)) {
-        event.respondWith(caches.match(req).then((hit) => hit || fetch(req)));
-    }
 });

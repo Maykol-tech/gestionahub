@@ -20,7 +20,7 @@ use Illuminate\Validation\ValidationException;
  */
 class PagosController extends DashboardController
 {
-    public function pagina()
+    public function index() { return $this->pagina(); } public function pagina()
     {
         $this->compartirLayout();
 

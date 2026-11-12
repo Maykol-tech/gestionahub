@@ -5,7 +5,7 @@ use Illuminate\Http\Request;
 
 class CategoriaController extends Controller
 {
-    public function index() { return response()->json(Categoria::all(), 200); }
+    public function pagina() { return $this->index(); } public function index() { return response()->json(Categoria::all(), 200); }
     
     public function store(Request $request) {
         $validated = $request->validate(['nombre' => 'required|string|max:80']);

@@ -8,13 +8,13 @@
     <style>
         .tabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
         .tabs a { font-size:12px; font-weight:700; padding:6px 14px; border-radius:99px; border:1px solid var(--border); color:var(--fg2); text-decoration:none; }
-        .tabs a.activo { background:var(--brand); color:#fff; border-color:var(--brand); }
+        .tabs a.activo { background:var(--nav-bg); color:#fff; border-color:var(--nav-bg); }
         .kpis { display:grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap:12px; margin-bottom:12px; }
         .kpi { padding:14px; }
         .kpi .n { font-size:22px; font-weight:800; font-variant-numeric: tabular-nums; }
         .kpi .l { font-size:12px; color:var(--fg3); }
         .barra-bg { background:var(--bg); border-radius:6px; height:12px; overflow:hidden; min-width:120px; }
-        .barra { height:100%; background:var(--brand); border-radius:6px; transform-origin:left; animation: crecer .6s ease both; }
+        .barra { height:100%; background:var(--nav-bg); border-radius:6px; transform-origin:left; animation: crecer .6s ease both; }
         .neg { color:#B91C1C; }
         .pos { color:#15803D; }
         @keyframes crecer { from { transform: scaleX(0); } to { transform: scaleX(1); } }

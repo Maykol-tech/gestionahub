@@ -1,0 +1,64 @@
+GESTIONAHUB - REPORTES GEST-40 Y GEST-41
+========================================
+
+QUE INCLUYE
+- GEST-40 Ventas por periodo y modulo: filtro 7 / 30 / 90 dias y desglose por canal de origen
+  (Ventas POS, Tienda Pública, WhatsApp, App, Ventas Manuales), en pantalla y en Excel.
+  Excel: Fecha | Módulo/Canal | N° Pedidos | Total Ventas (S/)  + fila TOTAL.
+- GEST-41 Delivery: pestaña "Repartidores" con pedidos entregados, tiempo promedio, rango y monto.
+  Excel: Repartidor | Pedidos Entregados | Tiempo Promedio de Entrega (min)  + fila TOTAL.
+- Estilo del Excel: cabecera azul #2B6EF6 con texto blanco en negrita, bordes finos,
+  formato S/ 0.00, columnas autoajustadas, fila fija y autofiltro.
+- Botón "Exportar Excel" (arriba): un solo archivo con las dos hojas.
+  Cada pestaña tiene además su botón para bajar solo su hoja.
+- Graficos con Chart.js 4.4.1 (ventas apiladas por modulo y minutos por repartidor).
+
+DE DONDE SALE CADA MODULO
+- Ventas POS: ventas del punto de venta no anuladas + pedidos con canal "pos".
+- Tienda Pública: pedidos con canal "tienda" (checkout publico) o "web".
+- WhatsApp / App: pedidos con ese canal.
+- Ventas Manuales: pedidos registrados a mano + Ingresos manuales.
+- Los pedidos cancelados nunca suman.
+- Tiempo de entrega: desde que el pedido se asigna al repartidor hasta que se marca entregado
+  (si no tiene hora de asignacion se usa la de confirmacion).
+
+CORRECCION IMPORTANTE (migracion)
+La columna pedidos.canal era ENUM sin el valor "tienda", pero la tienda publica guarda "tienda".
+En MySQL estricto ese pedido fallaba al guardarse. La migracion 2026_11_10_200000_pedidos_canal_tienda
+la cambia a VARCHAR(20) sin perder datos.
+
+CARPETAS (MVC)
+1_Migraciones   database/migrations/2026_11_10_200000_pedidos_canal_tienda.php
+2_Controladores app/Http/Controllers/ReportesController.php
+                app/Http/Requests/ReporteExportarRequest.php
+3_Vistas        resources/views/admin/modulos/reportes.blade.php
+4_Rutas         routes/reportes.php   (GET /admin/reportes/exportar?rango=7|30|90&hoja=todo|ventas|repartidores)
+5_Servicios     app/Services/ReportesService.php   (calculos de GEST-40 y GEST-41)
+                app/Services/ExportadorExcel.php   (ahora tambien arma libros de varias hojas)
+                app/Exports/TablaExport.php        (la fila TOTAL puede sumar columnas de cantidad)
+                app/Exports/LibroExport.php        (libro con varias hojas)
+6_Pruebas       tests/Feature/ReportesGest40Gest41Test.php
+
+INSTALACION (PowerShell)
+1) Descomprime el zip y entra a la carpeta:
+     cd "$env:USERPROFILE\Downloads\GestionaHub_Reportes_GEST40_41"
+2) Ejecuta el instalador apuntando a tu proyecto:
+     powershell -ExecutionPolicy Bypass -File .\instalar.ps1 -Proyecto "C:\Users\USUARIO\OneDrive\Desktop\GestionaHub_Kit_v3.4\gestionahub"
+   Copia los archivos (con respaldo de lo que reemplaza), actualiza ModulosController
+   y agrega en routes/web.php:  require __DIR__ . '/reportes.php';
+3) Si el instalador avisa que no encontro datosReportes(), reemplaza a mano ese metodo
+   en app/Http/Controllers/ModulosController.php por:
+
+    protected function datosReportes(Request $request): array
+    {
+        return app(ReportesController::class)->pantalla($request, $this->tenantId());
+    }
+
+4) Luego:
+     docker compose exec app php artisan migrate
+     docker compose exec app php artisan optimize:clear
+     docker compose exec app php artisan test --filter=ReportesGest40Gest41Test
+
+PERMISOS
+- /admin/reportes y su exportacion usan el mismo permiso de modulo "reportes" (admin y cajero).
+  Un vendedor recibe 403.

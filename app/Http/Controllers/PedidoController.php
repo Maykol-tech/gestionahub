@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 
 class PedidoController extends Controller
 {
-    public function index() {
+    public function pagina() { return $this->index(); } public function index() {
         return response()->json(Pedido::with(['cliente', 'repartidor'])->latest()->get());
     }
     public function store(Request $request) {

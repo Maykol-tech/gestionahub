@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 /** Campanas de WhatsApp: crear, programar, enviar ahora o cancelar. */
 class CampanasController extends DashboardController
 {
-    public function pagina()
+    public function index() { return $this->pagina(); } public function pagina()
     {
         $this->compartirLayout();
 

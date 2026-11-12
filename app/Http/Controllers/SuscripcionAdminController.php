@@ -13,7 +13,7 @@ use Illuminate\View\View;
 /** Superadmin: confirma o rechaza los pagos de suscripcion reportados por los negocios (GEST-93). */
 class SuscripcionAdminController extends Controller
 {
-    public function pagina(): View
+    public function index() { return $this->pagina(); } public function pagina(): View
     {
         $pagos = PagoManual::withoutGlobalScopes()
             ->where('notas', 'like', 'Suscripcion|%')

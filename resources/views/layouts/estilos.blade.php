@@ -4,7 +4,7 @@
 :root{
 --bg:#FFFFFF;--surface:#FFFFFF;--surface2:#F4F6F9;--surface3:#F8FAFC;--border:#E2E7EF;
 --fg:#1A2332;--fg2:#4A5568;--fg3:#94A3B8;
---accent:#4B7CF5;--acl:#EEF3FF;--acm:#93B4F9;
+--accent:#2B6EF6;--acl:#EEF3FF;--acm:#93B4F9;
 --cta:#F47B20;--ctl:#FFF1E6;--ctm:#F9A05C;
 --green:#16A34A;--greenl:#DCFCE7;--amber:#D97706;--ambl:#FEF3C7;--red:#DC2626;--redl:#FEE2E2;
 --nav:220px;--nav-bg:#2B6EF6;--nav-fg:rgba(255,255,255,.88);--nav-fg2:rgba(255,255,255,.45);

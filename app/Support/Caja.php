@@ -19,7 +19,7 @@ class Caja
             ->whereDate('created_at', $dia)
             ->get(['metodo_pago', 'total']);
 
-        $ventasPos = VentaPos::query()->whereDate('created_at', $dia)->get(['metodo_pago', 'total']);
+        $ventasPos = VentaPos::query()->vigentes()->whereDate('created_at', $dia)->get(['metodo_pago', 'total']);
 
         $gastos = Gasto::query()->whereDate('fecha', $dia)->get(['metodo', 'monto']);
 

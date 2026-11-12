@@ -91,6 +91,8 @@ class NubefactNotas
             return ComprobanteElectronico::withoutGlobalScopes()->create([
                 'tenant_id' => $config->tenant_id,
                 'pedido_id' => $original->pedido_id,
+                'venta_pos_id' => $original->venta_pos_id,
+                'referencia_id' => $original->id,
                 'tipo' => '07',
                 'serie' => $serie,
                 'numero' => ((int) $ultimo) + 1,
@@ -102,6 +104,7 @@ class NubefactNotas
                 'igv' => $calculo['igv'],
                 'total' => $calculo['total'],
                 'estado' => 'pendiente',
+                'simulado' => $config->esSimulado(),
             ]);
         });
 
@@ -112,6 +115,10 @@ class NubefactNotas
         $payload['documento_que_se_modifica_tipo'] = $original->tipo === '01' ? 1 : 2;
         $payload['documento_que_se_modifica_serie'] = $original->serie;
         $payload['documento_que_se_modifica_numero'] = $original->numero;
+
+        if ($config->esSimulado()) {
+            return Nubefact::aceptarSimulado($nota, $payload);
+        }
 
         $res = self::enviar($config, $payload);
         $aceptada = $res['respondio'] && ($res['datos']['aceptada_por_sunat'] ?? false) === true;
@@ -133,9 +140,7 @@ class NubefactNotas
 
     private static function exigirAceptado(ComprobanteElectronico $c, SunatConfiguracion $config): void
     {
-        if (! $config->activo || ! $config->ruta || $config->token === null) {
-            throw ValidationException::withMessages(['config' => 'Nubefact no está activo o falta configurarlo.']);
-        }
+        Nubefact::exigirConfiguracion($config);
 
         if (! in_array($c->tipo, ['01', '03'], true) || $c->estado !== 'aceptado') {
             throw ValidationException::withMessages(['estado' => 'Solo puedes anular o emitir una nota de crédito sobre un comprobante aceptado por SUNAT.']);
@@ -145,6 +150,10 @@ class NubefactNotas
     /** @return array{respondio: bool, datos: array, mensaje: ?string} */
     private static function enviar(SunatConfiguracion $config, array $payload): array
     {
+        if ($config->esSimulado()) {
+            return ['respondio' => true, 'datos' => ['aceptada_por_sunat' => true], 'mensaje' => 'Simulado: operación registrada sin enviar a SUNAT.'];
+        }
+
         try {
             $respuesta = Http::withHeaders(['Authorization' => 'Token token="' . $config->tokenClaro() . '"'])
                 ->acceptJson()->timeout(30)->post($config->ruta, $payload);

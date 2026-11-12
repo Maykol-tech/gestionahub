@@ -22,8 +22,8 @@ class Roles
     public const MODULOS = [
         'superadmin' => ['*'],
         'admin' => ['*'],
-        'vendedor' => ['dashboard', 'pedidos', 'productos', 'clientes', 'fidelizacion', 'servicios', 'tienda', 'prospectar'],
-        'cajero' => ['dashboard', 'pedidos', 'caja', 'cobros', 'reportes'],
+        'vendedor' => ['dashboard', 'pedidos', 'productos', 'clientes', 'fidelizacion', 'servicios', 'tienda', 'prospectar', 'pos'],
+        'cajero' => ['dashboard', 'pedidos', 'caja', 'cobros', 'reportes', 'pos', 'comprobantes'],
         'repartidor' => [],
         'delivery' => [],
     ];

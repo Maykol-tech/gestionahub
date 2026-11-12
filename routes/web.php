@@ -8,7 +8,6 @@ use App\Http\Controllers\AperturaCajaController;
 use App\Http\Controllers\CajaCierreController;
 use App\Http\Controllers\ComprobanteController;
 use App\Http\Controllers\WhatsappInboxController;
-use App\Http\Controllers\MesasController;
 use App\Http\Controllers\CocinaController;
 use App\Http\Controllers\PublicMesaController;
 use App\Http\Controllers\CampanasController;
@@ -122,7 +121,7 @@ Route::get('/tienda/{slug}/pedido/{numero}', [TiendaPublicaController::class, 'g
     ->where('slug', '[a-z0-9-]+')->where('numero', 'P-[0-9]+');
 
 // Panel administrativo (Blade): requiere sesion iniciada
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'tenant.active', 'modulo.permitido'])->group(function () {
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->middleware(['auth', 'tenant.active', 'modulo.permitido'])->group(function () {
     Route::controller(DashboardController::class)->group(function () {
         Route::get('/', 'index')->name('dashboard');
 
@@ -323,9 +322,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'tenant.active', 'mo
     Route::delete('/ingresos/{ingreso}', [IngresosManualesController::class, 'eliminar'])->name('ingresos.eliminar')->whereNumber('ingreso');
 
     // Mesas, QR y panel de cocina: /admin/mesas y /admin/cocina
-    Route::get('/mesas', [MesasController::class, 'pagina'])->name('mesas');
-    Route::post('/mesas', [MesasController::class, 'guardar'])->name('mesas.guardar');
-    Route::post('/mesas/{mesa}/cobrar', [MesasController::class, 'cobrar'])->whereNumber('mesa')->name('mesas.cobrar');
     Route::get('/cocina', [CocinaController::class, 'pagina'])->name('cocina');
     Route::post('/cocina/{comanda}/estado', [CocinaController::class, 'estado'])->whereNumber('comanda')->name('cocina.estado');
 
@@ -384,4 +380,182 @@ Route::prefix('superadmin')->name('superadmin.')->middleware(['auth', 'role:supe
 });
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::post('/citas', [\App\Http\Controllers\Admin\CitaController::class, 'store'])->name('citas.store');
+});
+
+// Modulo A: POS, facturacion y pantalla de bloqueo
+require __DIR__ . '/modulo_a.php';
+
+// Reportes GEST-40 y GEST-41: ventas por canal y repartidores
+require __DIR__ . '/reportes.php';
+
+// --- GEST-46: MESAS Y QR ---
+
+// --- RUTAS CORRECTAS DE MESAS (GEST-46) ---
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+});
+// --- RUTAS LANDING SAAS (GEST-49 a 54) ---
+Route::get('/', [\App\Http\Controllers\LandingController::class, 'index'])->name('landing.index');
+Route::get('/reclamaciones', function() { return view('landing.reclamaciones'); })->name('landing.reclamaciones');
+Route::post('/reclamaciones', [\App\Http\Controllers\LandingController::class, 'storeReclamacion'])->name('landing.reclamaciones.store');
+Route::post('/api/leads', [\App\Http\Controllers\LandingController::class, 'storeLead'])->name('landing.leads.store');
+
+// Admin Landing Editor (GEST-49)
+Route::middleware(['auth', 'tenant.active'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/landing-editor', [\App\Http\Controllers\Admin\LandingEditorController::class, 'index'])->name('landing.editor');
+    Route::post('/landing-editor', [\App\Http\Controllers\Admin\LandingEditorController::class, 'update'])->name('landing.editor.update');
+});
+
+// Sitemap y Robots
+Route::get('/sitemap.xml', function() {
+    return response()->view('sitemap')->header('Content-Type', 'text/xml');
+})->name('sitemap');
+Route::get('/robots.txt', function() {
+    return "User-agent: *\nAllow: /\nSitemap: " . url('/sitemap.xml');
+})->name('robots');
+
+// --- WEBHOOK WHATSAPP BOT ---
+
+// --- RUTA FALTANTE PARA EL QR DE MESAS ---
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+});
+
+// --- RUTA FALTANTE PARA EL QR DE MESAS ---
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+});
+
+// --- RUTAS DE MESAS Y QR (GEST-46) ---
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/mesas', [\App\Http\Controllers\MesasController::class, 'index'])->name('mesas.index');
+    Route::post('/mesas', [\App\Http\Controllers\MesasController::class, 'guardar'])->name('mesas.store');
+    Route::delete('/mesas/{mesa}', [\App\Http\Controllers\MesasController::class, 'destroy'])->name('mesas.destroy');
+    Route::get('/mesas/{mesa}/qr', [\App\Http\Controllers\MesasController::class, 'qr'])->name('mesas.qr');
+});
+// --- SUCURSALES ---
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/sucursales', [\App\Http\Controllers\SucursalController::class, 'index'])->name('sucursales.index');
+    Route::post('/sucursales', [\App\Http\Controllers\SucursalController::class, 'store'])->name('sucursales.store');
+});
+
+// --- REPARTIDORES ---
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/repartidores', [\App\Http\Controllers\RepartidorController::class, 'index'])->name('repartidores.index');
+    Route::post('/repartidores', [\App\Http\Controllers\RepartidorController::class, 'store'])->name('repartidores.store');
+});
+// --- RUTAS GENERADAS AUTOMÁTICAMENTE PARA LOS MÓDULOS RESTANTES ---
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/cocina', [\App\Http\Controllers\CocinaController::class, 'index'])->name('cocina');
+    Route::get('/sucursales', [\App\Http\Controllers\SucursalController::class, 'index'])->name('sucursales.index');
+    Route::get('/finanzas', [\App\Http\Controllers\FinanzasController::class, 'index'])->name('finanzas');
+    Route::get('/proveedores', [\App\Http\Controllers\ProveedorController::class, 'index'])->name('proveedores.index');
+    Route::get('/produccion', [\App\Http\Controllers\ProduccionController::class, 'index'])->name('produccion');
+    Route::get('/fidelizacion', [\App\Http\Controllers\FidelizacionController::class, 'index'])->name('fidelizacion');
+    Route::get('/galeria', [\App\Http\Controllers\GaleriaController::class, 'index'])->name('galeria');
+    Route::get('/resenas', [\App\Http\Controllers\ResenaController::class, 'index'])->name('resenas');
+    Route::get('/configuracion', [\App\Http\Controllers\ConfiguracionController::class, 'index'])->name('configuracion');
+});
+// --- RUTA PARA ARRASTRAR Y SOLTAR PEDIDOS ---
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::post('/pedidos/{pedido}/estado', [\App\Http\Controllers\PedidosPanelController::class, 'actualizarEstado'])->name('pedidos.estado');
+});
+// --- RUTAS DEL POS ---
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/pos', [\App\Http\Controllers\PosController::class, 'index'])->name('pos.index');
+    Route::post('/pos/cobrar', [\App\Http\Controllers\PosController::class, 'cobrar'])->name('pos.cobrar');
+});
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/caja', [\App\Http\Controllers\CajaController::class, 'index'])->name('caja.index');
+    Route::get('/comprobantes', [\App\Http\Controllers\ComprobanteController::class, 'index'])->name('comprobantes.index');
+});
+// --- RUTAS MÓDULOS CONTROL ---
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/ingresos-manuales', [\App\Http\Controllers\IngresosManualesController::class, 'index'])->name('ingresos.index');
+    Route::get('/reportes-finanzas', [\App\Http\Controllers\ReportesController::class, 'index'])->name('reportes.index');
+    Route::get('/repartos-panel', [\App\Http\Controllers\RepartosController::class, 'index'])->name('repartos.index');
+    Route::get('/produccion-panel', [\App\Http\Controllers\ProduccionController::class, 'index'])->name('produccion.index');
+    Route::get('/proveedores-panel', [\App\Http\Controllers\ProveedoresController::class, 'index'])->name('proveedores.index');
+});
+// --- RUTAS PRESENCIA Y CUENTA ---
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/vitrina', [\App\Http\Controllers\VitrinaController::class, 'index'])->name('vitrina.index');
+    Route::get('/tienda-publica', [\App\Http\Controllers\TiendaPublicaController::class, 'index'])->name('tienda.index');
+    Route::get('/entregas', [\App\Http\Controllers\EntregasController::class, 'index'])->name('entregas.index');
+    Route::get('/pagos-manuales', [\App\Http\Controllers\PagosManualesController::class, 'index'])->name('pagos.manuales.index');
+    Route::get('/resenas', [\App\Http\Controllers\ResenasController::class, 'index'])->name('resenas.index');
+    Route::get('/galeria', [\App\Http\Controllers\GaleriaController::class, 'index'])->name('galeria.index');
+    Route::get('/bot-whatsapp', [\App\Http\Controllers\BotWhatsappController::class, 'index'])->name('bot.index');
+    Route::get('/bot-menus', [\App\Http\Controllers\BotMenusController::class, 'index'])->name('bot.menus.index');
+    Route::get('/prospectar', [\App\Http\Controllers\ProspectarController::class, 'index'])->name('prospectar.index');
+    
+    Route::get('/sucursales-panel', [\App\Http\Controllers\SucursalesController::class, 'index'])->name('sucursales.index');
+    Route::get('/repartidores-panel', [\App\Http\Controllers\RepartidoresController::class, 'index'])->name('repartidores.index');
+    Route::get('/planes', [\App\Http\Controllers\PlanesController::class, 'index'])->name('planes.index');
+    Route::get('/personalizar', [\App\Http\Controllers\PersonalizarController::class, 'index'])->name('personalizar.index');
+    Route::get('/variantes-panel', [\App\Http\Controllers\VariantesController::class, 'index'])->name('variantes.index');
+});
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/cobros', [\App\Http\Controllers\CobrosController::class, 'index'])->name('cobros.index');
+    Route::get('/publicidad', [\App\Http\Controllers\PublicidadController::class, 'index'])->name('publicidad.index');
+});
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/sucursales-panel', [\App\Http\Controllers\SucursalesController::class, 'index'])->name('sucursales.index');
+    Route::get('/planes', [\App\Http\Controllers\PlanesController::class, 'index'])->name('planes.index');
+    Route::get('/variantes-panel', [\App\Http\Controllers\VariantesController::class, 'index'])->name('variantes.index');
+});
+// --- BLINDAJE PRESENCIA Y CUENTA ---
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/vitrina', [\App\Http\Controllers\VitrinaController::class, 'index'])->name('vitrina.index');
+    Route::get('/tienda-publica', [\App\Http\Controllers\TiendaPublicaController::class, 'index'])->name('tienda.index');
+    Route::get('/entregas', [\App\Http\Controllers\EntregasController::class, 'index'])->name('entregas.index');
+    Route::get('/pagos-manuales', [\App\Http\Controllers\PagosManualesController::class, 'index'])->name('pagos.manuales.index');
+    Route::get('/resenas', [\App\Http\Controllers\ResenasController::class, 'index'])->name('resenas.index');
+    Route::get('/galeria', [\App\Http\Controllers\GaleriaController::class, 'index'])->name('galeria.index');
+    Route::get('/bot-whatsapp', [\App\Http\Controllers\BotWhatsappController::class, 'index'])->name('bot.index');
+    Route::get('/bot-menus', [\App\Http\Controllers\BotMenusController::class, 'index'])->name('bot.menus.index');
+    Route::get('/prospectar', [\App\Http\Controllers\ProspectarController::class, 'index'])->name('prospectar.index');
+    Route::get('/sucursales-panel', [\App\Http\Controllers\SucursalesController::class, 'index'])->name('sucursales.index');
+    Route::get('/repartidores-panel', [\App\Http\Controllers\RepartidoresController::class, 'index'])->name('repartidores.index');
+    Route::get('/planes', [\App\Http\Controllers\PlanesController::class, 'index'])->name('planes.index');
+    Route::get('/personalizar', [\App\Http\Controllers\PersonalizarController::class, 'index'])->name('personalizar.index');
+    Route::get('/variantes-panel', [\App\Http\Controllers\VariantesController::class, 'index'])->name('variantes.index');
+});
+// --- FIN BLINDAJE ---
+// --- POPUP EDITOR (GEST-52) ---
+Route::middleware(['auth'])->prefix('superadmin')->name('superadmin.')->group(function () {
+    Route::get('/landing/popup', [\App\Http\Controllers\PopupEditorController::class, 'edit'])->name('popup.edit');
+    Route::post('/landing/popup', [\App\Http\Controllers\PopupEditorController::class, 'update'])->name('popup.update');
+});
+// --- GEST-60: PERFIL ---
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/perfil', [\App\Http\Controllers\PerfilNegocioController::class, 'edit'])->name('perfil.edit');
+    Route::post('/perfil', [\App\Http\Controllers\PerfilNegocioController::class, 'update'])->name('perfil.update');
+});
+// --- RUTAS ESPECÍFICAS (deben ir ANTES de admin/{modulo}) ---
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/planes', [\App\Http\Controllers\PlanesController::class, 'index'])->name('planes.index');
+    Route::get('/perfil', [\App\Http\Controllers\PerfilNegocioController::class, 'edit'])->name('perfil.edit');
+    Route::post('/perfil', [\App\Http\Controllers\PerfilNegocioController::class, 'update'])->name('perfil.update');
+    Route::get('/variantes', [\App\Http\Controllers\VariantesController::class, 'index'])->name('variantes.index');
+    Route::get('/pos', [\App\Http\Controllers\PosController::class, 'index'])->name('pos.index');
+    Route::get('/caja', [\App\Http\Controllers\CajaController::class, 'index'])->name('caja.index');
+    Route::get('/reportes', [\App\Http\Controllers\ReportesController::class, 'index'])->name('reportes.index');
+    Route::get('/cocina', [\App\Http\Controllers\CocinaController::class, 'index'])->name('cocina.index');
+    Route::get('/resenas', [\App\Http\Controllers\ResenasController::class, 'index'])->name('resenas.index');
+    Route::get('/galeria', [\App\Http\Controllers\GaleriaController::class, 'index'])->name('galeria.index');
+    Route::get('/sucursales', [\App\Http\Controllers\SucursalesController::class, 'index'])->name('sucursales.index');
+    Route::get('/repartidores', [\App\Http\Controllers\RepartidoresController::class, 'index'])->name('repartidores.index');
+    Route::get('/proveedores', [\App\Http\Controllers\ProveedoresController::class, 'index'])->name('proveedores.index');
+    Route::get('/produccion', [\App\Http\Controllers\ProduccionController::class, 'index'])->name('produccion.index');
+    Route::get('/publicidad', [\App\Http\Controllers\PublicidadController::class, 'index'])->name('publicidad.index');
+    Route::get('/bot-whatsapp', [\App\Http\Controllers\BotWhatsappController::class, 'index'])->name('bot.index');
+    Route::get('/bot-menus', [\App\Http\Controllers\BotMenusController::class, 'index'])->name('bot.menus.index');
+    Route::get('/prospectar', [\App\Http\Controllers\ProspectarController::class, 'index'])->name('prospectar.index');
+});
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/horarios', [\App\Http\Controllers\HorariosController::class, 'index'])->name('horarios.index');
+    Route::post('/horarios', [\App\Http\Controllers\HorariosController::class, 'update'])->name('horarios.update');
+});Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/servicios', [\App\Http\Controllers\DashboardController::class, 'servicios'])->name('servicios');
+    Route::get('/mesas', [\App\Http\Controllers\DashboardController::class, 'mesas'])->name('mesas.index');
+    Route::get('/repartidores', [\App\Http\Controllers\DashboardController::class, 'repartidores'])->name('repartidores.index');
+    Route::get('/proveedores', [\App\Http\Controllers\DashboardController::class, 'proveedores'])->name('proveedores.index');
 });

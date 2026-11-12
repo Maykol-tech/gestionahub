@@ -1,0 +1,39 @@
+BLOQUE 1 - CRUD de Repartidores y Proveedores, datos de demo y limpieza de textos
+==================================================================================
+
+REQUISITO
+- Tener instalado el Bloque 1 de seguridad y Excel (routes\bloque1.php).
+- El paquete Reportes GEST-40/41 v2 es independiente; puedes instalarlo antes o despues.
+
+PASOS
+1. Descomprime este paquete en una carpeta (no dentro del proyecto).
+2. En PowerShell, desde esa carpeta:
+     powershell -ExecutionPolicy Bypass -File .\instalar.ps1 -Proyecto "C:\ruta\a\gestionahub"
+3. Dentro del proyecto, ejecuta una linea a la vez:
+     php artisan migrate
+     php artisan storage:link
+     php artisan optimize:clear
+     php artisan db:seed --class=DemoDataSeeder
+     php artisan test --filter=Bloque1CrudDemoTest
+
+QUE INCLUYE
+1_Migraciones  placa en repartidores; borrado logico (deleted_at) en repartidores y proveedores; DemoDataSeeder
+2_Controladores  Repartidor, Proveedor (modelos), RepartidorController, RepartidorRequest
+3_Vistas  admin/modulos/repartidores.blade.php, admin/partials/proveedores_crud.blade.php (paginacion)
+4_Rutas  routes/repartidores_crud.php, routes/proveedores_crud.php
+5_Servicios  App\Support\LimpiezaTextos, scripts\limpiar_textos.php, 15 imagenes demo en storage\app\public\demo\productos
+6_Pruebas  Bloque1CrudDemoTest.php (14 pruebas)
+
+ARCHIVOS QUE EL INSTALADOR TOCA
+- resources\views\layouts\app.blade.php: una linea nueva en el menu, despues de Repartos.
+- routes\web.php: dos require nuevos al final.
+- Cualquier archivo reemplazado se guarda antes en la carpeta respaldo_bloque1_crud_FECHA.
+
+LIMPIEZA DE TEXTOS (caracteres basura, emojis mal codificados)
+- Revision sin cambios:  php scripts\limpiar_textos.php
+- Aplicar (hace respaldo):  php scripts\limpiar_textos.php --aplicar
+
+NOTAS
+- El seeder se niega a correr en produccion.
+- Los repartidores y proveedores eliminados quedan ocultos, no se borran de la base de datos.
+- Un repartidor con pedidos en curso no se puede eliminar.

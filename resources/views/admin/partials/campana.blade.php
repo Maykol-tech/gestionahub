@@ -1,7 +1,7 @@
 {{-- Campana de notificaciones del panel. Incluir en la barra superior del layout. Requiere Alpine y gh.ready --}}
 <div x-data="campanaNotif()" class="campana-wrap" style="position:relative;">
     <button type="button" class="btn btn-g" @click="abierto = !abierto" :aria-expanded="abierto" aria-label="Notificaciones" style="position:relative;padding:6px 10px;">
-        <span aria-hidden="true">ðŸ””</span>
+        <span aria-hidden="true">””</span>
         <span x-show="total > 0" x-text="total" style="position:absolute;top:-4px;right:-4px;background:#DC2626;color:#fff;border-radius:99px;font-size:11px;font-weight:700;padding:1px 6px;"></span>
     </button>
 

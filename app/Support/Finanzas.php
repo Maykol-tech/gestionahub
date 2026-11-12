@@ -17,7 +17,7 @@ class Finanzas
         $pedidos = (float) Pedido::query()->where('pagado', true)
             ->whereBetween('created_at', [$desde, $hasta])->sum('total');
 
-        $pos = (float) VentaPos::query()->whereBetween('created_at', [$desde, $hasta])->sum('total');
+        $pos = (float) VentaPos::query()->vigentes()->whereBetween('created_at', [$desde, $hasta])->sum('total');
 
         // Ingresos registrados a mano (GEST-66)
         $manuales = (float) IngresoManual::query()

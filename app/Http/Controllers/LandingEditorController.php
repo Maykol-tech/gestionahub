@@ -11,7 +11,7 @@ use Illuminate\Http\Response;
 /** Editor de la landing SaaS y CRM de leads, solo para el superadmin. */
 class LandingEditorController extends Controller
 {
-    public function pagina(): Response
+    public function index() { return $this->pagina(); } public function pagina(): Response
     {
         return response()->view('superadmin.landing_editor', [
             'c' => LandingContenido::todo(),

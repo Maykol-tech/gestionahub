@@ -1,0 +1,72 @@
+GESTIONAHUB - REPORTES GEST-40 Y GEST-41 (v2)
+=============================================
+Usa SOLO este zip (GestionaHub_Reportes_GEST40_41_v2). Los zips anteriores (sin _v2) quedan
+obsoletos: si Chrome te guardo una copia "(1)", bórrala para no instalar la version vieja.
+
+REQUISITOS
+- Bloque 1 instalado (Excel con estilo). Si el instalador avisa que no encuentra routes\bloque1.php,
+  instala primero GestionaHub_Bloque1_Seguridad_Excel.zip.
+- Libreria de Excel:  docker compose exec app composer require maatwebsite/excel:^3.1
+  Si falta, el boton Excel muestra el comando exacto a ejecutar.
+
+QUE INCLUYE
+- GEST-40 Ventas por periodo y modulo: filtro 7 / 30 / 90 dias y desglose por canal de origen
+  (Ventas POS, Tienda Pública, WhatsApp, App, Ventas Manuales), en pantalla y en Excel.
+  Excel: Fecha | Módulo/Canal | N° Pedidos | Total Ventas (S/)  + fila TOTAL.
+- GEST-41 Delivery: pestaña "Repartidores" con pedidos entregados, tiempo promedio, rango y monto.
+  Excel: Repartidor | Pedidos Entregados | Tiempo Promedio de Entrega (min)  + fila TOTAL.
+- NUEVO: "Agregar repartidor" (solo administradores): nombre, teléfono y vehículo, con validación
+  y errores junto a cada campo. El repartidor aparece de inmediato en el reporte.
+- NUEVO: "Generar repartidores de prueba" (solo administradores y solo fuera de producción):
+  completa hasta 5 repartidores de ejemplo con 12 a 20 entregas cada uno en los últimos 30 días.
+  Las entregas de ejemplo llevan el número DEMO-. Repetir el botón no duplica nada.
+- Estilo del Excel: cabecera azul #2B6EF6 con texto blanco en negrita, bordes finos,
+  formato S/ 0.00, columnas autoajustadas, fila fija y autofiltro.
+- Botón "Exportar Excel" (arriba): un solo archivo con las dos hojas.
+
+DE DONDE SALE CADA MODULO
+- Ventas POS: ventas del punto de venta no anuladas + pedidos con canal "pos".
+- Tienda Pública: pedidos con canal "tienda" (checkout publico) o "web".
+- WhatsApp / App: pedidos con ese canal.
+- Ventas Manuales: pedidos registrados a mano + Ingresos manuales.
+- Los pedidos cancelados nunca suman.
+- Tiempo de entrega: desde que el pedido se asigna al repartidor hasta que se marca entregado.
+  Si la base no tiene la columna asignado_at, se usa la hora de confirmación.
+
+CORRECCION IMPORTANTE (migracion)
+La columna pedidos.canal era ENUM sin el valor "tienda", pero la tienda publica guarda "tienda".
+En MySQL estricto ese pedido fallaba al guardarse. La migracion 2026_11_10_200000_pedidos_canal_tienda
+la cambia a VARCHAR(20) sin perder datos.
+
+CARPETAS (MVC)
+1_Migraciones   database/migrations/2026_11_10_200000_pedidos_canal_tienda.php
+2_Controladores app/Http/Controllers/ReportesController.php
+                app/Http/Requests/ReporteExportarRequest.php
+                app/Http/Requests/RepartidorReporteRequest.php
+3_Vistas        resources/views/admin/modulos/reportes.blade.php
+4_Rutas         routes/reportes.php
+                  GET  /admin/reportes/exportar?rango=7|30|90&hoja=todo|ventas|repartidores
+                  POST /admin/reportes/repartidores        (alta, solo admin)
+                  POST /admin/reportes/datos-prueba        (solo admin, fuera de produccion)
+5_Servicios     app/Services/ReportesService.php      (calculos de GEST-40 y GEST-41)
+                app/Services/DatosPruebaReportes.php  (repartidores y entregas de ejemplo)
+                app/Services/ExportadorExcel.php      (libros de varias hojas)
+                app/Exports/TablaExport.php
+                app/Exports/LibroExport.php
+6_Pruebas       tests/Feature/ReportesGest40Gest41Test.php
+
+INSTALACION (PowerShell), una linea a la vez
+1) Descomprime el zip v2 y entra a la carpeta:
+     cd "$env:USERPROFILE\Downloads"
+     Expand-Archive -Force .\GestionaHub_Reportes_GEST40_41_v2.zip .
+     cd .\GestionaHub_Reportes_GEST40_41_v2
+2) Instalador:
+     powershell -ExecutionPolicy Bypass -File .\instalar.ps1 -Proyecto "C:\Users\USUARIO\OneDrive\Desktop\GestionaHub_Kit_v3.4\gestionahub"
+3) En la carpeta del proyecto:
+     docker compose exec app php artisan migrate
+     docker compose exec app php artisan optimize:clear
+     docker compose exec app php artisan test --filter=ReportesGest40Gest41Test
+
+PERMISOS
+- /admin/reportes y su exportacion: admin y cajero (modulo "reportes").
+- Agregar repartidores y generar datos de prueba: solo admin. Un cajero recibe 403.

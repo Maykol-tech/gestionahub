@@ -1,0 +1,84 @@
+GESTIONAHUB - PARTE 1: MODULO A (POS Y FACTURACION) + SEGURIDAD
+================================================================
+Compatible con Laravel 12, Blade + Alpine.js (sin Vue ni React). Todos los archivos en UTF-8 sin BOM.
+Basado en el repositorio de GitHub (rama main, commit "Avance 95%").
+
+ESTRUCTURA (MVC)
+----------------
+01_Migraciones   database/migrations      -> columnas nuevas de ventas_pos y comprobantes_electronicos
+02_Modelos       app/Models               -> VentaPos, ComprobanteElectronico, SunatConfiguracion
+03_Vistas        resources/views          -> login, layout (Anime.js + pantalla de bloqueo), POS,
+                                             comprobantes, ticket 80 mm, impresion A4, paginacion
+04_Controladores app/Http/Controllers     -> PosController, ComprobanteController,
+                                             Auth/LoginController, Auth/PantallaBloqueoController
+                 app/Http/Middleware      -> VerificarPantallaBloqueo
+05_Rutas         routes/modulo_a.php      -> rutas del POS, comprobantes y pantalla de bloqueo
+                 bootstrap/app.php        -> registra el middleware de bloqueo
+06_Servicios     app/Support              -> Nubefact y NubefactNotas (modo simulado), Roles (cajero y
+                                             vendedor ven el POS), Caja y Finanzas (no suman ventas anuladas)
+07_Pruebas       tests/Feature            -> 11 pruebas del modulo
+
+INSTALACION RAPIDA (PowerShell)
+-------------------------------
+1. Descomprime la carpeta y entra en ella.
+2. powershell -ExecutionPolicy Bypass -File .\instalar.ps1 -Proyecto "C:\ruta\a\gestionahub"
+   (copia todo, guarda respaldo de lo que reemplaza y agrega el require en routes/web.php)
+3. docker compose exec app php artisan migrate
+4. docker compose exec app php artisan optimize:clear
+5. Opcional: docker compose exec app php artisan test --filter=ModuloAPosSeguridadTest
+
+INSTALACION MANUAL
+------------------
+1. Copia el contenido de cada carpeta 01..07 en la raiz del proyecto (respetando las rutas).
+2. Al final de routes/web.php agrega:
+       require __DIR__ . '/modulo_a.php';
+   Recomendado: borra en web.php las rutas antiguas de PosController y ComprobanteController
+   (si no las borras igual funciona: las de modulo_a.php las reemplazan).
+3. Ejecuta los pasos 3 y 4 de arriba.
+
+OJO: layouts/app.blade.php y bootstrap/app.php son los del GitHub con los cambios de esta parte.
+Si en tu PC tienes cambios propios en esos dos archivos sin subir, compara antes de reemplazar
+(el instalador deja una copia en la carpeta respaldo_parte1_...).
+
+QUE INCLUYE
+-----------
+SEGURIDAD
+- Login: 5 intentos fallidos (por correo + IP) bloquean el acceso 15 minutos. La pantalla muestra
+  un contador en vivo (mm:ss), barra de progreso y el boton deshabilitado hasta que termine.
+  Desde el 3er fallo avisa cuantos intentos quedan.
+- Pantalla de bloqueo por inactividad: a los 7 minutos sin actividad (aviso 30 s antes) el panel
+  se cubre con una capa oscura y pide la contrasena. NO cierra la sesion. El estado se guarda en
+  el servidor: recargar la pagina no salta el bloqueo y mientras esta bloqueada el panel responde
+  423 a cualquier peticion de datos. Se sincroniza entre pestanas. 5 contrasenas malas cierran
+  la sesion por seguridad. Para cambiar los minutos (entre 5 y 10) agrega en config/app.php:
+      'bloqueo_minutos' => env('BLOQUEO_MINUTOS', 7),
+
+POS (/admin/pos)
+- Busqueda por nombre o codigo (F2), filtro por categoria, Enter agrega el primer resultado.
+- Carrito con cantidades editables y control de stock en pantalla.
+- Desglose Op. gravada + IGV 18% (precios con IGV incluido, mismo calculo que SUNAT).
+- Pagos: Efectivo (con montos rapidos, vuelto y aviso si falta), Tarjeta, Yape y Plin.
+- Comprobante: Nota de venta, Boleta (DNI obligatorio desde S/ 700) o Factura (RUC + razon social).
+  Validacion en tiempo real. Cobrar con F9.
+- Ventas del dia con ticket imprimible (80 mm) y anulacion: devuelve stock y emite nota de credito.
+
+FACTURACION (/admin/comprobantes)
+- Modo SIMULADO (por defecto): funciona sin token; los comprobantes salen "aceptados" con marca
+  de agua SIMULADO y sin valor tributario. Ideal para la demo al profe.
+- Nubefact demo o produccion: pega la URL y el token de tu cuenta Nubefact y elige el ambiente.
+- Boletas y facturas desde ventas POS o pedidos pagados, notas de credito (anulacion, devolucion
+  total, devolucion por item, disminucion de valor) y comunicacion de baja.
+- Filtros por tipo, estado y busqueda; paginacion con estilo; representacion impresa A4.
+
+DISENO
+- Anime.js 3.2.2 por CDN (cdnjs): KPIs que cuentan desde 0, paneles y filas que entran en cascada,
+  modales con fade + slide-up, menus desplegables animados. Si el CDN no carga, todo funciona igual.
+- Tablas redondeadas con sombra al pasar el mouse, badges de estado vivos, paginacion con estilo,
+  campos con icono interno y validacion en tiempo real (atributo data-validar en cualquier form).
+
+PROBADO
+-------
+- 11 pruebas nuevas en verde (bloqueo de login, pantalla de bloqueo, IGV, boleta, factura, anulacion
+  con nota de credito, permisos de cajero) y las pruebas de Nubefact existentes siguen pasando.
+- Recorrido en navegador: bloqueo de login con contador, venta con boleta, error de RUC,
+  nota de credito, bloqueo/desbloqueo y recarga con pantalla bloqueada.

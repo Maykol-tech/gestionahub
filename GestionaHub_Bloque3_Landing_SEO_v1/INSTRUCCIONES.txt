@@ -1,0 +1,38 @@
+BLOQUE 3 - Landing: SEO con IA, popup de oferta, chatbot de leads, precios y reclamaciones
+========================================================================================
+
+REQUISITO
+- Bloque 2 instalado.
+
+PASOS
+1. Descomprime este paquete fuera del proyecto.
+2. En PowerShell, desde esa carpeta:
+     powershell -ExecutionPolicy Bypass -File .\instalar.ps1 -Proyecto "C:\ruta\a\gestionahub"
+3. Dentro del proyecto, una linea a la vez:
+     docker compose exec app php artisan migrate
+     docker compose exec app php artisan optimize:clear
+     docker compose exec app php artisan test --filter=Bloque3LandingTest
+
+VARIABLES .env (opcionales)
+     OPENAI_API_KEY=sk-...          (sin esta clave el SEO usa el titular del hero)
+     OPENAI_MODEL=gpt-4o-mini
+
+QUE INCLUYE
+- GEST-50 SEO con IA: en el editor de la landing (superadmin) "Generar SEO con IA". Guarda titulo y
+  descripcion que la landing usa en <title> y en la meta description. Si OpenAI falla, usa el hero.
+- GEST-52 Popup de oferta: aparece tras el tiempo activo de la pestaña (30 s por defecto), o al salir
+  por arriba en escritorio despues de 8 s. No vuelve a aparecer en 7 dias si se cerro, ni si ya se dejaron datos.
+  Prueba con ?popup=1 (aparece a los 2 s). Guarda el lead con fuente "popup" y el codigo de oferta.
+- GEST-53 Chatbot de captura: boton "Hablar con un asesor" con tres pasos (nombre, contacto, interes).
+  Guarda el lead con fuente "chatbot". Es un formulario guiado, no una IA conversacional.
+- GEST-54 Precios con toggle mensual/anual y GEST-51 Libro de reclamaciones: ya existian; las pruebas los verifican.
+- GEST-49 Landing administrable: ya existia en el editor del superadmin; se amplio con SEO y codigo de oferta.
+
+ARCHIVOS QUE EL INSTALADOR TOCA
+- config\services.php: bloque 'openai' (solo si falta).
+- routes\web.php: una linea de la ruta de SEO, despues de landing.lead.
+- Todo lo reemplazado se guarda antes en respaldo_bloque3_landing_FECHA.
+
+NOTAS
+- La landing usa JavaScript simple (sin Alpine) porque es publica y liviana.
+- No revisé el popup ni el chat en navegador real; las pruebas validan el HTML y el guardado de leads.

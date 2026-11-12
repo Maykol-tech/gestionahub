@@ -1,91 +1,56 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use App\Models\LandingContenido;
 use App\Models\LandingLead;
-use App\Models\LibroReclamacion;
-use Illuminate\Http\RedirectResponse;
+use App\Models\LandingConfig;
+use App\Models\Reclamacion;
+use App\Services\SeoIaService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
-/** Landing publica de GestionaHub: planes, captura de leads y libro de reclamaciones. */
-class LandingController extends Controller
-{
-    public function inicio()
-    {
-        $planes = DB::table('planes_saas')->where('activo', true)->orderBy('precio_mensual')
-            ->get(['slug', 'nombre', 'precio_mensual', 'max_sucursales'])
-            ->map(fn ($p) => [
-                'slug' => $p->slug,
-                'nombre' => $p->nombre,
-                'mensual' => (float) $p->precio_mensual,
-                // Precio anual = 10 meses (2 meses de descuento). Ajustar si el plan anual es otro.
-                'anual' => round((float) $p->precio_mensual * 10, 2),
-                'sucursales' => (int) $p->max_sucursales,
-            ])->values();
-
-        return view('publico.landing', [
-            'contenido' => LandingContenido::todo(),
-            'planes' => $planes,
-        ]);
+class LandingController extends Controller {
+    public function index(SeoIaService $seo) {
+        $config = LandingConfig::first() ?? LandingConfig::defaults();
+        $meta = $seo->generar($config->hero_title, $config->hero_subtitle);
+        $planes = \App\Models\PlanSaaS::where('activo', 1)->orderBy('precio_mensual')->get();
+        return view('landing.index', compact('config', 'meta', 'planes'));
     }
 
-    public function contacto(Request $request): RedirectResponse
-    {
-        $datos = $request->validate([
-            'nombre' => ['required', 'string', 'max:150'],
-            'email' => ['nullable', 'email', 'max:150'],
-            'telefono' => ['nullable', 'string', 'max:30'],
-            'mensaje' => ['nullable', 'string', 'max:1000'],
-            'utm_source' => ['nullable', 'string', 'max:100'],
-            'utm_medium' => ['nullable', 'string', 'max:100'],
-            'utm_campaign' => ['nullable', 'string', 'max:100'],
+    public function contacto(Request $request) {
+        $data = $request->validate([
+            'nombre' => 'required|string|max:150',
+            'email' => 'nullable|email|max:150',
+            'telefono' => 'nullable|string|max:20',
+            'rubro' => 'nullable|string|max:100',
+            'tamano' => 'nullable|string|max:50',
+            'mensaje' => 'nullable|string',
+            'origen' => 'nullable|string|max:50',
+            'website' => 'nullable|string', // honeypot
         ]);
 
-        if (empty($datos['email']) && empty($datos['telefono'])) {
-            return back()->withErrors(['email' => 'Déjanos un correo o un teléfono para contactarte.'])->withInput();
+        // Honeypot: si tiene valor, es un bot
+        if (!empty($data['website'])) {
+            return response()->json(['ok' => true, 'message' => 'Gracias']);
         }
 
-        LandingLead::create([
-            'nombre' => $datos['nombre'],
-            'email' => $datos['email'] ?? null,
-            'telefono' => $datos['telefono'] ?? null,
-            'mensaje' => $datos['mensaje'] ?? null,
-            'fuente' => 'landing',
-            'utm' => array_filter($request->only(['utm_source', 'utm_medium', 'utm_campaign'])) ?: null,
-        ]);
+        // Capturar UTM de cookie
+        $data['utm_source'] = $request->cookie('utm_source');
+        $data['utm_campaign'] = $request->cookie('utm_campaign');
+        $data['origen'] = $data['origen'] ?? 'formulario';
+        unset($data['website']);
 
-        return redirect()->to(url('/landing') . '#contacto')->with('ok', '¡Gracias! Te contactaremos pronto.');
+        LandingLead::create($data);
+
+        return response()->json(['ok' => true, 'message' => 'Lead registrado. Te contactaremos pronto.']);
     }
 
-    public function reclamacion(Request $request): RedirectResponse
-    {
-        $datos = $request->validate([
-            'tipo' => ['required', 'in:' . implode(',', array_keys(LibroReclamacion::TIPOS))],
-            'nombre' => ['required', 'string', 'max:150'],
-            'documento_tipo' => ['required', 'in:' . implode(',', LibroReclamacion::DOCUMENTOS)],
-            'documento' => ['required', 'string', 'max:20'],
-            'email' => ['required', 'email', 'max:150'],
-            'telefono' => ['nullable', 'string', 'max:30'],
-            'pedido' => ['nullable', 'string', 'max:255'],
-            'detalle' => ['required', 'string', 'max:2000'],
+    public function reclamacion(Request $request) {
+        $data = $request->validate([
+            'nombre' => 'required', 'tipo_documento' => 'required', 'numero_documento' => 'required',
+            'email' => 'required|email', 'telefono' => 'required', 'direccion' => 'required',
+            'tipo_bien' => 'required', 'detalle' => 'required', 'pedido' => 'required'
         ]);
-
-        // Numero correlativo LR-000001, bloqueando la tabla para que dos envios no tomen el mismo numero
-        $reclamo = DB::transaction(function () use ($datos, $request) {
-            $ultimo = LibroReclamacion::query()->lockForUpdate()->max('id') ?? 0;
-
-            return LibroReclamacion::create($datos + [
-                'numero' => 'LR-' . str_pad((string) ($ultimo + 1), 6, '0', STR_PAD_LEFT),
-                'ip' => $request->ip(),
-            ]);
-        });
-
-        Log::info('Libro de reclamaciones: nuevo registro ' . $reclamo->numero);
-
-        return redirect()->to(url('/landing') . '#reclamos')
-            ->with('ok', "Tu hoja de reclamación fue registrada con el número {$reclamo->numero}. Te responderemos en un plazo máximo de 30 días.");
+        $data['numero_caso'] = 'REC-' . strtoupper(uniqid());
+        $reclamacion = Reclamacion::create($data);
+        return back()->with('success', 'Reclamo registrado. Su caso es: ' . $reclamacion->numero_caso);
     }
 }

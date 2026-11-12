@@ -13,7 +13,7 @@ class SuperadminController extends Controller
 {
     public const ESTADOS = ['activo' => 'Activo', 'suspendido' => 'Suspendido', 'cancelado' => 'Cancelado'];
 
-    public function pagina()
+    public function index() { return $this->pagina(); } public function pagina()
     {
         $negocios = Tenant::query()
             ->leftJoin('planes_saas', 'planes_saas.id', '=', 'tenants.plan_id')

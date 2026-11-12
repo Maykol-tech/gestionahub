@@ -1,58 +1,30 @@
 @extends('layouts.app')
-
-@section('titulo', 'Perfil del negocio')
-@section('subtitulo', 'Datos que ven tus clientes en la tienda y en los comprobantes')
-
-@push('styles')
-    @include('admin.modulos._base')
-    <style>
-        .grid-2 { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
-        @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
-    </style>
-@endpush
-
+@section('titulo', 'Perfil del Negocio')
+@section('subtitulo', 'Configura los datos de tu empresa')
 @section('contenido')
-<div>
-    @if (session('ok'))
-        <div class="panel fade-in" style="padding:12px;margin-bottom:12px;color:#15803D;">{{ session('ok') }}</div>
-    @endif
-    @if ($errors->any())
-        <div class="panel fade-in" style="padding:12px;margin-bottom:12px;color:#B91C1C;">
-            @foreach ($errors->all() as $e) <div>{{ $e }}</div> @endforeach
+@if(session('success'))
+    <div class="bg-green-50 text-green-700 p-3 rounded-lg mb-4">{{ session('success') }}</div>
+@endif
+<form action="{{ route('admin.perfil.update') }}" method="POST" enctype="multipart/form-data" class="bg-white rounded-xl shadow-sm p-6">
+    @csrf
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div><label class="text-sm font-semibold">Razón social</label><input type="text" name="razon_social" value="{{ $tenant->razon_social ?? '' }}" class="w-full border rounded-lg p-2"></div>
+        <div><label class="text-sm font-semibold">Nombre comercial</label><input type="text" name="nombre_comercial" value="{{ $tenant->nombre ?? '' }}" class="w-full border rounded-lg p-2"></div>
+        <div><label class="text-sm font-semibold">RUC (11 dígitos)</label><input type="text" name="ruc" value="{{ $tenant->ruc ?? '' }}" maxlength="11" class="w-full border rounded-lg p-2"></div>
+        <div><label class="text-sm font-semibold">Teléfono</label><input type="text" name="telefono" value="{{ $tenant->telefono ?? '' }}" class="w-full border rounded-lg p-2"></div>
+        <div><label class="text-sm font-semibold">Email</label><input type="email" name="email" value="{{ $tenant->email ?? '' }}" class="w-full border rounded-lg p-2"></div>
+        <div><label class="text-sm font-semibold">Rubro</label><input type="text" name="rubro" value="{{ $tenant->rubro ?? '' }}" class="w-full border rounded-lg p-2"></div>
+        <div class="md:col-span-2"><label class="text-sm font-semibold">Dirección</label><input type="text" name="direccion" value="{{ $tenant->direccion ?? '' }}" class="w-full border rounded-lg p-2"></div>
+        <div class="md:col-span-2">
+            <label class="text-sm font-semibold">Logo (JPG, PNG, WEBP, máx 2MB)</label>
+            @if($tenant->logo_url ?? false)
+                <img src="{{ $tenant->logo_url }}" style="max-width:120px;max-height:120px;border-radius:8px;margin-bottom:8px;display:block;">
+            @endif
+            <input type="file" name="logo" accept="image/jpeg,image/png,image/webp" class="w-full border rounded-lg p-2">
         </div>
-    @endif
-
-    <div class="panel fade-in" style="padding:18px;">
-        <form method="POST" action="{{ route('admin.perfil.guardar') }}" class="grid-2">
-            @csrf
-            <div style="grid-column:1 / -1;">
-                <label class="lbl" for="nombre_negocio">Nombre del negocio</label>
-                <input class="inp" id="nombre_negocio" name="nombre_negocio" maxlength="120" value="{{ old('nombre_negocio', $perfil->nombre_negocio ?? '') }}" required>
-            </div>
-            <div>
-                <label class="lbl" for="telefono">Teléfono</label>
-                <input class="inp" id="telefono" name="telefono" maxlength="30" value="{{ old('telefono', $perfil->telefono ?? '') }}">
-            </div>
-            <div>
-                <label class="lbl" for="ruc">RUC (11 dígitos)</label>
-                <input class="inp" id="ruc" name="ruc" maxlength="11" inputmode="numeric" value="{{ old('ruc', $perfil->ruc ?? '') }}">
-            </div>
-            <div style="grid-column:1 / -1;">
-                <label class="lbl" for="direccion">Dirección</label>
-                <input class="inp" id="direccion" name="direccion" maxlength="255" value="{{ old('direccion', $perfil->direccion ?? '') }}">
-            </div>
-            <div>
-                <label class="lbl" for="sitio_web">Sitio web</label>
-                <input class="inp" id="sitio_web" name="sitio_web" type="url" maxlength="255" value="{{ old('sitio_web', $perfil->sitio_web ?? '') }}">
-            </div>
-            <div style="grid-column:1 / -1;">
-                <label class="lbl" for="descripcion">Descripción</label>
-                <textarea class="inp" id="descripcion" name="descripcion" rows="3" maxlength="1000">{{ old('descripcion', $perfil->descripcion ?? '') }}</textarea>
-            </div>
-            <div style="grid-column:1 / -1;">
-                <button class="btn btn-p" type="submit">Guardar perfil</button>
-            </div>
-        </form>
     </div>
-</div>
+    <div class="mt-6 flex justify-end">
+        <button type="submit" class="bg-[#F47B20] text-white px-6 py-2 rounded-lg font-semibold">Guardar cambios</button>
+    </div>
+</form>
 @endsection

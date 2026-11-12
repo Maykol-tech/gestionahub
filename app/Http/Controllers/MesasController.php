@@ -1,74 +1,55 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use App\Models\Comanda;
 use App\Models\Mesa;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
-/** Administracion de mesas: alta, QR y cobro de las comandas abiertas. */
-class MesasController extends DashboardController
-{
-    public function pagina()
-    {
-        $this->compartirLayout();
+class MesasController extends Controller {
+    public function index(Request $request) {
+        $query = Mesa::query();
+        if ($request->filled('q')) $query->where('nombre', 'like', '%' . $request->q . '%');
+        if ($request->filled('zona')) $query->where('zona', $request->zona);
 
-        return view('admin.modulos.mesas', [
-            'titulo' => 'Mesas y QR',
-            'modulo' => 'mesas',
-            'mesas' => Mesa::query()->withCount(['comandasAbiertas as abiertas'])->orderBy('nombre')->get(),
-        ]);
+        $mesas = $query->orderBy('nombre')->get();
+        
+        // AGRUPAMOS POR ZONA
+        $mesasAgrupadas = $mesas->groupBy('zona');
+
+        $total = $mesas->count();
+        $libres = $mesas->where('estado', 'libre')->count();
+        $ocupadas = $mesas->where('estado', '!=', 'libre')->count();
+
+        return view('admin.modulos.mesas', compact('mesasAgrupadas', 'total', 'libres', 'ocupadas'));
     }
-
-    public function guardar(Request $request): RedirectResponse
-    {
-        $datos = $request->validate([
-            'nombre' => ['required', 'string', 'max:40'],
-            'capacidad' => ['required', 'integer', 'min:1', 'max:50'],
+    
+    public function guardar(Request $request) {
+        $request->validate([
+            'nombre' => ['required', 'string', 'max:20', function ($attribute, $value, $fail) {
+                if (Mesa::where('nombre', $value)->exists()) $fail('Esta mesa ya existe.');
+            }],
+            'zona' => 'required|in:Salón,Terraza,Barra',
+            'capacidad' => 'required|integer|min:1|max:20'
         ]);
-
-        $tenantId = auth()->user()->tenant_id;
-
-        $existe = Mesa::withoutGlobalScopes()->where('tenant_id', $tenantId)->where('nombre', $datos['nombre'])->exists();
-        if ($existe) {
-            return back()->withErrors(['nombre' => 'Ya existe una mesa con ese nombre.']);
-        }
 
         Mesa::create([
-            'tenant_id' => $tenantId,
-            'nombre' => $datos['nombre'],
-            'capacidad' => $datos['capacidad'],
+            'tenant_id' => auth()->user()->tenant_id, 
+            'nombre' => $request->nombre,
+            'zona' => $request->zona,
+            'capacidad' => $request->capacidad,
+            'estado' => 'libre'
         ]);
-
-        return back()->with('ok', 'Mesa creada. Descarga su QR desde la lista.');
+        return back()->with('success', 'Mesa creada.');
     }
 
-    /** Cobra todas las comandas entregadas de la mesa y la deja libre. */
-    public function cobrar(Mesa $mesa): RedirectResponse
-    {
-        $abiertas = $mesa->comandasAbiertas()->get();
+    public function destroy(Mesa $mesa) {
+        $mesa->delete();
+        return back()->with('success', 'Mesa eliminada.');
+    }
 
-        if ($abiertas->isEmpty()) {
-            return back()->withErrors(['mesa' => 'La mesa no tiene comandas abiertas.']);
-        }
-
-        $pendientes = $abiertas->where('estado', '!=', 'entregada');
-        if ($pendientes->isNotEmpty()) {
-            throw ValidationException::withMessages([
-                'mesa' => 'Aún hay comandas que no se han entregado.',
-            ]);
-        }
-
-        $total = 0.0;
-        foreach ($abiertas as $comanda) {
-            $comanda->update(['estado' => 'cobrada']);
-            $total += (float) $comanda->total;
-        }
-
-        $mesa->update(['estado' => 'libre']);
-
-        return back()->with('ok', 'Mesa cobrada: S/ ' . number_format($total, 2) . '.');
+    public function qr(Mesa $mesa) {
+        $url = url('/menu/' . $mesa->token);
+        $qr = QrCode::size(250)->margin(1)->generate($url);
+        return response()->json(['svg' => (string) $qr]);
     }
 }

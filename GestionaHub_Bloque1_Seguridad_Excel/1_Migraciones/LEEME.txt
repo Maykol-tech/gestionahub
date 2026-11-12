@@ -1,0 +1,2 @@
+Este bloque no necesita migraciones nuevas.
+La unica dependencia nueva es Laravel-Excel (ver INSTRUCCIONES.txt, paso 1).

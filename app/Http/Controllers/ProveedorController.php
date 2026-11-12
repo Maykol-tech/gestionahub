@@ -15,7 +15,7 @@ use Illuminate\Validation\ValidationException;
 /** Pagina de Proveedores: CRUD de proveedores (GEST-69) y ordenes de compra con su recepcion de stock. */
 class ProveedorController extends DashboardController
 {
-    public function pagina()
+    public function index() { return $this->pagina(); } public function pagina()
     {
         $this->compartirLayout();
 

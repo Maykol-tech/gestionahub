@@ -1,0 +1,19 @@
+LIMPIEZA + MODULO A (Reportes GEST-40/41 y delivery)
+=====================================================
+
+REQUISITO: Bloque 1 de seguridad y Excel instalado (routes\bloque1.php).
+
+PASOS
+1. Descomprime esta carpeta fuera del proyecto.
+2. En PowerShell, desde esta carpeta:
+     powershell -ExecutionPolicy Bypass -File .\instalar.ps1 -Proyecto "C:\ruta\a\gestionahub"
+3. Dentro del proyecto, una linea a la vez:
+     docker compose exec app composer require maatwebsite/excel:^3.1     (solo si Excel falla)
+     docker compose exec app php artisan optimize:clear
+     docker compose exec app php artisan test --filter=ReportesGest40Gest41Test
+
+QUE INCLUYE
+- Limpieza: borra resources\views\admin\partials\campana.blade.php (parcial con caracteres basura, no usado).
+- GEST-40: ventas por periodo y modulo, graficos Chart.js y Excel con cabeceras azules, bordes y moneda S/.
+- GEST-41: tabla de tiempos de entrega y rendimiento por repartidor, con alta de repartidor.
+- Respaldo de todo lo reemplazado en respaldo_reportes_FECHA.

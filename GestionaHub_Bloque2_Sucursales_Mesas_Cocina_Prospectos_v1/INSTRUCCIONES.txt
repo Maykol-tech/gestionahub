@@ -1,0 +1,42 @@
+BLOQUE 2 - Prospeccion IA, QR de mesas, cocina en vivo y sucursales
+====================================================================
+
+REQUISITO
+- Bloque 1 instalado (CRUDs de repartidores y proveedores).
+
+PASOS
+1. Descomprime este paquete fuera del proyecto.
+2. En PowerShell, desde esa carpeta:
+     powershell -ExecutionPolicy Bypass -File .\instalar.ps1 -Proyecto "C:\ruta\a\gestionahub"
+3. Instala la libreria de QR (una linea a la vez):
+     docker compose exec app composer require simplesoftwareio/simple-qrcode:^4.2
+     docker compose exec app php artisan optimize:clear
+     docker compose exec app php artisan test --filter=Bloque2SucursalesMesasCocinaTest
+     docker compose exec app php artisan test --filter=ProspeccionIaTest
+
+VARIABLES .env (para la prospeccion con IA)
+     PROSPECCION_IA_URL=http://servicio-ia:8001
+     PROSPECCION_IA_TOKEN=pon-aqui-un-token-largo
+     PROSPECCION_IA_TIMEOUT=60
+Sin PROSPECCION_IA_URL el boton muestra un aviso claro; el resto del sistema funciona igual.
+
+QUE INCLUYE
+- GEST-42/43: Prospectos -> "Buscar prospectos con IA" (rubro, zona, maximo). Llama a POST {URL}/prospectar con
+  {rubro, zona, limite} y espera {"prospectos": [{nombre, telefono, email, rubro, fuente_url}]}.
+  Guarda como fuente "ia" y no duplica por telefono (ultimos 9 digitos) ni por correo.
+- GEST-44 (campanas WhatsApp masivas): ya existia en el proyecto y sus pruebas siguen pasando; no se reemplazo.
+- GEST-46: los QR de mesa se generan en el servidor (SVG). Antes se pedian a api.qrserver.com, un servicio externo.
+  Se agrego "Descargar QR".
+- GEST-47: el panel de cocina ya no recarga la pagina entera; refresca las comandas cada 5 s.
+- GEST-48: sucursales con crear, editar, activar/desactivar y eliminar. El limite lo marca el plan
+  (la sede principal cuenta dentro del limite). Sin inventario por sucursal todavia.
+
+ARCHIVOS QUE EL INSTALADOR TOCA
+- config\services.php: bloque 'prospeccion' (solo si falta).
+- app\Http\Controllers\ModulosController.php: dos lineas en datosSucursales().
+- routes\web.php: require de routes\bloque2.php al final.
+- Todo lo reemplazado se guarda antes en respaldo_bloque2_FECHA.
+
+PENDIENTE (no incluido en este bloque)
+- Inventario propio por sucursal (GEST-48 completo): requiere cambiar el descuento de stock de pedidos.
+- Microservicio FastAPI de prospeccion: vive fuera de este proyecto; el contrato esta en app\Services\ProspeccionIaService.php.

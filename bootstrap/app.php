@@ -17,7 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
         'tenant.active' => \App\Http\Middleware\EnsureTenantActive::class,
         'modulo.permitido' => \App\Http\Middleware\EnsureModuloPermitido::class,
         'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+        'pantalla.bloqueo' => \App\Http\Middleware\VerificarPantallaBloqueo::class,
     ]);
+    // Pantalla de bloqueo por inactividad: se revisa en todas las rutas /admin
+    $middleware->appendToGroup('web', \App\Http\Middleware\VerificarPantallaBloqueo::class);
 })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

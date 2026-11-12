@@ -129,18 +129,16 @@ class Nubefact
      * Reserva el siguiente numero, guarda el comprobante como pendiente, lo envia a Nubefact
      * y actualiza el resultado. El numero queda reservado aunque la llamada falle.
      */
-    public static function emitir(SunatConfiguracion $config, string $tipo, array $cliente, array $items, ?int $pedidoId = null): ComprobanteElectronico
+    public static function emitir(SunatConfiguracion $config, string $tipo, array $cliente, array $items, ?int $pedidoId = null, ?int $ventaPosId = null): ComprobanteElectronico
     {
-        if (! $config->activo || ! $config->ruta || $config->token === null) {
-            throw ValidationException::withMessages(['config' => 'Configura Nubefact antes de emitir comprobantes.']);
-        }
+        self::exigirConfiguracion($config);
 
         $calculo = self::calcular($items);
         self::validarCliente($tipo, $cliente['documento'] ?? null, $calculo['total']);
 
         $serie = $tipo === '01' ? $config->serie_factura : $config->serie_boleta;
 
-        $comprobante = DB::transaction(function () use ($config, $tipo, $serie, $cliente, $calculo, $pedidoId) {
+        $comprobante = DB::transaction(function () use ($config, $tipo, $serie, $cliente, $calculo, $pedidoId, $ventaPosId) {
             // Bloquea la configuracion del negocio para que dos emisiones no tomen el mismo numero
             SunatConfiguracion::withoutGlobalScopes()->whereKey($config->id)->lockForUpdate()->first();
 
@@ -151,10 +149,11 @@ class Nubefact
             return ComprobanteElectronico::withoutGlobalScopes()->create([
                 'tenant_id' => $config->tenant_id,
                 'pedido_id' => $pedidoId,
+                'venta_pos_id' => $ventaPosId,
                 'tipo' => $tipo,
                 'serie' => $serie,
                 'numero' => ((int) $ultimo) + 1,
-                'cliente_tipo_documento' => $tipo === '01' ? '6' : '0',
+                'cliente_tipo_documento' => self::tipoDocumento($tipo, $cliente['documento'] ?? null),
                 'cliente_documento' => preg_replace('/\D/', '', (string) ($cliente['documento'] ?? '')) ?: null,
                 'cliente_nombre' => (string) ($cliente['nombre'] ?? 'CLIENTES VARIOS'),
                 'cliente_direccion' => $cliente['direccion'] ?? null,
@@ -162,10 +161,15 @@ class Nubefact
                 'igv' => $calculo['igv'],
                 'total' => $calculo['total'],
                 'estado' => 'pendiente',
+                'simulado' => $config->esSimulado(),
             ]);
         });
 
         $payload = self::payload($tipo, $serie, $comprobante->numero, $cliente, $calculo);
+
+        if ($config->esSimulado()) {
+            return self::aceptarSimulado($comprobante, $payload);
+        }
 
         try {
             $respuesta = Http::withHeaders(['Authorization' => 'Token token="' . $config->tokenClaro() . '"'])
@@ -193,6 +197,50 @@ class Nubefact
             'enlace_xml' => $datos['enlace_del_xml'] ?? null,
             'enlace_cdr' => $datos['enlace_del_cdr'] ?? null,
             'codigo_hash' => $datos['codigo_hash'] ?? null,
+            'emitido_at' => now(),
+        ]);
+
+        return $comprobante->fresh();
+    }
+
+    /** Revisa que el negocio pueda emitir: en simulado basta con estar activo; con Nubefact pide URL y token. */
+    public static function exigirConfiguracion(SunatConfiguracion $config): void
+    {
+        if (! $config->activo) {
+            throw ValidationException::withMessages(['config' => 'La emisión de comprobantes está desactivada. Actívala en Comprobantes.']);
+        }
+
+        if (! $config->esSimulado() && (! $config->ruta || $config->getRawOriginal('token') === null)) {
+            throw ValidationException::withMessages(['config' => 'Configura la URL y el token de Nubefact antes de emitir comprobantes.']);
+        }
+    }
+
+    /** Codigo SUNAT del documento del cliente: 6 RUC, 1 DNI, 0 sin documento. */
+    public static function tipoDocumento(string $tipo, ?string $documento): string
+    {
+        $doc = preg_replace('/\D/', '', (string) $documento);
+
+        return match (true) {
+            $tipo === '01' || strlen($doc) === 11 => '6',
+            strlen($doc) === 8 => '1',
+            default => '0',
+        };
+    }
+
+    /**
+     * Modo simulado: el comprobante se da por aceptado sin llamar a SUNAT.
+     * Sirve para demos y para que el negocio pruebe el flujo antes de contratar Nubefact.
+     */
+    public static function aceptarSimulado(ComprobanteElectronico $comprobante, array $payload): ComprobanteElectronico
+    {
+        $comprobante->update([
+            'estado' => 'aceptado',
+            'aceptado' => true,
+            'simulado' => true,
+            'payload' => $payload,
+            'mensaje' => 'Simulado: comprobante válido solo para pruebas (no se envió a SUNAT).',
+            'codigo_hash' => substr(base64_encode(hash('sha256', $comprobante->id . '|' . $comprobante->numero_completo . '|' . now()->timestamp, true)), 0, 28),
+            'enlace_pdf' => route('admin.comprobantes.ver', $comprobante->id),
             'emitido_at' => now(),
         ]);
 

@@ -9,7 +9,7 @@
         .grid-2 { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
         .filtros { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
         .filtros a { font-size:12px; font-weight:700; padding:5px 12px; border-radius:99px; border:1px solid var(--border); color:var(--fg2); text-decoration:none; }
-        .filtros a.activo { background:var(--brand); color:#fff; border-color:var(--brand); }
+        .filtros a.activo { background:var(--nav-bg); color:#fff; border-color:var(--nav-bg); }
         @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
     </style>
 @endpush

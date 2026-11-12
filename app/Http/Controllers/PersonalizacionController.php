@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 /** Onboarding y personalizacion basica: rubro, plantilla sugerida y color de marca (GEST-84). */
 class PersonalizacionController extends DashboardController
 {
-    public function pagina()
+    public function index() { return $this->pagina(); } public function pagina()
     {
         $this->compartirLayout();
 

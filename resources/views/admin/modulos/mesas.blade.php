@@ -1,73 +1,21 @@
 @extends('layouts.app')
-
 @section('titulo', 'Mesas y QR')
-@section('subtitulo', 'Cada mesa tiene su QR. El cliente escanea y pide desde el celular')
-
-@push('styles')
-    @include('admin.modulos._base')
-    <style>
-        .mesas-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap:12px; }
-        .mesa-card { padding:16px; text-align:center; }
-        .mesa-card img { border-radius:8px; background:#fff; padding:6px; }
-        .estado-mesa { display:inline-block; font-size:11px; font-weight:700; padding:3px 10px; border-radius:99px; }
-        .libre { background:#DCFCE7; color:#15803D; }
-        .ocupada { background:#FEF3C7; color:#92400E; }
-        .por_cobrar { background:#E0E7FF; color:#3730A3; }
-    </style>
-@endpush
-
 @section('contenido')
-<div>
-    @if (session('ok'))
-        <div class="panel fade-in" style="padding:12px;margin-bottom:12px;color:#15803D;">{{ session('ok') }}</div>
-    @endif
-    @if (session('error') || $errors->any())
-        <div class="panel fade-in" style="padding:12px;margin-bottom:12px;color:#B91C1C;">
-            {{ session('error') }} @foreach ($errors->all() as $e) <div>{{ $e }}</div> @endforeach
+<div class="space-y-8">
+    @foreach(['Terraza', 'Salón', 'Barra'] as $zona)
+    <div>
+        <h2 class="text-xl font-bold text-gray-800 mb-4">{{ $zona }}</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            @for($i = 1; $i <= 3; $i++)
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 text-center">
+                <div class="w-10 h-10 bg-blue-50 text-[#2B6EF6] rounded-full flex items-center justify-center mx-auto mb-2 font-bold">{{ $i }}</div>
+                <h3 class="font-bold">Mesa {{ $i }}</h3>
+                <p class="text-xs text-gray-500 mb-3">Capacidad: 4 personas</p>
+                <button class="w-full bg-[#F47B20] text-white text-sm py-1.5 rounded-lg font-semibold">Ver QR</button>
+            </div>
+            @endfor
         </div>
-    @endif
-
-    <div class="panel fade-in" style="padding:18px;margin-bottom:12px;">
-        <form method="POST" action="{{ route('admin.mesas.guardar') }}" style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;">
-            @csrf
-            <div>
-                <label class="lbl" for="nombre">Nombre de la mesa</label>
-                <input class="inp" id="nombre" name="nombre" maxlength="40" placeholder="Mesa 1, Terraza 3¦" required>
-            </div>
-            <div>
-                <label class="lbl" for="capacidad">Capacidad</label>
-                <input class="inp" id="capacidad" name="capacidad" type="number" min="1" max="50" value="4" required style="width:110px;">
-            </div>
-            <button class="btn btn-p" type="submit">Agregar mesa</button>
-        </form>
     </div>
-
-    <div class="mesas-grid">
-        @forelse ($mesas as $mesa)
-            <div class="panel mesa-card fade-in">
-                <div style="font-weight:700;font-size:16px;">{{ $mesa->nombre }}</div>
-                <div style="font-size:12px;color:var(--fg3);margin-bottom:8px;">{{ $mesa->capacidad }} personas · {{ $mesa->abiertas }} comandas abiertas</div>
-                <span class="estado-mesa {{ $mesa->estado }}">{{ \App\Models\Mesa::ESTADOS[$mesa->estado] ?? $mesa->estado }}</span>
-
-                <div style="margin:12px 0;">
-                    <img width="150" height="150" alt="QR de {{ $mesa->nombre }}"
-                         src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&amp;data={{ urlencode($mesa->urlPublica()) }}">
-                </div>
-                <div style="font-size:11px;word-break:break-all;color:var(--fg3);margin-bottom:8px;">{{ $mesa->urlPublica() }}</div>
-
-                @if ($mesa->estado !== 'libre')
-                    <form method="POST" action="{{ route('admin.mesas.cobrar', $mesa->id) }}">
-                        @csrf
-                        <button class="btn btn-g" type="submit">Cobrar y liberar</button>
-                    </form>
-                @endif
-            </div>
-        @empty
-            <div class="panel empty" style="grid-column:1 / -1;">
-                <div style="font-weight:600;color:var(--fg2);">Aún no tienes mesas</div>
-                <div style="font-size:13px;color:var(--fg3);">Agrega la primera para generar su QR.</div>
-            </div>
-        @endforelse
-    </div>
+    @endforeach
 </div>
 @endsection
