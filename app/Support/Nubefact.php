@@ -24,7 +24,7 @@ class Nubefact
      * @param  array<int, array{descripcion:string, cantidad:float|int, precio_unitario:float|int, codigo?:string}>  $items
      * @return array{items: array, gravada: float, igv: float, total: float}
      */
-    public static function calcular(array $items): array
+    public static function calcular(array $items, float $descuento = 0): array
     {
         $detalle = [];
         $gravada = 0.0;
@@ -60,8 +60,21 @@ class Nubefact
             $total += $totalItem;
         }
 
+        // GEST-77: descuento global (con IGV incluido) que baja la base y el IGV, como pide SUNAT
+        $descuento = round(min(max($descuento, 0), $total), 2);
+        $descuentoBase = 0.0;
+        if ($descuento > 0) {
+            $total = round($total - $descuento, 2);
+            $nuevaBase = round($total / (1 + self::TASA_IGV), 2);
+            $descuentoBase = round($gravada - $nuevaBase, 2);
+            $gravada = $nuevaBase;
+            $igv = round($total - $nuevaBase, 2);
+        }
+
         return [
             'items' => $detalle,
+            'descuento' => $descuento,
+            'descuento_global' => $descuentoBase,
             'gravada' => round($gravada, 2),
             'igv' => round($igv, 2),
             'total' => round($total, 2),
@@ -111,8 +124,8 @@ class Nubefact
             'fecha_de_emision' => $fecha ?? Carbon::now('America/Lima')->format('d-m-Y'),
             'moneda' => 1,
             'porcentaje_de_igv' => self::TASA_IGV * 100,
-            'descuento_global' => 0,
-            'total_descuento' => 0,
+            'descuento_global' => $calculo['descuento_global'] ?? 0,
+            'total_descuento' => $calculo['descuento_global'] ?? 0,
             'total_anticipo' => 0,
             'total_gravada' => $calculo['gravada'],
             'total_inafecta' => 0,
@@ -129,11 +142,11 @@ class Nubefact
      * Reserva el siguiente numero, guarda el comprobante como pendiente, lo envia a Nubefact
      * y actualiza el resultado. El numero queda reservado aunque la llamada falle.
      */
-    public static function emitir(SunatConfiguracion $config, string $tipo, array $cliente, array $items, ?int $pedidoId = null, ?int $ventaPosId = null): ComprobanteElectronico
+    public static function emitir(SunatConfiguracion $config, string $tipo, array $cliente, array $items, ?int $pedidoId = null, ?int $ventaPosId = null, float $descuento = 0): ComprobanteElectronico
     {
         self::exigirConfiguracion($config);
 
-        $calculo = self::calcular($items);
+        $calculo = self::calcular($items, $descuento);
         self::validarCliente($tipo, $cliente['documento'] ?? null, $calculo['total']);
 
         $serie = $tipo === '01' ? $config->serie_factura : $config->serie_boleta;

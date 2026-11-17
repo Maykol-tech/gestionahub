@@ -10,7 +10,7 @@ use App\Models\WhatsappConexion;
 use App\Support\WhatsAppNegocio;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -20,14 +20,14 @@ use Illuminate\Validation\ValidationException;
  */
 class PagosController extends DashboardController
 {
-    public function index() { return $this->pagina(); } public function pagina()
+    public function pagina()
     {
         $this->compartirLayout();
 
         return view('admin.modulos.pagos_manuales', [
-            'titulo' => 'Pagos y carritos',
+            'titulo' => 'Pagos por revisar',
             'modulo' => 'pagos',
-            'pagos' => PagoManual::query()->with('pedido:id,numero,total')->orderByDesc('id')->limit(100)->get(),
+            'pagos' => PagoManual::query()->with('pedido:id,numero,total,cliente_nombre')->orderByRaw("case estado when 'pendiente' then 0 else 1 end")->orderByDesc('id')->limit(100)->get(),
             'abandonados' => CheckoutAbandonado::query()->where('recuperado', false)
                 ->orderByDesc('id')->limit(50)->get(),
             'metodos' => PagoManual::METODOS,
@@ -96,6 +96,14 @@ class PagosController extends DashboardController
         return back()->with('ok', 'Pago confirmado.');
     }
 
+    /** Muestra la captura que subió el cliente (se guarda privada, solo la ve el negocio). */
+    public function captura(PagoManual $pago)
+    {
+        abort_unless($pago->captura && \Illuminate\Support\Facades\Storage::disk('local')->exists($pago->captura), 404);
+
+        return \Illuminate\Support\Facades\Storage::disk('local')->response($pago->captura, null, ['Cache-Control' => 'private, max-age=3600']);
+    }
+
     public function rechazar(PagoManual $pago): RedirectResponse
     {
         if ($pago->estado !== 'pendiente') {
@@ -133,7 +141,7 @@ class PagosController extends DashboardController
     /** Endpoint publico: el checkout de la tienda lo llama cuando el cliente deja datos y no paga. */
     public function capturarAbandono(Request $request, string $slug): Response
     {
-        $negocio = Tenant::query()->where('slug', $slug)->where('estado', 'activo')->firstOrFail();
+        $negocio = Tenant::query()->where('slug', $slug)->whereIn('estado', ['activo', 'trial'])->firstOrFail();
 
         $datos = $request->validate([
             'nombre' => ['nullable', 'string', 'max:120'],
@@ -169,17 +177,38 @@ class PagosController extends DashboardController
             'total' => $datos['total'] ?? 0,
         ];
 
-        $existente
-            ? $existente->update($payload)
-            : CheckoutAbandonado::withoutGlobalScopes()->create($payload);
+        if ($existente) {
+            $existente->update($payload);
+        } else {
+            $existente = CheckoutAbandonado::withoutGlobalScopes()->create($payload + ['token' => bin2hex(random_bytes(16))]);
+        }
+        if (! $existente->token) {
+            $existente->forceFill(['token' => bin2hex(random_bytes(16))])->save();
+        }
 
-        return response()->json(['ok' => true]);
+        return response()->json(['ok' => true, 'token' => $existente->token]);
+    }
+
+    /** GEST-85: devuelve el carrito guardado para que el cliente lo retome desde el enlace de WhatsApp. */
+    public function recuperarCarrito(string $slug, string $token): Response
+    {
+        $negocio = Tenant::query()->where('slug', $slug)->whereIn('estado', ['activo', 'trial'])->firstOrFail();
+        $c = CheckoutAbandonado::withoutGlobalScopes()->where('tenant_id', $negocio->id)->where('token', $token)->firstOrFail();
+        if (! $c->abierto_at) {
+            $c->forceFill(['abierto_at' => now()])->saveQuietly();
+        }
+
+        return response()->json([
+            'recuperado' => (bool) $c->recuperado,
+            'nombre' => $c->nombre, 'telefono' => $c->telefono, 'cupon' => $c->cupon,
+            'carrito' => collect((array) $c->carrito)->map(fn ($l) => ['producto_id' => (int) ($l['producto_id'] ?? $l['id'] ?? 0), 'cantidad' => (int) ($l['cantidad'] ?? 1)])->filter(fn ($l) => $l['producto_id'] > 0)->values(),
+        ]);
     }
 
     /** Marca como recuperado cuando el cliente completa un pedido (la tienda llama este endpoint). */
     public function marcarRecuperado(Request $request, string $slug): Response
     {
-        $negocio = Tenant::query()->where('slug', $slug)->where('estado', 'activo')->firstOrFail();
+        $negocio = Tenant::query()->where('slug', $slug)->whereIn('estado', ['activo', 'trial'])->firstOrFail();
 
         $telefono = (string) $request->input('telefono', '');
         if ($telefono !== '') {

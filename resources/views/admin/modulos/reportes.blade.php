@@ -1,28 +1,547 @@
 @extends('layouts.app')
+
 @section('titulo', 'Reportes')
-@section('subtitulo', 'Analiza el rendimiento de tu negocio')
-@section('contenido')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100"><p class="text-xs font-bold text-gray-500">VENTAS HOY</p><h3 class="text-2xl font-bold text-gray-800">S/ {{ number_format($ventasHoy, 2) }}</h3></div>
-    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100"><p class="text-xs font-bold text-gray-500">PEDIDOS HOY</p><h3 class="text-2xl font-bold text-gray-800">{{ $pedidosHoy }}</h3></div>
-    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100"><p class="text-xs font-bold text-gray-500">TICKET PROMEDIO</p><h3 class="text-2xl font-bold text-gray-800">S/ {{ number_format($ventasHoy / max($pedidosHoy,1), 2) }}</h3></div>
-</div>
-<div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-    <h3 class="font-bold text-gray-800 mb-4">Ventas de los últimos 7 días</h3>
-    <canvas id="chartVentas" height="80"></canvas>
-</div>
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const ctx = document.getElementById('chartVentas').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
-                datasets: [{ label: 'Ventas (S/)', data: [1200, 1900, 1500, 2100, 2500, 3200, 2800], borderColor: '#2B6EF6', backgroundColor: 'rgba(43,110,246,0.1)', fill: true, tension: 0.4 }]
-            },
-            options: { responsive: true, plugins: { legend: { display: false } } }
-        });
-    });
-</script>
+@section('subtitulo', $desdeTexto . ' - ' . $hastaTexto)
+
+@section('acciones')
+    <div class="seg" role="tablist" aria-label="Periodo">
+        @foreach ([7 => '7 días', 30 => '30 días', 90 => '90 días'] as $dias => $texto)
+            <a href="{{ route('admin.modulo', 'reportes') }}?rango={{ $dias }}&vista={{ $vista }}" data-rango="{{ $dias }}" class="{{ $rango === $dias ? 'on' : '' }}">{{ $texto }}</a>
+        @endforeach
+    </div>
+    <a class="btn btn-g" href="{{ route('admin.reportes.finanzas') }}"><x-icon name="trending" size="15" /> <span class="rep-exp-txt">Finanzas</span></a>
+    <button class="btn btn-g" type="button" x-data @click="$dispatch('exportar-reporte', 'todo')" title="Libro con las hojas Ventas por canal y Repartidores">
+        <x-icon name="download" size="15" /> <span class="rep-exp-txt">Exportar Excel</span>
+    </button>
 @endsection
+
+@section('contenido')
+@php
+    $iconosKpi = ['trending' => ['var(--acl)', 'var(--accent)'], 'clipboard' => ['var(--ctl)', 'var(--cta)'], 'tag' => ['var(--greenl)', 'var(--green)'], 'users' => ['var(--ambl)', 'var(--amber)']];
+@endphp
+<div x-data="reportesPage(@js([
+        'rango' => $rango,
+        'vista' => $vista,
+        'grafico' => $grafico,
+        'comparativo' => $comparativo,
+        'repartidores' => collect($delivery['lista'])->where('entregados', '>', 0)->values(),
+        'exportarUrl' => route('admin.reportes.exportar'),
+        'urlRepartidor' => route('admin.reportes.repartidores.guardar'),
+        'urlPrueba' => route('admin.reportes.datos-prueba'),
+        'puedeGestionar' => $puedeGestionar,
+        'esPrueba' => $esPrueba,
+    ]))" @exportar-reporte.window="exportar($event.detail)">
+
+    <div class="tabs rep-tabs" role="tablist" aria-label="Tipo de reporte">
+        <button type="button" class="tab" role="tab" :class="{ on: vista === 'ventas' }" :aria-selected="vista === 'ventas'" @click="cambiar('ventas')">
+            Ventas por canal<span class="n">S/ {{ number_format($ventas, 0) }}</span>
+        </button>
+        <button type="button" class="tab" role="tab" :class="{ on: vista === 'repartidores' }" :aria-selected="vista === 'repartidores'" @click="cambiar('repartidores')">
+            Repartidores<span class="n">{{ $delivery['entregas'] }}</span>
+        </button>
+    </div>
+
+    {{-- ================= GEST-40: VENTAS POR PERIODO Y MODULO ================= --}}
+    <section x-show="vista === 'ventas'" {{ $vista === 'ventas' ? '' : 'x-cloak' }}>
+        <div class="stat-row">
+            <div class="stat fade-in">
+                <div class="stat-lbl">Ventas totales <span class="stat-ico" style="background:var(--acl);color:var(--accent)"><x-icon name="trending" size="14" /></span></div>
+                <div class="stat-val">S/ {{ number_format($ventas, 2) }}</div>
+                @include('admin.modulos._variacion', ['actual' => $ventas, 'previo' => $anterior['ventas'], 'moneda' => true, 'texto' => $rango . ' días anteriores'])
+            </div>
+            <div class="stat fade-in" style="animation-delay:.05s">
+                <div class="stat-lbl">Pedidos y ventas <span class="stat-ico" style="background:var(--ctl);color:var(--cta)"><x-icon name="clipboard" size="14" /></span></div>
+                <div class="stat-val">{{ number_format($cantidad) }}</div>
+                @include('admin.modulos._variacion', ['actual' => $cantidad, 'previo' => $anterior['cantidad'], 'moneda' => false, 'texto' => $rango . ' días anteriores'])
+            </div>
+            <div class="stat fade-in" style="animation-delay:.1s">
+                <div class="stat-lbl">Ticket promedio <span class="stat-ico" style="background:var(--greenl);color:var(--green)"><x-icon name="tag" size="14" /></span></div>
+                <div class="stat-val">S/ {{ number_format($ticket, 2) }}</div>
+                @include('admin.modulos._variacion', ['actual' => $ticket, 'previo' => $anterior['ticket'], 'moneda' => true, 'texto' => $rango . ' días anteriores'])
+            </div>
+            <div class="stat fade-in" style="animation-delay:.15s">
+                <div class="stat-lbl">Clientes únicos <span class="stat-ico" style="background:var(--ambl);color:var(--amber)"><x-icon name="users" size="14" /></span></div>
+                <div class="stat-val">{{ number_format($clientesUnicos) }}</div>
+                @include('admin.modulos._variacion', ['actual' => $clientesUnicos, 'previo' => $anterior['clientes'], 'moneda' => false, 'texto' => $rango . ' días anteriores'])
+            </div>
+        </div>
+
+        {{-- GEST-87: comparativo con el mes anterior --}}
+        <div class="panel fade-in rep-comp" style="animation-delay:.16s;margin-bottom:14px;">
+            <div class="panel-hd">
+                <div>
+                    <div class="panel-ttl">{{ $comparativo['mes'] }} vs. {{ $comparativo['mes_anterior'] }}</div>
+                    <div class="panel-sub">Del 1 al {{ $comparativo['hasta_dia'] }} de cada mes · {{ $comparativo['mes_anterior'] }} completo cerró en S/ {{ number_format($comparativo['total_mes_anterior'], 2) }}</div>
+                </div>
+            </div>
+            <div class="comp-kpis">
+                @foreach ($comparativo['kpis'] as $k)
+                    <div class="comp-kpi">
+                        <div class="comp-lbl">{{ $k['nombre'] }}</div>
+                        <div class="comp-val">{{ $k['moneda'] ? 'S/ ' . number_format($k['actual'], 2) : number_format($k['actual']) }}</div>
+                        <div class="comp-ant">{{ $comparativo['mes_anterior'] }}: {{ $k['moneda'] ? 'S/ ' . number_format($k['anterior'], 2) : number_format($k['anterior']) }}</div>
+                        @if ($k['variacion'] === null)
+                            <span class="comp-var neutral">Sin datos del mes anterior</span>
+                        @else
+                            <span class="comp-var {{ $k['variacion'] >= 0 ? 'up' : 'dn' }}">{{ $k['variacion'] >= 0 ? '▲' : '▼' }} {{ $k['variacion'] >= 0 ? '+' : '' }}{{ rtrim(rtrim(number_format($k['variacion'], 1), '0'), '.') }}%</span>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+            <div class="rep-chart" style="height:220px;">
+                <canvas x-ref="graficoComp" role="img" aria-label="Ventas por día: {{ $comparativo['mes'] }} y {{ $comparativo['mes_anterior'] }}"></canvas>
+            </div>
+        </div>
+
+        <div class="panel fade-in" style="animation-delay:.18s;margin-bottom:14px;">
+            <div class="panel-hd">
+                <div>
+                    <div class="panel-ttl">{{ $grafico['titulo'] }}</div>
+                    <div class="panel-sub">Últimos {{ $rango }} días · pasa el mouse sobre una barra para ver el detalle</div>
+                </div>
+            </div>
+            <div class="rep-chart">
+                @if ($ventas > 0)
+                    <canvas x-ref="graficoVentas" role="img" aria-label="{{ $grafico['titulo'] }}"></canvas>
+                    <div class="rep-chart-msg" x-show="sinGraficos" x-cloak>No se pudo cargar el gráfico. Los datos están completos en la tabla de abajo.</div>
+                @else
+                    <x-vacio icono="chart" titulo="Aún no hay ventas en este periodo" texto="El gráfico se completará con las ventas del POS, la tienda pública, WhatsApp y los registros manuales de los últimos {{ $rango }} días." />
+                @endif
+            </div>
+        </div>
+
+        <div class="g-11" style="margin-bottom:14px;">
+            <div class="panel fade-in" style="animation-delay:.24s">
+                <div class="panel-hd"><div class="panel-ttl">Ventas por módulo / canal</div></div>
+                @foreach ($porCanal as $f)
+                    <div class="kv" style="display:block;">
+                        <div style="display:flex;justify-content:space-between;gap:10px;">
+                            <span style="font-weight:600;display:flex;align-items:center;gap:8px;"><span class="rep-dot" style="background:{{ $f['color'] }}"></span>{{ $f['texto'] }}</span>
+                            <span style="font-weight:700;font-variant-numeric:tabular-nums;">S/ {{ number_format($f['monto'], 2) }}</span>
+                        </div>
+                        <div style="font-size:11px;color:var(--fg3);">{{ number_format($f['cantidad']) }} {{ $f['cantidad'] === 1 ? 'pedido' : 'pedidos' }} · {{ rtrim(rtrim(number_format($f['porcentaje'], 1), '0'), '.') }}%</div>
+                        <div class="hbar"><span style="width:{{ $f['porcentaje'] }}%;background:{{ $f['color'] }}"></span></div>
+                    </div>
+                @endforeach
+            </div>
+            <div class="panel fade-in" style="animation-delay:.29s">
+                <div class="panel-hd"><div class="panel-ttl">Ventas por método de pago</div></div>
+                @forelse ($porMetodo as $f)
+                    <div class="kv" style="display:block;">
+                        <div style="display:flex;justify-content:space-between;gap:10px;">
+                            <span style="font-weight:600;">{{ $f['texto'] }}</span>
+                            <span style="font-weight:700;font-variant-numeric:tabular-nums;">S/ {{ number_format($f['monto'], 2) }}</span>
+                        </div>
+                        <div style="font-size:11px;color:var(--fg3);">{{ number_format($f['cantidad']) }} {{ $f['cantidad'] === 1 ? 'operación' : 'operaciones' }} · {{ $ventas > 0 ? round($f['monto'] * 100 / $ventas) : 0 }}%</div>
+                        <div class="hbar"><span style="width:{{ $ventas > 0 ? min(100, round($f['monto'] * 100 / $ventas)) : 0 }}%"></span></div>
+                    </div>
+                @empty
+                    <x-vacio icono="card" titulo="Aún no hay datos registrados" texto="Aquí verás cuánto entra por efectivo, Yape, Plin y tarjeta." />
+                @endforelse
+            </div>
+        </div>
+
+        <div class="panel fade-in" style="animation-delay:.32s">
+            <div class="panel-hd">
+                <div>
+                    <div class="panel-ttl">Detalle por día y módulo</div>
+                    <div class="panel-sub">Las mismas columnas que la hoja de Excel</div>
+                </div>
+                <button class="btn btn-g btn-sm" type="button" style="margin-left:auto;" @click="exportar('ventas')"><x-icon name="download" size="14" /> Excel de ventas</button>
+            </div>
+            @if (count($detalle))
+                <div class="tbl-wrap rep-scroll">
+                    <table class="tbl rep-tbl">
+                        <thead><tr><th>Fecha</th><th>Módulo/Canal</th><th class="num">N° Pedidos</th><th class="num">Total Ventas (S/)</th></tr></thead>
+                        <tbody>
+                            @foreach ($detalle as $f)
+                                <tr>
+                                    <td style="font-variant-numeric:tabular-nums;">{{ \Illuminate\Support\Carbon::parse($f['fecha'])->format('d/m/Y') }}</td>
+                                    <td><span class="rep-dot" style="background:{{ \App\Services\ReportesService::COLORES[$f['canal']] }}"></span> {{ $f['modulo'] }}</td>
+                                    <td class="num">{{ number_format($f['pedidos']) }}</td>
+                                    <td class="num" style="font-weight:700;">S/ {{ number_format($f['total'], 2) }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                        <tfoot><tr><td colspan="2">TOTAL</td><td class="num">{{ number_format($cantidad) }}</td><td class="num">S/ {{ number_format($ventas, 2) }}</td></tr></tfoot>
+                    </table>
+                </div>
+            @else
+                <x-vacio icono="clipboard" titulo="Sin ventas en este periodo" texto="Cuando registres ventas aparecerán aquí, día por día y por módulo." />
+            @endif
+        </div>
+    </section>
+
+    {{-- ================= GEST-41: DELIVERY, TIEMPOS Y REPARTIDORES ================= --}}
+    <section x-show="vista === 'repartidores'" {{ $vista === 'repartidores' ? '' : 'x-cloak' }}>
+        <div class="stat-row">
+            <div class="stat fade-in">
+                <div class="stat-lbl">Pedidos entregados <span class="stat-ico" style="background:var(--acl);color:var(--accent)"><x-icon name="truck" size="14" /></span></div>
+                <div class="stat-val">{{ number_format($delivery['entregas']) }}</div>
+                <div class="stat-ch neutral">Por repartidores, últimos {{ $rango }} días</div>
+            </div>
+            <div class="stat fade-in" style="animation-delay:.05s">
+                <div class="stat-lbl">Tiempo promedio <span class="stat-ico" style="background:var(--ctl);color:var(--cta)"><x-icon name="clock" size="14" /></span></div>
+                <div class="stat-val">{{ $delivery['promedioGeneral'] !== null ? number_format($delivery['promedioGeneral'], 1) . ' min' : '—' }}</div>
+                <div class="stat-ch neutral">De la asignación a la entrega</div>
+            </div>
+            <div class="stat fade-in" style="animation-delay:.1s">
+                <div class="stat-lbl">Más rápido <span class="stat-ico" style="background:var(--greenl);color:var(--green)"><x-icon name="activity" size="14" /></span></div>
+                <div class="stat-val rep-nombre">{{ $delivery['masRapido']['nombre'] ?? '—' }}</div>
+                <div class="stat-ch neutral">{{ $delivery['masRapido'] ? number_format($delivery['masRapido']['promedio'], 1) . ' min en promedio' : 'Aún sin entregas medidas' }}</div>
+            </div>
+            <div class="stat fade-in" style="animation-delay:.15s">
+                <div class="stat-lbl">Repartidores activos <span class="stat-ico" style="background:var(--ambl);color:var(--amber)"><x-icon name="users" size="14" /></span></div>
+                <div class="stat-val">{{ $delivery['activos'] }}</div>
+                <div class="stat-ch neutral">Registrados en Repartos</div>
+            </div>
+        </div>
+
+        <div class="rep-pila">
+            <div class="panel fade-in" style="animation-delay:.18s">
+                <div class="panel-hd">
+                    <div>
+                        <div class="panel-ttl">Tiempo promedio de entrega</div>
+                        <div class="panel-sub">Minutos por repartidor (menos es mejor)</div>
+                    </div>
+                </div>
+                <div class="rep-chart rep-chart-h">
+                    @if ($delivery['entregas'] > 0)
+                        <canvas x-ref="graficoRepartidores" role="img" aria-label="Tiempo promedio de entrega por repartidor"></canvas>
+                        <div class="rep-chart-msg" x-show="sinGraficos" x-cloak>No se pudo cargar el gráfico. Los datos están completos en la tabla.</div>
+                    @elseif (! $delivery['disponible'])
+                        <x-vacio icono="truck" titulo="Falta activar el módulo de Repartos" texto="Ejecuta php artisan migrate para crear la tabla de repartidores y las horas de asignación y entrega." />
+                    @else
+                        <x-vacio icono="truck" titulo="Aún no hay entregas en este periodo" texto="Cuando un repartidor marque un pedido como entregado verás aquí su tiempo promedio." />
+                    @endif
+                </div>
+            </div>
+
+            <div class="panel fade-in" style="animation-delay:.22s">
+                <div class="panel-hd">
+                    <div>
+                        <div class="panel-ttl">Rendimiento por repartidor</div>
+                        <div class="panel-sub">Ordenado por pedidos entregados</div>
+                    </div>
+                    <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
+                    @if ($puedeGestionar)
+                        <button class="btn btn-p btn-sm" type="button" @click="formRep = !formRep" :aria-expanded="formRep">
+                            <x-icon name="plus" size="14" stroke="2.4" /> Agregar repartidor
+                        </button>
+                    @endif
+                    @if ($puedeGestionar && $esPrueba)
+                        <button class="btn btn-g btn-sm" type="button" @click="datosPrueba()" :disabled="cargando">
+                            <x-icon name="sparkles" size="14" /> Generar repartidores de prueba
+                        </button>
+                    @endif
+                    <button class="btn btn-g btn-sm" type="button" @click="exportar('repartidores')"><x-icon name="download" size="14" /> Excel de repartidores</button>
+                </div>
+                </div>
+
+                @if ($puedeGestionar)
+                    <form x-show="formRep" x-cloak class="rep-form" @submit.prevent="guardarRepartidor()" novalidate>
+                        <div class="rep-form-grid">
+                            <label class="rep-campo">
+                                <span>Nombre *</span>
+                                <input class="inp" type="text" x-model="rep.nombre" maxlength="120" autocomplete="off" placeholder="Ej. Juan Pérez" :aria-invalid="!!errores.nombre">
+                                <small class="rep-err" x-text="errores.nombre?.[0] ?? ''"></small>
+                            </label>
+                            <label class="rep-campo">
+                                <span>Teléfono</span>
+                                <input class="inp" type="tel" x-model="rep.telefono" maxlength="20" autocomplete="off" placeholder="9XX XXX XXX" :aria-invalid="!!errores.telefono">
+                                <small class="rep-err" x-text="errores.telefono?.[0] ?? ''"></small>
+                            </label>
+                            <label class="rep-campo">
+                                <span>Vehículo *</span>
+                                <select class="inp" x-model="rep.vehiculo">
+                                    <option value="moto">Moto</option>
+                                    <option value="bicicleta">Bicicleta</option>
+                                    <option value="auto">Auto</option>
+                                    <option value="pie">A pie</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div class="rep-form-acc">
+                            <button class="btn btn-g btn-sm" type="button" @click="formRep = false">Cancelar</button>
+                            <button class="btn btn-p btn-sm" type="submit" :disabled="cargando"><span x-text="cargando ? 'Guardando…' : 'Guardar repartidor'"></span></button>
+                        </div>
+                    </form>
+                @endif
+                @if (count($delivery['lista']))
+                    <div class="tbl-wrap">
+                        <table class="tbl rep-tbl">
+                            <thead><tr><th>Repartidor</th><th class="num">Pedidos Entregados</th><th class="num">Tiempo Promedio (min)</th><th class="num">Rango (min)</th><th class="num">Monto entregado</th></tr></thead>
+                            <tbody>
+                                @foreach ($delivery['lista'] as $r)
+                                    <tr>
+                                        <td style="font-weight:600;">{{ $r['nombre'] }}</td>
+                                        <td class="num">{{ number_format($r['entregados']) }}</td>
+                                        <td class="num" style="font-weight:700;">{{ $r['promedio'] !== null ? number_format($r['promedio'], 1) : '—' }}</td>
+                                        <td class="num" style="color:var(--fg3);">{{ $r['minimo'] !== null ? number_format($r['minimo'], 0) . ' – ' . number_format($r['maximo'], 0) : '—' }}</td>
+                                        <td class="num">S/ {{ number_format($r['monto'], 2) }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <x-vacio icono="users" titulo="Aún no tienes repartidores" texto="{{ $puedeGestionar ? 'Agrega uno con el botón «Agregar repartidor»' . ($esPrueba ? ' o genera repartidores de prueba para ver el reporte con datos' : '') . '.' : 'Los repartidores se registran en el módulo Repartos.' }}" />
+                @endif
+                <div class="nota rep-nota">El tiempo se mide desde que el pedido se asigna al repartidor hasta que se marca como entregado. Si el pedido no tiene hora de asignación se usa la de confirmación.</div>
+            </div>
+        </div>
+    </section>
+</div>
+@endsection
+
+@push('styles')
+    @include('admin.modulos._base')
+    <style>
+        .rep-tabs{padding:0;margin:0 0 16px;}
+        .rep-chart{position:relative;height:280px;padding:12px 16px 16px;}
+        .rep-chart-h{height:auto;min-height:220px;}
+        .rep-chart .vacio{height:100%;}
+        .rep-chart-msg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;font-size:13px;color:var(--fg3);}
+        .rep-dot{display:inline-block;width:9px;height:9px;border-radius:3px;flex:none;vertical-align:middle;}
+        .rep-scroll{max-height:420px;overflow-y:auto;}
+        .rep-tbl thead th{position:sticky;top:0;background:var(--surface2);z-index:1;}
+        .rep-tbl .num{text-align:right;font-variant-numeric:tabular-nums;}
+        .rep-tbl tfoot td{font-weight:700;border-top:2px solid var(--border);background:var(--surface3);padding:10px 14px;}
+        .rep-tbl.tbl{min-width:0;}
+        .rep-nombre{font-size:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .rep-nota{margin:12px 16px 16px;}
+        .rep-pila{display:grid;gap:14px;}
+        .rep-form{padding:14px 16px;border-bottom:1px solid var(--border);background:var(--surface3);}
+        .rep-form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;}
+        .rep-campo{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--fg2);}
+        .rep-err{color:var(--red);font-size:11px;font-weight:500;min-height:0;}
+        .rep-err:empty{display:none;}
+        .rep-form-acc{display:flex;justify-content:flex-end;gap:8px;margin-top:12px;}
+        .rep-form .inp[aria-invalid="true"]{border-color:var(--red);}
+        @media (max-width:700px){ .rep-form-grid{grid-template-columns:1fr;} }
+        .rep-tbl td:first-child{white-space:nowrap;}
+        @media (max-width:860px){ .rep-chart{height:240px;padding:8px;} }
+        @media (max-width:600px){ .rep-exp-txt{display:none;} }
+        .comp-kpis { display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; padding:0 16px 8px; }
+        .comp-kpi { border:1px solid var(--bd); border-radius:12px; padding:12px; }
+        .comp-lbl { font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--fg3); font-weight:700; }
+        .comp-val { font-size:20px; font-weight:800; margin:4px 0 2px; font-variant-numeric:tabular-nums; }
+        .comp-ant { font-size:12px; color:var(--fg3); }
+        .comp-var { display:inline-block; margin-top:6px; font-size:12px; font-weight:800; padding:2px 8px; border-radius:99px; }
+        .comp-var.up { background:var(--greenl); color:var(--green); } .comp-var.dn { background:var(--redl); color:var(--red); } .comp-var.neutral { background:var(--bg); color:var(--fg3); font-weight:600; }
+        @media (max-width:800px){ .comp-kpis { grid-template-columns:1fr 1fr; } }
+    </style>
+@endpush
+
+@push('scripts')
+<script>
+    // Chart.js se carga una sola vez y solo en esta pagina (tambien al navegar sin recargar)
+    window.ghChart = window.ghChart || function () {
+        if (window.Chart) return Promise.resolve(window.Chart);
+        window.ghChartCarga = window.ghChartCarga || new Promise((ok, falla) => {
+            const s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js';
+            s.onload = () => ok(window.Chart);
+            s.onerror = () => { window.ghChartCarga = null; s.remove(); falla(new Error('Chart.js no disponible')); };
+            document.head.appendChild(s);
+        });
+        return window.ghChartCarga;
+    };
+
+    window.reportesPage = function (datos) {
+        let graficos = {};   // fuera del estado reactivo de Alpine: Chart.js no debe envolverse en Proxy
+
+        return {
+            vista: datos.vista,
+            sinGraficos: false,
+            formRep: false,
+            cargando: false,
+            errores: {},
+            rep: { nombre: '', telefono: '', vehiculo: 'moto' },
+
+            init() {
+                this.dibujar();
+                this.dibujarComparativo();
+                this.$watch('vista', () => this.$nextTick(() => this.dibujar()));
+            },
+
+            destroy() {
+                Object.values(graficos).forEach(g => g.destroy());
+                graficos = {};
+            },
+
+            cambiar(vista) {
+                this.vista = vista;
+                // Recuerda la pestaña en la URL y en los botones de periodo
+                const url = new URL(location.href);
+                url.searchParams.set('vista', vista);
+                url.searchParams.set('rango', datos.rango);
+                history.replaceState(history.state, '', url);
+                document.querySelectorAll('[data-rango]').forEach(a => {
+                    const u = new URL(a.href);
+                    u.searchParams.set('vista', vista);
+                    a.href = u.toString();
+                });
+            },
+
+            // GEST-87: líneas del mes actual sobre el mes anterior
+            async dibujarComparativo() {
+                const lienzo = this.$refs.graficoComp;
+                if (!lienzo || graficos.comp) return;
+                let Chart;
+                try { Chart = await window.ghChart(); } catch (e) { return; }
+                if (!lienzo.isConnected || graficos.comp) return;
+                const c = datos.comparativo, css = getComputedStyle(document.documentElement);
+                const acento = css.getPropertyValue('--accent').trim() || '#2B6EF6';
+                graficos.comp = new Chart(lienzo, {
+                    type: 'line',
+                    data: { labels: c.grafico.etiquetas, datasets: [
+                        { label: c.mes, data: c.grafico.actual, borderColor: acento, backgroundColor: acento + '22', fill: true, tension: .35, pointRadius: 2, borderWidth: 2.5 },
+                        { label: c.mes_anterior, data: c.grafico.anterior, borderColor: '#94A3B8', borderDash: [5, 4], tension: .35, pointRadius: 0, borderWidth: 2 },
+                    ] },
+                    options: {
+                        responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+                        animation: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? false : { duration: 800 },
+                        scales: { x: { grid: { display: false }, ticks: { autoSkip: true, maxRotation: 0 } }, y: { beginAtZero: true, border: { display: false }, ticks: { callback: v => 'S/ ' + Number(v).toLocaleString('es-PE') } } },
+                        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true } }, tooltip: { callbacks: { title: i => 'Día ' + i[0].label, label: i => ' ' + i.dataset.label + ': ' + gh.soles(i.raw) } } },
+                    },
+                });
+            },
+
+            async dibujar() {
+                const lienzo = this.vista === 'ventas' ? this.$refs.graficoVentas : this.$refs.graficoRepartidores;
+                if (!lienzo || graficos[this.vista]) return;
+                let Chart;
+                try { Chart = await window.ghChart(); }
+                catch (e) { this.sinGraficos = true; return; }
+                if (!lienzo.isConnected || graficos[this.vista]) return;
+
+                const css = getComputedStyle(document.documentElement);
+                const texto = css.getPropertyValue('--fg3').trim() || '#94A3B8';
+                const rejilla = css.getPropertyValue('--border').trim() || '#E2E7EF';
+                Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
+                Chart.defaults.color = texto;
+                const animacion = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? false : { duration: 700, easing: 'easeOutQuart' };
+
+                if (this.vista === 'ventas') {
+                    const g = datos.grafico;
+                    graficos.ventas = new Chart(lienzo, {
+                        type: 'bar',
+                        data: {
+                            labels: g.etiquetas,
+                            datasets: g.series.map(s => ({
+                                label: s.nombre, data: s.datos, backgroundColor: s.color,
+                                borderRadius: 4, borderSkipped: false, maxBarThickness: 42,
+                            })),
+                        },
+                        options: {
+                            responsive: true, maintainAspectRatio: false, animation: animacion,
+                            interaction: { mode: 'index', intersect: false },
+                            scales: {
+                                x: { stacked: true, grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, autoSkipPadding: 8 } },
+                                y: { stacked: true, beginAtZero: true, grid: { color: rejilla }, border: { display: false },
+                                     ticks: { callback: v => 'S/ ' + Number(v).toLocaleString('es-PE') } },
+                            },
+                            plugins: {
+                                legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'rectRounded', padding: 16 } },
+                                tooltip: {
+                                    filter: item => item.raw > 0,
+                                    callbacks: {
+                                        title: items => items.length ? g.detalles[items[0].dataIndex] : '',
+                                        label: item => ' ' + item.dataset.label + ': ' + gh.soles(item.raw),
+                                        footer: items => 'Total: ' + gh.soles(items.reduce((s, i) => s + i.raw, 0)),
+                                    },
+                                },
+                            },
+                        },
+                    });
+                } else {
+                    const lista = datos.repartidores;
+                    lienzo.parentElement.style.height = Math.max(220, lista.length * 42 + 60) + 'px';
+                    graficos.repartidores = new Chart(lienzo, {
+                        type: 'bar',
+                        data: {
+                            labels: lista.map(r => r.nombre),
+                            datasets: [{
+                                label: 'Minutos promedio', data: lista.map(r => r.promedio ?? 0),
+                                backgroundColor: '#2B6EF6', borderRadius: 4, maxBarThickness: 26,
+                            }],
+                        },
+                        options: {
+                            indexAxis: 'y', responsive: true, maintainAspectRatio: false, animation: animacion,
+                            scales: {
+                                x: { beginAtZero: true, grid: { color: rejilla }, border: { display: false }, ticks: { callback: v => v + ' min' } },
+                                y: { grid: { display: false } },
+                            },
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    callbacks: {
+                                        label: item => ' ' + Number(item.raw).toFixed(1) + ' min promedio',
+                                        afterLabel: item => ' ' + lista[item.dataIndex].entregados + ' pedidos entregados',
+                                    },
+                                },
+                            },
+                        },
+                    });
+                }
+            },
+
+            // Alta de un repartidor: valida en el servidor y muestra los errores junto a cada campo
+            async guardarRepartidor() {
+                this.errores = {};
+                this.cargando = true;
+                const r = await gh.api(datos.urlRepartidor, { method: 'POST', body: this.rep });
+                this.cargando = false;
+                if (r.ok) {
+                    Alpine.store('toasts').push(r.data.message || 'Repartidor agregado');
+                    this.rep = { nombre: '', telefono: '', vehiculo: 'moto' };
+                    this.formRep = false;
+                    gh.ir(location.href, false);   // recarga el contenido con el nuevo repartidor
+                    return;
+                }
+                this.errores = r.data.errors || {};
+                Alpine.store('toasts').push(r.data.message || 'No se pudo guardar el repartidor', 'error');
+            },
+
+            // Crea repartidores y entregas de prueba (solo en desarrollo); es seguro repetirlo
+            async datosPrueba() {
+                this.cargando = true;
+                const r = await gh.api(datos.urlPrueba, { method: 'POST' });
+                this.cargando = false;
+                const aviso = r.status === 429 ? 'Espera un minuto antes de volver a generar datos de prueba.' : null;
+                Alpine.store('toasts').push(aviso || r.data.message || (r.ok ? 'Listo' : 'No se pudo generar'), r.ok ? 'ok' : 'error');
+                if (r.ok) gh.ir(location.href, false);
+            },
+
+            // Descarga el .xlsx (hoja: todo | ventas | repartidores) con avisos de progreso
+            async exportar(hoja = 'todo') {
+                const toast = (t, tipo = 'ok') => Alpine.store('toasts').push(t, tipo);
+                const url = datos.exportarUrl + '?rango=' + datos.rango + '&hoja=' + encodeURIComponent(hoja || 'todo');
+                toast('Generando Excel…', 'info');
+                try {
+                    const res = await fetch(url, { credentials: 'same-origin', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+                    if (res.status === 423) { window.dispatchEvent(new CustomEvent('gh-bloquear')); return; }
+                    if (res.status === 401 || res.status === 419) { location.href = '/login'; return; }
+                    if (!res.ok) {
+                        const d = await res.json().catch(() => ({}));
+                        toast((d.errors ? Object.values(d.errors)[0][0] : d.message) || 'No se pudo generar el Excel', 'error');
+                        return;
+                    }
+                    const blob = await res.blob();
+                    const m = (res.headers.get('Content-Disposition') || '').match(/filename="?([^";]+)"?/);
+                    const nombre = m ? m[1] : 'reporte.xlsx';
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob); a.download = nombre;
+                    document.body.appendChild(a); a.click(); a.remove();
+                    setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+                    toast('Se descargó ' + nombre);
+                } catch (e) {
+                    toast('Sin conexión con el servidor. Intenta de nuevo.', 'error');
+                }
+            },
+        };
+    };
+    gh.ready(() => Alpine.data('reportesPage', window.reportesPage));
+</script>
+@endpush

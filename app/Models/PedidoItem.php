@@ -18,7 +18,7 @@ class PedidoItem extends Model
 
     protected $fillable = [
         'tenant_id', 'pedido_id', 'producto_id', 'variante_id', 'nombre', 'cantidad',
-        'precio_unit', 'precio_unitario', 'subtotal', 'notas',
+        'precio_unit', 'precio_unitario', 'subtotal', 'notas', 'variante_nombre', 'peso_kg', 'peso_real_kg',
     ];
 
     protected $casts = ['cantidad' => 'integer', 'precio_unit' => 'decimal:2', 'subtotal' => 'decimal:2'];

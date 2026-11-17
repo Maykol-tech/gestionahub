@@ -21,6 +21,17 @@ class NotificacionesController extends DashboardController
             $items[] = ['tipo' => 'pedidos', 'texto' => "{$pedidosNuevos} pedidos en las últimas 24 horas", 'url' => url('admin/pedidos')];
         }
 
+        // GEST-108: pedidos de la tienda online que esperan confirmación
+        $tienda = Pedido::query()->where('canal', 'tienda')->where('estado', 'pendiente')->count();
+        if ($tienda > 0) {
+            $items[] = ['tipo' => 'tienda', 'texto' => "{$tienda} " . ($tienda === 1 ? 'pedido nuevo' : 'pedidos nuevos') . ' de la tienda online por confirmar', 'url' => url('admin/pedidos')];
+        }
+
+        $pagos = \App\Models\PagoManual::query()->where('estado', 'pendiente')->count();
+        if ($pagos > 0) {
+            $items[] = ['tipo' => 'pagos', 'texto' => "{$pagos} " . ($pagos === 1 ? 'pago por revisar' : 'pagos por revisar') . ' (Yape, Plin o transferencia)', 'url' => url('admin/pagos')];
+        }
+
         $comandas = Comanda::query()->where('estado', 'pendiente')->count();
         if ($comandas > 0) {
             $items[] = ['tipo' => 'cocina', 'texto' => "{$comandas} comandas pendientes en cocina", 'url' => url('admin/cocina')];
@@ -43,5 +54,21 @@ class NotificacionesController extends DashboardController
         }
 
         return response()->json(['total' => count($items), 'items' => $items]);
+    }
+
+    /**
+     * Pulso liviano para el sonido de avisos (cada 20 s): último pedido y última comanda.
+     * El navegador compara con lo que ya vio y suena si llegó algo nuevo.
+     */
+    public function pulso(): JsonResponse
+    {
+        $ultimo = Pedido::query()->latest('id')->first(['id', 'numero', 'canal', 'total']);
+        $comanda = Comanda::query()->latest('id')->first(['id', 'mesa_id']);
+
+        return response()->json([
+            'pedido' => $ultimo ? ['id' => $ultimo->id, 'numero' => $ultimo->numero, 'canal' => $ultimo->canal, 'total' => (float) $ultimo->total] : null,
+            'comanda' => $comanda ? ['id' => $comanda->id] : null,
+            'pendientes' => Pedido::query()->where('estado', 'pendiente')->count(),
+        ]);
     }
 }

@@ -51,4 +51,65 @@ class Horarios
 
         return $hora >= $dia['abre'] && $hora < $dia['cierra'];
     }
+
+    /** GEST-104: próxima vez que abre (hoy más tarde o los días siguientes). Null si nunca abre. */
+    public static function proximaApertura(?array $horarios, ?Carbon $desde = null): ?Carbon
+    {
+        $desde = $desde ?? now();
+        $lista = collect($horarios ? self::normalizar($horarios) : self::porDefecto());
+        for ($i = 0; $i < 8; $i++) {
+            $dia = $desde->copy()->addDays($i);
+            $h = $lista->firstWhere('dia', (int) $dia->dayOfWeek);
+            if (! $h || ! $h['activo']) {
+                continue;
+            }
+            $abre = $dia->copy()->setTimeFromTimeString($h['abre']);
+            $cierra = $dia->copy()->setTimeFromTimeString($h['cierra']);
+            if ($i === 0 && $desde->greaterThanOrEqualTo($cierra)) {
+                continue;
+            }
+            return $abre->greaterThan($desde) ? $abre : $desde->copy();
+        }
+
+        return null;
+    }
+
+    /**
+     * GEST-104: horarios disponibles para programar un pedido (cada 30 min, próximos días abiertos).
+     * Devuelve [['valor' => 'Y-m-d H:i', 'dia' => 'Hoy', 'hora' => '13:30'], ...]
+     */
+    public static function franjas(?array $horarios, int $dias = 3, int $margenMin = 45, ?Carbon $desde = null): array
+    {
+        $desde = ($desde ?? now())->copy();
+        $minimo = $desde->copy()->addMinutes($margenMin);
+        $lista = collect($horarios ? self::normalizar($horarios) : self::porDefecto());
+        $franjas = [];
+        $diasConHorario = 0;
+        for ($i = 0; $i < 8 && $diasConHorario < $dias; $i++) {
+            $dia = $desde->copy()->startOfDay()->addDays($i);
+            $h = $lista->firstWhere('dia', (int) $dia->dayOfWeek);
+            if (! $h || ! $h['activo']) {
+                continue;
+            }
+            $t = $dia->copy()->setTimeFromTimeString($h['abre'])->addMinutes(30);
+            $fin = $dia->copy()->setTimeFromTimeString($h['cierra']);
+            $agrego = false;
+            while ($t->lessThanOrEqualTo($fin)) {
+                if ($t->greaterThanOrEqualTo($minimo)) {
+                    $franjas[] = [
+                        'valor' => $t->format('Y-m-d H:i'),
+                        'dia' => $i === 0 ? 'Hoy' : ($i === 1 ? 'Mañana' : ucfirst($t->locale('es')->translatedFormat('l d'))),
+                        'hora' => $t->format('H:i'),
+                    ];
+                    $agrego = true;
+                }
+                $t->addMinutes(30);
+            }
+            if ($agrego) {
+                $diasConHorario++;
+            }
+        }
+
+        return $franjas;
+    }
 }

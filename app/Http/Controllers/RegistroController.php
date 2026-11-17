@@ -49,7 +49,9 @@ class RegistroController extends Controller
             $tenantDatos = [
                 'nombre_negocio' => $datos['nombre_negocio'],
                 'email' => $datos['email'],
-                'estado' => 'activo',
+                // GEST-91: prueba gratis con fecha de fin; al vencer el panel queda en solo lectura
+                'estado' => 'trial',
+                'trial_ends_at' => $ahora->copy()->addDays(self::DIAS_PRUEBA),
                 'rubro' => $datos['rubro'],
                 'plan_id' => $plan->id,
                 'suscripcion_hasta' => $ahora->copy()->addDays(self::DIAS_PRUEBA)->toDateString(),
@@ -81,8 +83,29 @@ class RegistroController extends Controller
         Auth::login($usuario);
         $request->session()->regenerate();
 
-        return redirect()->to(url('/admin'))
+        self::registrarLead($usuario, $datos['nombre_negocio'], 'registro', \App\Http\Middleware\CapturarUtm::leer($request));
+        session()->flash('evento', 'registro_completo');
+        session()->flash('evento_datos', ['plan' => $datos['plan']]);
+
+        // GEST-82: el asistente de bienvenida prepara el panel según el rubro
+        return redirect()->route('admin.bienvenida')
             ->with('ok', 'Tu prueba gratis de ' . self::DIAS_PRUEBA . ' días empezó. Configura tu negocio para comenzar.');
+    }
+
+    /** GEST-90/99: cada registro entra al CRM de la plataforma como lead en etapa "Demo", con sus UTM. */
+    public static function registrarLead(User $usuario, string $negocio, string $fuente, array $utm = []): void
+    {
+        try {
+            $lead = \App\Models\LandingLead::registrar([
+                'nombre' => $usuario->name, 'email' => $usuario->email, 'fuente' => $fuente,
+                'mensaje' => 'Creó la cuenta: ' . $negocio, 'tenant_id' => $usuario->tenant_id,
+            ], $utm);
+            if (! in_array($lead->etapa, ['ganado'], true)) {
+                $lead->update(['estado' => 'demo', 'tenant_id' => $usuario->tenant_id]);
+            }
+        } catch (\Throwable $e) {
+            report($e); // el registro nunca falla por el CRM
+        }
     }
 
     private function planes()

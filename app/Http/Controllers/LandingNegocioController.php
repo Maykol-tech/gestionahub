@@ -26,17 +26,10 @@ class LandingNegocioController extends DashboardController
         ],
     ];
 
+    /** El editor de textos de la landing ahora vive junto al diseño, en un solo formulario. */
     public function editor()
     {
-        $this->compartirLayout();
-
-        $guardado = TiendaContenido::query()->where('seccion', 'landing')->value('contenido') ?? [];
-
-        return view('admin.modulos.landing_negocio', [
-            'titulo' => 'Landing de mi negocio',
-            'modulo' => 'landing',
-            'c' => array_replace_recursive(self::DEFECTO, $guardado),
-        ]);
+        return redirect()->route('admin.personalizacion');
     }
 
     public function guardar(Request $request): RedirectResponse
@@ -69,7 +62,7 @@ class LandingNegocioController extends DashboardController
     /** Pagina publica de la landing del negocio, con formulario que crea un lead en su CRM. */
     public function publica(string $slug): Response
     {
-        $negocio = Tenant::query()->where('slug', $slug)->where('estado', 'activo')->firstOrFail();
+        $negocio = Tenant::query()->where('slug', $slug)->whereIn('estado', ['activo', 'trial'])->firstOrFail();
 
         $guardado = TiendaContenido::withoutGlobalScopes()->where('tenant_id', $negocio->id)
             ->where('seccion', 'landing')->value('contenido') ?? [];
@@ -78,12 +71,15 @@ class LandingNegocioController extends DashboardController
             'negocio' => $negocio,
             'c' => array_replace_recursive(self::DEFECTO, $guardado),
             'enviada' => session('ok'),
+            'd' => \App\Support\DisenoNegocio::de($negocio),
+            'galeria' => \App\Models\GaleriaItem::withoutGlobalScopes()->where('tenant_id', $negocio->id)
+                ->where('activo', true)->orderBy('orden')->orderByDesc('id')->limit(24)->get(),
         ]);
     }
 
     public function contacto(Request $request, string $slug): RedirectResponse
     {
-        $negocio = Tenant::query()->where('slug', $slug)->where('estado', 'activo')->firstOrFail();
+        $negocio = Tenant::query()->where('slug', $slug)->whereIn('estado', ['activo', 'trial'])->firstOrFail();
 
         $datos = $request->validate([
             'nombre' => ['required', 'string', 'max:150'],

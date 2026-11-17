@@ -1,8 +1,13 @@
 <?php
+
 namespace App\Models;
-use App\Models\Scopes\TenantScope;
+
 use Illuminate\Database\Eloquent\Model;
-class WhatsappMensaje extends Model {
-    protected $guarded = [];
-    protected static function booted() { static::addGlobalScope(new TenantScope()); }
+
+/** Registro de cada mensaje de WhatsApp enviado o recibido. */
+class WhatsappMensaje extends Model
+{
+    protected $table = 'whatsapp_mensajes';
+
+    protected $fillable = ['tenant_id', 'pedido_id', 'direccion', 'telefono', 'tipo', 'texto', 'estado', 'meta_id', 'error'];
 }

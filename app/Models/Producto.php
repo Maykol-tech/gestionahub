@@ -14,7 +14,7 @@ class Producto extends Model
 
     protected $fillable = [
         'tenant_id', 'categoria_id', 'nombre', 'slug', 'descripcion', 'precio', 'precio_oferta',
-        'stock', 'stock_minimo', 'sku', 'imagen_url', 'tiene_variantes', 'activo',
+        'stock', 'stock_minimo', 'sku', 'imagen_url', 'tiene_variantes', 'activo', 'meta_titulo', 'meta_descripcion', 'destacado',
     ];
 
     protected $casts = [
@@ -31,6 +31,13 @@ class Producto extends Model
     protected static function booted()
     {
         static::addGlobalScope(new TenantScope);
+
+        // El slug es obligatorio en la tabla: si el alta no lo trae, se genera a partir del nombre
+        static::creating(function (Producto $producto) {
+            if (blank($producto->slug)) {
+                $producto->slug = \Illuminate\Support\Str::slug((string) $producto->nombre) . '-' . \Illuminate\Support\Str::lower(\Illuminate\Support\Str::random(5));
+            }
+        });
     }
 
     public function categoria()

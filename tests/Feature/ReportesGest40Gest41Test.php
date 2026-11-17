@@ -202,4 +202,86 @@ class ReportesGest40Gest41Test extends TestCase
         auth()->logout();
         $this->get('/admin/reportes/exportar?rango=7')->assertRedirect();
     }
+
+    public function test_sin_columna_asignado_at_ni_tabla_repartidores_no_hay_error(): void
+    {
+        $luis = Repartidor::query()->create(['tenant_id' => $this->tenant->id, 'nombre' => 'Luis', 'activo' => true]);
+        $this->pedido(['repartidor_id' => $luis->id, 'estado' => 'entregado', 'confirmado_at' => '2026-11-10 10:00:00', 'entregado_at' => '2026-11-10 10:25:00']);
+
+        // Proyecto sin la migracion de tracking: no existe pedidos.asignado_at
+        \Illuminate\Support\Facades\Schema::table('pedidos', fn ($t) => $t->dropColumn('asignado_at'));
+        $d = $this->actingAs($this->admin)->get('/admin/reportes?vista=repartidores')->assertOk()->viewData('delivery');
+        $this->assertSame(25.0, $d['lista'][0]['promedio']);
+
+        // Proyecto sin el modulo de Repartos: la pestaña queda vacia y el Excel sale solo con cabeceras
+        \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
+        \Illuminate\Support\Facades\Schema::drop('repartidores');
+        $d = $this->get('/admin/reportes?vista=repartidores')->assertOk()->assertSee('Falta activar el módulo de Repartos')->viewData('delivery');
+        $this->assertFalse($d['disponible']);
+        $this->get('/admin/reportes/exportar?rango=7')->assertOk();
+    }
+
+    private function cajero(): User
+    {
+        $u = User::create(['tenant_id' => $this->tenant->id, 'name' => 'Caja', 'email' => 'caja@test.pe', 'password' => 'Secreto123!']);
+        $u->assignRole('cajero');
+
+        return $u;
+    }
+
+    public function test_admin_agrega_un_repartidor_y_aparece_en_el_reporte(): void
+    {
+        $r = $this->actingAs($this->admin)->postJson('/admin/reportes/repartidores', ['nombre' => '  Pedro Gómez ', 'telefono' => '987 654 321', 'vehiculo' => 'bicicleta']);
+        $r->assertStatus(201)->assertJsonPath('data.nombre', 'Pedro Gómez');
+
+        $this->assertDatabaseHas('repartidores', ['tenant_id' => $this->tenant->id, 'nombre' => 'Pedro Gómez', 'vehiculo' => 'bicicleta', 'activo' => true]);
+        $this->actingAs($this->admin)->get('/admin/reportes?vista=repartidores')->assertOk()->assertSee('Pedro Gómez');
+    }
+
+    public function test_alta_de_repartidor_valida_los_campos(): void
+    {
+        $this->actingAs($this->admin)->postJson('/admin/reportes/repartidores', ['nombre' => '', 'vehiculo' => 'moto'])
+            ->assertStatus(422)->assertJsonValidationErrors('nombre');
+        $this->actingAs($this->admin)->postJson('/admin/reportes/repartidores', ['nombre' => 'Ana', 'vehiculo' => 'avion'])
+            ->assertStatus(422)->assertJsonValidationErrors('vehiculo');
+        $this->actingAs($this->admin)->postJson('/admin/reportes/repartidores', ['nombre' => 'Ana', 'telefono' => '<script>', 'vehiculo' => 'moto'])
+            ->assertStatus(422)->assertJsonValidationErrors('telefono');
+        $this->assertDatabaseCount('repartidores', 0);
+    }
+
+    public function test_cajero_no_puede_agregar_repartidores_ni_generar_datos_de_prueba(): void
+    {
+        $caja = $this->cajero();
+        $this->actingAs($caja)->postJson('/admin/reportes/repartidores', ['nombre' => 'Ana', 'vehiculo' => 'moto'])->assertForbidden();
+        $this->actingAs($caja)->postJson('/admin/reportes/datos-prueba')->assertForbidden();
+        $this->assertDatabaseCount('repartidores', 0);
+
+        // Pero si ve la pestaña, sin botones de gestion
+        $this->actingAs($caja)->get('/admin/reportes?vista=repartidores')->assertOk()->assertDontSee('Agregar repartidor');
+    }
+
+    public function test_datos_de_prueba_crean_repartidores_con_entregas_y_no_se_duplican(): void
+    {
+        $r = $this->actingAs($this->admin)->postJson('/admin/reportes/datos-prueba')->assertOk();
+        $this->assertSame(5, $r->json('data.repartidores'));
+        $this->assertGreaterThan(50, $r->json('data.entregas'));
+        $this->assertDatabaseCount('repartidores', 5);
+        $this->assertSame(5, Pedido::query()->where('numero', 'like', 'DEMO-%')->whereNotNull('asignado_at')->distinct('repartidor_id')->count('repartidor_id'));
+
+        // Segunda vez: no crea nada nuevo
+        $this->actingAs($this->admin)->postJson('/admin/reportes/datos-prueba')->assertOk()->assertJsonPath('data.repartidores', 0);
+        $this->assertDatabaseCount('repartidores', 5);
+
+        // El reporte ya muestra datos
+        $d = $this->actingAs($this->admin)->get('/admin/reportes?rango=30&vista=repartidores')->viewData('delivery');
+        $this->assertGreaterThan(0, $d['entregas']);
+        $this->assertCount(5, array_filter($d['lista'], fn ($x) => $x['entregados'] > 0));
+    }
+
+    public function test_excel_de_repartidores_sin_datos_no_falla(): void
+    {
+        $this->actingAs($this->admin)->get('/admin/reportes/exportar?rango=7&hoja=repartidores')->assertOk();
+        $h = $this->libro($this->actingAs($this->admin)->get('/admin/reportes/exportar?rango=7&hoja=repartidores'))->getActiveSheet();
+        $this->assertSame('Repartidor', $h->getCell('A1')->getValue());
+    }
 }

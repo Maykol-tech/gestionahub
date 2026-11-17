@@ -1,37 +1,49 @@
 <?php
-namespace App\Http\Controllers;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
-class PerfilNegocioController extends Controller {
-    public function edit() {
-        $tenant = auth()->user()->tenant;
-        return view('admin.modulos.perfil_negocio', compact('tenant'));
+namespace App\Http\Controllers;
+
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+/** Datos del negocio: nombre, contacto, RUC y descripcion. Se muestran en la tienda y en los comprobantes. */
+class PerfilNegocioController extends DashboardController
+{
+    public function pagina()
+    {
+        $this->compartirLayout();
+
+        $tenantId = (int) auth()->user()->tenant_id;
+
+        return view('admin.modulos.perfil_negocio', [
+            'titulo' => 'Perfil del negocio',
+            'modulo' => 'perfil',
+            'perfil' => DB::table('tenants')->where('id', $tenantId)->first(),
+        ]);
     }
 
-    public function update(Request $request) {
-        $tenant = auth()->user()->tenant;
-        $data = $request->validate([
-            'razon_social' => 'nullable|string|max:200',
-            'nombre_comercial' => 'nullable|string|max:200',
-            'ruc' => 'nullable|digits:11',
-            'direccion' => 'nullable|string|max:300',
-            'telefono' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:150',
-            'rubro' => 'nullable|string|max:100',
-            'logo' => 'nullable|image|mimes:jpeg,png,webp|max:2048',
+    public function guardar(Request $request): RedirectResponse
+    {
+        $datos = $request->validate([
+            'nombre_negocio' => ['required', 'string', 'max:120'],
+            'telefono' => ['nullable', 'string', 'max:30'],
+            'direccion' => ['nullable', 'string', 'max:255'],
+            'ruc' => ['nullable', 'digits:11'],
+            'descripcion' => ['nullable', 'string', 'max:1000'],
+            'sitio_web' => ['nullable', 'url', 'max:255'],
         ]);
 
-        if ($request->hasFile('logo')) {
-            if ($tenant->logo_url && Storage::disk('public')->exists(str_replace('/storage/', '', $tenant->logo_url))) {
-                Storage::disk('public')->delete(str_replace('/storage/', '', $tenant->logo_url));
-            }
-            $path = $request->file('logo')->store('tenants/' . $tenant->id, 'public');
-            $data['logo_url'] = Storage::disk('public')->url($path);
-        }
-        unset($data['logo']);
+        // Usa el query builder para no depender de $fillable del modelo Tenant
+        DB::table('tenants')->where('id', auth()->user()->tenant_id)->update([
+            'nombre_negocio' => $datos['nombre_negocio'],
+            'telefono' => $datos['telefono'] ?? null,
+            'direccion' => $datos['direccion'] ?? null,
+            'ruc' => $datos['ruc'] ?? null,
+            'descripcion' => $datos['descripcion'] ?? null,
+            'sitio_web' => $datos['sitio_web'] ?? null,
+            'updated_at' => now(),
+        ]);
 
-        $tenant->update($data);
-        return back()->with('success', 'Perfil actualizado correctamente.');
+        return back()->with('ok', 'Perfil del negocio actualizado.');
     }
 }

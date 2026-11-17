@@ -35,6 +35,7 @@ class VentaPos extends Model
     protected $fillable = [
         'tenant_id', 'user_id', 'numero', 'metodo_pago', 'gravada', 'igv', 'total', 'recibido', 'vuelto',
         'cliente_nombre', 'cliente_documento', 'tipo_comprobante', 'items', 'estado', 'anulada_at',
+        'cliente_id', 'descuento', 'puntos_usados', 'sucursal_id',
     ];
 
     protected $casts = [

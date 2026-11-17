@@ -10,9 +10,9 @@ class ProductoKilo extends Model
 {
     protected $table = 'producto_kilo';
 
-    protected $fillable = ['tenant_id', 'producto_id', 'precio_kg', 'activo'];
+    protected $fillable = ['tenant_id', 'producto_id', 'precio_kg', 'activo', 'presentaciones', 'peso_libre', 'peso_minimo'];
 
-    protected $casts = ['precio_kg' => 'decimal:2', 'activo' => 'boolean'];
+    protected $casts = ['precio_kg' => 'decimal:2', 'activo' => 'boolean', 'presentaciones' => 'array', 'peso_libre' => 'boolean'];
 
     protected static function booted()
     {

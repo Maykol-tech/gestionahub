@@ -10,7 +10,7 @@ class FidelizacionMovimiento extends Model
 {
     protected $table = 'fidelizacion_movimientos';
 
-    protected $fillable = ['tenant_id', 'cliente_id', 'pedido_id', 'tipo', 'puntos', 'descripcion'];
+    protected $fillable = ['tenant_id', 'cliente_id', 'pedido_id', 'venta_pos_id', 'tipo', 'puntos', 'saldo_resultante', 'descripcion'];
 
     protected $casts = ['puntos' => 'integer'];
 

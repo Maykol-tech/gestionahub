@@ -62,6 +62,13 @@ class CajaCierreController extends DashboardController
         $contado = round((float) $datos['contado'], 2);
         $diferencia = round($contado - $esperado, 2);
 
+        if ($diferencia != 0.0 && trim((string) ($datos['notas'] ?? '')) === '') {
+            return response()->json([
+                'message' => 'Hay una diferencia de S/ ' . number_format($diferencia, 2) . '. Explica el motivo en Notas.',
+                'errors' => ['notas' => ['Explica por qué no cuadra la caja.']],
+            ], 422);
+        }
+
         CierreCaja::query()->create([
             'tenant_id' => $request->user()->tenant_id,
             'fecha' => $dia->toDateString(),
@@ -84,6 +91,19 @@ class CajaCierreController extends DashboardController
         };
 
         return response()->json(['success' => true, 'message' => $mensaje]);
+    }
+
+    /** Ticket de 80 mm del cierre, listo para imprimir. */
+    public function ticket(int $id)
+    {
+        $cierre = CierreCaja::query()->findOrFail($id);
+        $resumen = Caja::resumen(Carbon::parse($cierre->fecha));
+
+        return view('admin.modulos.caja_ticket', [
+            'c' => $this->presentar($cierre),
+            'porMetodo' => $resumen['por_metodo'],
+            'negocio' => optional(auth()->user()->tenant)->nombre_negocio ?? 'Mi negocio',
+        ]);
     }
 
     private function diaSolicitado(?string $fecha): Carbon

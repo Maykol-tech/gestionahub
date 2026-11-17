@@ -10,7 +10,7 @@ class GaleriaItem extends Model
 {
     protected $table = 'galeria_items';
 
-    protected $fillable = ['tenant_id', 'titulo', 'descripcion', 'imagen_url', 'orden', 'activo'];
+    protected $fillable = ['tenant_id', 'titulo', 'descripcion', 'categoria', 'imagen_url', 'miniatura_url', 'archivo', 'orden', 'activo'];
 
     protected $casts = ['activo' => 'boolean', 'orden' => 'integer'];
 

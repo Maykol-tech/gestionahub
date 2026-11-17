@@ -15,26 +15,32 @@ use Illuminate\Validation\ValidationException;
 /** Pagina de Proveedores: CRUD de proveedores (GEST-69) y ordenes de compra con su recepcion de stock. */
 class ProveedorController extends DashboardController
 {
-    public function index() { return $this->pagina(); } public function pagina()
+    public function pagina()
     {
         $this->compartirLayout();
 
-        $proveedores = Proveedor::query()->orderBy('nombre')->get(['id', 'nombre', 'activo']);
+        $proveedores = Proveedor::query()->orderBy('nombre')->get(['id', 'nombre', 'activo', 'telefono', 'condicion_pago']);
 
-        $proveedoresLista = Proveedor::query()->orderBy('nombre')->get();
+        $proveedoresLista = Proveedor::query()->orderBy('nombre')->get()->map(fn (Proveedor $p) => $this->formatear($p));
 
-        $insumos = Insumo::query()->orderBy('nombre')->get(['id', 'nombre', 'unidad', 'costo_unitario']);
+        $insumos = Insumo::query()->orderBy('nombre')->get(['id', 'nombre', 'unidad', 'costo_unitario', 'stock', 'stock_minimo', 'proveedor_id']);
 
-        $ordenes = OrdenCompra::query()->with(['proveedor:id,nombre', 'items'])
+        $ordenes = OrdenCompra::query()->with(['proveedor:id,nombre,telefono', 'items'])
             ->orderByDesc('fecha')->orderByDesc('id')->limit(100)->get()
             ->map(fn (OrdenCompra $o) => [
                 'id' => $o->id,
                 'numero' => $o->numero ?? 'OC-' . str_pad((string) $o->id, 5, '0', STR_PAD_LEFT),
                 'proveedor' => optional($o->proveedor)->nombre ?? 'Proveedor eliminado',
                 'fecha' => $o->fecha->format('d/m/Y'),
+                'fecha_esperada' => $o->fecha_esperada ? \Carbon\Carbon::parse($o->fecha_esperada)->format('d/m/Y') : null,
+                'vence' => $o->vence_at ? \Carbon\Carbon::parse($o->vence_at)->format('d/m/Y') : null,
+                'vencida' => $o->vence_at && $o->estado === 'recibida' && ! $o->pagada_at && \Carbon\Carbon::parse($o->vence_at)->isPast(),
+                'pagada' => $o->pagada_at?->format('d/m/Y'),
+                'telefono' => optional($o->proveedor)->telefono,
                 'estado' => $o->estado,
                 'total' => (float) $o->total,
                 'items' => $o->items->count(),
+                'lineas' => $o->items->map(fn ($it) => ['descripcion' => $it->descripcion, 'cantidad' => (float) $it->cantidad, 'precio' => (float) $it->precio_unitario])->values(),
                 'notas' => $o->notas,
             ])->values();
 
@@ -48,6 +54,7 @@ class ProveedorController extends DashboardController
             'stats' => [
                 'proveedores' => $proveedores->count(),
                 'abiertas' => OrdenCompra::query()->whereIn('estado', ['borrador', 'enviada'])->count(),
+                'por_pagar' => \Illuminate\Support\Facades\Schema::hasColumn('ordenes_compra', 'vence_at') ? (float) OrdenCompra::query()->where('estado', 'recibida')->whereNotNull('vence_at')->when(\Illuminate\Support\Facades\Schema::hasColumn('ordenes_compra', 'pagada_at'), fn ($q) => $q->whereNull('pagada_at'))->sum('total') : 0,
                 'gasto_mes' => (float) OrdenCompra::query()->where('estado', 'recibida')
                     ->whereBetween('fecha', [now()->startOfMonth(), now()->endOfMonth()])->sum('total'),
             ],
@@ -103,6 +110,7 @@ class ProveedorController extends DashboardController
         $datos = $request->validate([
             'proveedor_id' => ['required', 'integer'],
             'fecha' => ['required', 'date'],
+            'fecha_esperada' => ['nullable', 'date', 'after_or_equal:fecha'],
             'notas' => ['nullable', 'string', 'max:500'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.descripcion' => ['required', 'string', 'max:160'],
@@ -132,6 +140,7 @@ class ProveedorController extends DashboardController
                 'estado' => 'borrador',
                 'total' => 0,
                 'notas' => $datos['notas'] ?? null,
+                'fecha_esperada' => $datos['fecha_esperada'] ?? null,
             ]);
 
             $total = 0.0;
@@ -205,6 +214,17 @@ class ProveedorController extends DashboardController
         return response()->json(['success' => true, 'message' => 'Orden eliminada.']);
     }
 
+    /** GEST-70: orden de compra imprimible (se guarda como PDF desde el navegador). */
+    public function imprimirOrden(int $id)
+    {
+        $orden = OrdenCompra::query()->with(['proveedor', 'items'])->findOrFail($id);
+
+        return view('admin.modulos.orden_compra_imprimir', [
+            'o' => $orden,
+            'negocio' => \App\Models\Tenant::find(auth()->user()->tenant_id),
+        ]);
+    }
+
     private function validarProveedor(Request $request): array
     {
         $datos = $request->validate([
@@ -214,17 +234,20 @@ class ProveedorController extends DashboardController
             'telefono' => ['nullable', 'string', 'max:30'],
             'email' => ['nullable', 'email', 'max:120'],
             'notas' => ['nullable', 'string', 'max:500'],
+            'direccion' => ['nullable', 'string', 'max:200'],
+            'condicion_pago' => ['nullable', 'in:' . implode(',', array_keys(Proveedor::CONDICIONES))],
         ], [
             'required' => 'Este campo es obligatorio.',
             'ruc.regex' => 'El RUC debe tener 11 dígitos.',
             'email' => 'Ingresa un correo válido.',
         ]);
 
-        foreach (['ruc', 'contacto', 'telefono', 'email', 'notas'] as $campo) {
+        foreach (['ruc', 'contacto', 'telefono', 'email', 'notas', 'direccion', 'condicion_pago'] as $campo) {
             $valor = isset($datos[$campo]) ? trim((string) $datos[$campo]) : '';
             $datos[$campo] = $valor === '' ? null : $valor;
         }
 
+        $datos['condicion_pago'] ??= 'contado';
         $datos['nombre'] = trim($datos['nombre']);
         $datos['activo'] = $request->boolean('activo', true);
 
@@ -241,6 +264,9 @@ class ProveedorController extends DashboardController
             'telefono' => $p->telefono,
             'email' => $p->email,
             'notas' => $p->notas,
+            'direccion' => $p->direccion,
+            'condicion_pago' => $p->condicion_pago ?: 'contado',
+            'condicion_texto' => Proveedor::CONDICIONES[$p->condicion_pago ?: 'contado'] ?? 'Contado',
             'activo' => (bool) $p->activo,
         ];
     }

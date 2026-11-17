@@ -3,30 +3,26 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Support\MercadoPagoTienda;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
+/**
+ * Aviso de Mercado Pago cuando cambia un pago de la tienda.
+ * No confiamos en el contenido del aviso: con el id consultamos el pago a Mercado Pago con el token del negocio.
+ */
 class MercadoPagoController extends Controller
 {
     public function webhook(Request $request)
     {
-        // 1. Recibir la notificación de Mercado Pago
-        $data = $request->all();
-        
-        Log::info('Webhook Mercado Pago recibido: ', $data);
+        $negocio = (int) $request->query('negocio');
+        $tipo = $request->input('type', $request->query('type', $request->query('topic')));
+        $pagoId = (string) ($request->input('data.id') ?? $request->query('data_id') ?? $request->query('id') ?? '');
 
-        // 2. Validar que sea un pago
-        if (isset($data['type']) && $data['type'] === 'payment') {
-            $paymentId = $data['data']['id'];
-
-            // Aquí iría la lógica real de consultar a Mercado Pago usando el SDK
-            // $payment = MercadoPago\Payment::find_by_id($paymentId);
-
-            // 3. Simulamos la actualización en la base de datos
-            // (En producción, buscaríamos el pago por el ID de referencia)
+        if ($negocio > 0 && $tipo === 'payment' && $pagoId !== '') {
+            MercadoPagoTienda::verificar($negocio, $pagoId);
         }
 
-        // Mercado Pago siempre espera un 200 OK
-        return response()->json(['status' => 'success'], 200);
+        // Mercado Pago siempre espera un 200
+        return response()->json(['status' => 'ok']);
     }
 }

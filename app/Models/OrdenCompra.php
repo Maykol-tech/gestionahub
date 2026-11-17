@@ -19,12 +19,13 @@ class OrdenCompra extends Model
 
     protected $table = 'ordenes_compra';
 
-    protected $fillable = ['tenant_id', 'proveedor_id', 'numero', 'fecha', 'estado', 'total', 'notas', 'recibida_at'];
+    protected $fillable = ['tenant_id', 'proveedor_id', 'numero', 'fecha', 'estado', 'total', 'notas', 'recibida_at', 'fecha_esperada', 'vence_at', 'pagada_at', 'pago_metodo'];
 
     protected $casts = [
         'fecha' => 'date',
         'total' => 'float',
         'recibida_at' => 'datetime',
+        'pagada_at' => 'datetime',
     ];
 
     protected static function booted()

@@ -26,6 +26,9 @@ class ReportesService
 {
     public const RANGOS = [7, 30, 90];
 
+    /** @var array<string, bool> */
+    private array $tablas = [];
+
     /** Modulos del reporte, en el orden en que se muestran. */
     public const CANALES = [
         'pos' => 'Ventas POS',
@@ -162,7 +165,20 @@ class ReportesService
         }
         usort($porCanal, fn ($a, $b) => $b['monto'] <=> $a['monto']);
 
+        // GEST-87: el mismo indicador en el periodo anterior, para mostrar la variación
+        $cantidadAnt = (int) array_sum(array_column($detalleAnterior, 'pedidos'));
+        $clientesUnicosAnt = Pedido::query()->where('pedidos.tenant_id', $tenantId)
+            ->where('estado', '!=', 'cancelado')->whereBetween('created_at', [$desde->copy()->subDays($rango), $desde->copy()->subSecond()])
+            ->whereNotNull('cliente_id')->distinct()->count('cliente_id');
+
         return [
+            'anterior' => [
+                'ventas' => round($anterior, 2),
+                'cantidad' => $cantidadAnt,
+                'ticket' => $cantidadAnt ? round($anterior / $cantidadAnt, 2) : 0,
+                'clientes' => $clientesUnicosAnt,
+            ],
+            'comparativo' => $this->comparativoMes($tenantId),
             'ventas' => $total,
             'cantidad' => $cantidad,
             'ticket' => $cantidad ? round($total / $cantidad, 2) : 0,
@@ -175,6 +191,72 @@ class ReportesService
             'grafico' => $this->grafico($filas, $desde, $rango),
             'detalle' => array_reverse($filas),   // en pantalla, lo mas reciente primero
             'filasExcel' => $filas,
+        ];
+    }
+
+    /** Variación en %: null si no hay base para comparar. */
+    public static function variacion(float $actual, float $anterior): ?float
+    {
+        return $anterior > 0 ? round(($actual - $anterior) * 100 / $anterior, 1) : null;
+    }
+
+    /**
+     * GEST-87: este mes (hasta hoy) contra el mes anterior hasta el mismo día.
+     * KPIs: ventas, pedidos, ticket promedio y clientes nuevos; gráfico día a día de ambos meses.
+     */
+    public function comparativoMes(int $tenantId): array
+    {
+        $hoy = now();
+        $iniActual = $hoy->copy()->startOfMonth();
+        $iniAnterior = $iniActual->copy()->subMonthNoOverflow();
+        $diasAnterior = $iniAnterior->daysInMonth;
+        $corteAnterior = $iniAnterior->copy()->addDays(min($hoy->day, $diasAnterior) - 1)->setTimeFrom($hoy);
+
+        $actual = $this->ventasPorDiaYCanal($tenantId, $iniActual, $hoy);
+        $anterior = $this->ventasPorDiaYCanal($tenantId, $iniAnterior, $iniAnterior->copy()->endOfMonth());
+        $anteriorCorte = array_filter($anterior, fn ($f) => $f['fecha'] <= $corteAnterior->toDateString());
+
+        $kpi = function (array $filas, Carbon $desde, Carbon $hasta) use ($tenantId) {
+            $v = round(array_sum(array_column($filas, 'total')), 2);
+            $n = (int) array_sum(array_column($filas, 'pedidos'));
+            $nuevos = \App\Models\CrmCliente::withoutGlobalScopes()->where('tenant_id', $tenantId)->whereBetween('created_at', [$desde, $hasta])->count();
+
+            return ['ventas' => $v, 'pedidos' => $n, 'ticket' => $n ? round($v / $n, 2) : 0, 'clientes' => $nuevos];
+        };
+        $a = $kpi($actual, $iniActual, $hoy);
+        $b = $kpi($anteriorCorte, $iniAnterior, $corteAnterior);
+
+        $porDia = function (array $filas, Carbon $ini, int $dias) {
+            $serie = array_fill(0, $dias, 0.0);
+            foreach ($filas as $f) {
+                $i = (int) Carbon::parse($f['fecha'])->day - 1;
+                if (isset($serie[$i])) {
+                    $serie[$i] = round($serie[$i] + $f['total'], 2);
+                }
+            }
+
+            return $serie;
+        };
+        $diasMes = max($iniActual->daysInMonth, $diasAnterior);
+        $serieActual = array_slice($porDia($actual, $iniActual, $diasMes), 0, $hoy->day);
+
+        $nombres = ['ventas' => 'Ventas', 'pedidos' => 'Pedidos', 'ticket' => 'Ticket promedio', 'clientes' => 'Clientes nuevos'];
+        $kpis = [];
+        foreach ($nombres as $k => $nombre) {
+            $kpis[] = ['clave' => $k, 'nombre' => $nombre, 'actual' => $a[$k], 'anterior' => $b[$k], 'variacion' => self::variacion((float) $a[$k], (float) $b[$k]), 'moneda' => in_array($k, ['ventas', 'ticket'], true)];
+        }
+
+        return [
+            'mes' => ucfirst($iniActual->translatedFormat('F')),
+            'mes_anterior' => ucfirst($iniAnterior->translatedFormat('F')),
+            'hasta_dia' => $hoy->day,
+            'kpis' => $kpis,
+            'total_mes_anterior' => round(array_sum(array_column($anterior, 'total')), 2),
+            'grafico' => [
+                'etiquetas' => range(1, $diasMes),
+                'actual' => $serieActual,
+                'anterior' => $porDia($anterior, $iniAnterior, $diasMes),
+            ],
         ];
     }
 
@@ -254,6 +336,15 @@ class ReportesService
     {
         [$desde, $hasta] = $this->periodo($rango);
 
+        // Instalaciones sin el modulo de Repartos (tabla, modelo o columnas): la pestaña queda vacia, sin errores
+        $columnas = $this->existe('pedidos') ? Schema::getColumnListing('pedidos') : [];
+        if (! class_exists(Repartidor::class) || ! $this->existe('repartidores')
+            || array_diff(['repartidor_id', 'entregado_at'], $columnas)) {
+            return ['disponible' => false, 'entregas' => 0, 'promedioGeneral' => null, 'masRapido' => null, 'activos' => 0, 'lista' => []];
+        }
+        // confirmado_at y asignado_at son opcionales: solo se leen si existen
+        $campos = array_merge(['id', 'repartidor_id', 'total', 'created_at', 'entregado_at'], array_intersect(['confirmado_at', 'asignado_at'], $columnas));
+
         $pedidos = Pedido::query()
             ->where('pedidos.tenant_id', $tenantId)
             ->where('estado', 'entregado')
@@ -261,7 +352,7 @@ class ReportesService
             ->whereNotNull('entregado_at')
             ->whereBetween('entregado_at', [$desde, $hasta])
             ->with('repartidor:id,nombre')
-            ->get(array_values(array_intersect(['id', 'repartidor_id', 'total', 'created_at', 'confirmado_at', 'asignado_at', 'entregado_at'], \Illuminate\Support\Facades\Schema::getColumnListing('pedidos'))));
+            ->get(array_values($campos));
 
         $filas = $pedidos->groupBy('repartidor_id')->map(function (Collection $grupo) {
             $minutos = $grupo->map(fn (Pedido $p) => $this->minutosEntrega($p))->filter(fn ($m) => $m !== null);
@@ -278,7 +369,9 @@ class ReportesService
         });
 
         // Repartidores activos sin entregas en el periodo tambien aparecen (con cero)
-        $sinEntregas = Repartidor::query()->where('tenant_id', $tenantId)->where('activo', true)
+        $activos = fn () => Repartidor::query()->where('tenant_id', $tenantId)
+            ->when(Schema::hasColumn('repartidores', 'activo'), fn ($q) => $q->where('activo', true));
+        $sinEntregas = $activos()
             ->whereNotIn('id', $filas->keys()->all())->orderBy('nombre')->get(['id', 'nombre'])
             ->map(fn ($r) => ['id' => $r->id, 'nombre' => $r->nombre, 'entregados' => 0, 'promedio' => null, 'minimo' => null, 'maximo' => null, 'monto' => 0.0]);
 
@@ -290,17 +383,18 @@ class ReportesService
         $masRapido = collect($lista)->filter(fn ($r) => $r['promedio'] !== null)->sortBy('promedio')->first();
 
         return [
+            'disponible' => true,
             'entregas' => $pedidos->count(),
             'promedioGeneral' => $todos->isNotEmpty() ? round($todos->avg(), 1) : null,
             'masRapido' => $masRapido,
-            'activos' => Repartidor::query()->where('tenant_id', $tenantId)->where('activo', true)->count(),
+            'activos' => $activos()->count(),
             'lista' => $lista,
         ];
     }
 
     private function minutosEntrega(Pedido $p): ?float
     {
-        $inicio = $p->asignado_at ?? $p->confirmado_at ?? $p->created_at;
+        $inicio = $p->getAttribute('asignado_at') ?? $p->getAttribute('confirmado_at') ?? $p->created_at;
         if (! $inicio || ! $p->entregado_at || $p->entregado_at->lt($inicio)) {
             return null;
         }
@@ -353,8 +447,6 @@ class ReportesService
 
     private function existe(string $tabla): bool
     {
-        static $tablas = [];
-
-        return $tablas[$tabla] ??= Schema::hasTable($tabla);
+        return $this->tablas[$tabla] ??= Schema::hasTable($tabla);
     }
 }

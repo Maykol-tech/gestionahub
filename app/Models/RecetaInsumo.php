@@ -13,7 +13,7 @@ class RecetaInsumo extends Model
 
     public $timestamps = false;
 
-    protected $fillable = ['tenant_id', 'receta_id', 'insumo_id', 'cantidad'];
+    protected $fillable = ['tenant_id', 'receta_id', 'insumo_id', 'cantidad', 'merma_pct'];
 
     protected $casts = ['cantidad' => 'float'];
 

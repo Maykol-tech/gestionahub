@@ -40,7 +40,23 @@
                 if (c === 'activos') return p.activo;
                 if (c === 'bajo') return p.activo && ['bajo', 'sin_stock'].includes(p.estado);
                 if (c === 'pausado') return !p.activo;
+                if (c === 'sin_foto') return !p.foto_real;
                 return true;
+            },
+            // Subida rápida de foto desde el listado (productos sin foto)
+            subiendoFoto: null, _fotoPara: null,
+            elegirFotoRapida(p) { this._fotoPara = p; this.$refs.fotoRapida.value = ''; this.$refs.fotoRapida.click(); },
+            async subirFotoRapida(ev) {
+                const f = ev.target.files[0], p = this._fotoPara;
+                if (!f || !p) return;
+                if (f.size > 4 * 1024 * 1024) { Alpine.store('toasts').push('La foto pesa más de 4 MB. Elige una más liviana.', 'error'); return; }
+                const fd = new FormData(); fd.append('imagenes[]', f);
+                this.subiendoFoto = p.id;
+                const r = await gh.api(URL_BASE + '/' + p.id + '/imagenes', { method: 'POST', body: fd });
+                this.subiendoFoto = null;
+                if (!r.ok) { Alpine.store('toasts').push(r.data.errors ? Object.values(r.data.errors)[0][0] : (r.data.message || 'No se pudo subir la foto'), 'error'); return; }
+                this.ponerProducto(r.data.data);
+                Alpine.store('toasts').push('Foto agregada a ' + p.nombre);
             },
             contar(c) { return this.productos.filter(p => this.cumple(p, c)).length; },
             get bajos() { return this.productos.filter(p => this.cumple(p, 'bajo')).sort((a, b) => a.stock - b.stock); },
@@ -67,21 +83,22 @@
             badgeEstado(e) { return { activo: 'b-ok', bajo: 'b-a', sin_stock: 'b-r', pausado: 'b-n' }[e]; },
             exportar() {
                 if (this.vista === 'categorias') {
-                    gh.csv('categorias.csv', [['Categoría', 'Productos', 'Estado'], ...this.categorias.map(c => [c.nombre, c.productos, c.activo ? 'Visible' : 'Oculta'])]);
-                    Alpine.store('toasts').push('Se descargó categorias.csv', 'info'); return;
+                    gh.excel('Categorías', [['Categoría'], ['Productos', 'numero'], ['Estado']],
+                        this.categorias.map(c => [c.nombre, c.productos, c.activo ? 'Visible' : 'Oculta']), { totales: false });
+                    return;
                 }
                 const filas = [];
                 this.filtrados.forEach(p => {
                     if (p.tiene_variantes) p.variantes.forEach(v => filas.push([p.nombre, v.nombre, v.sku || p.sku, p.categoria, v.precio ?? p.precio, '', v.stock, v.stock_minimo, this.textoEstado(p.estado)]));
                     else filas.push([p.nombre, '', p.sku, p.categoria, p.precio, p.precio_oferta ?? '', p.stock, p.stock_minimo, this.textoEstado(p.estado)]);
                 });
-                gh.csv('productos.csv', [['Producto', 'Variante', 'SKU', 'Categoría', 'Precio', 'Precio oferta', 'Stock', 'Stock mínimo', 'Estado'], ...filas]);
-                Alpine.store('toasts').push('Se descargó productos.csv', 'info');
+                gh.excel('Productos', [['Producto'], ['Variante'], ['SKU'], ['Categoría'], ['Precio', 'moneda'], ['Precio oferta', 'moneda'], ['Stock', 'numero'], ['Stock mínimo', 'numero'], ['Estado']],
+                    filas, { totales: false });
             },
 
             // ---------- Modal de producto ----------
             resetForm() {
-                this.form = { nombre: '', categoria_id: '', nueva_categoria: '', precio: '', precio_oferta: '', stock: '', stock_minimo: 5, sku: '', descripcion: '', activo: true, tiene_variantes: false, variantes: [] };
+                this.form = { nombre: '', categoria_id: '', nueva_categoria: '', precio: '', precio_oferta: '', stock: '', stock_minimo: 5, sku: '', descripcion: '', meta_titulo: '', meta_descripcion: '', destacado: false, activo: true, tiene_variantes: false, variantes: [] };
                 this.errores = {}; this.errorGeneral = ''; this.nuevaCat = false; this.errGaleria = '';
                 this.nuevas.forEach(n => URL.revokeObjectURL(n.url)); this.nuevas = []; this.galeria = [];
             },
@@ -92,7 +109,7 @@
                 if (p) {
                     Object.assign(this.form, {
                         nombre: p.nombre, categoria_id: p.categoria_id ?? '', precio: p.precio, precio_oferta: p.precio_oferta ?? '',
-                        stock: p.stock, stock_minimo: p.stock_minimo, sku: p.sku ?? '', descripcion: p.descripcion ?? '', activo: p.activo,
+                        stock: p.stock, stock_minimo: p.stock_minimo, sku: p.sku ?? '', descripcion: p.descripcion ?? '', meta_titulo: p.meta_titulo ?? '', meta_descripcion: p.meta_descripcion ?? '', destacado: !!p.destacado, activo: p.activo,
                         tiene_variantes: p.tiene_variantes,
                         variantes: p.variantes.map(v => ({ ...v, precio: v.precio ?? '', sku: v.sku ?? '', _k: ++clave })),
                     });
@@ -115,6 +132,9 @@
                 const fd = new FormData();
                 ['nombre', 'categoria_id', 'nueva_categoria', 'sku', 'descripcion'].forEach(k => { if (this.form[k] !== '' && this.form[k] != null) fd.append(k, this.form[k]); });
                 fd.append('activo', this.form.activo ? '1' : '0');
+                fd.append('destacado', this.form.destacado ? '1' : '0');
+                fd.append('meta_titulo', this.form.meta_titulo || '');
+                fd.append('meta_descripcion', this.form.meta_descripcion || '');
                 fd.append('tiene_variantes', this.form.tiene_variantes ? '1' : '0');
                 if (this.form.tiene_variantes) {
                     this.form.variantes.forEach((v, i) => {

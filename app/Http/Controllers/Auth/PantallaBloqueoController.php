@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\DesbloquearPantallaRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,8 +18,8 @@ use Illuminate\Support\Facades\RateLimiter;
  */
 class PantallaBloqueoController extends Controller
 {
-    /** Minutos sin actividad antes de bloquear (entre 5 y 10). */
-    public const MINUTOS = 7;
+    /** Valor de respaldo: lo real se elige en Cuenta → Seguridad. */
+    public const MINUTOS = 10;
 
     /** Intentos de contraseña antes de cerrar la sesion por seguridad. */
     public const MAX_INTENTOS = 5;
@@ -27,9 +28,21 @@ class PantallaBloqueoController extends Controller
 
     public const ACTIVIDAD = 'ultima_actividad';
 
+    /** Minutos de inactividad que eligió el admin en Cuenta → Seguridad (1 a 120). */
     public static function minutos(): int
     {
-        return max(5, min(10, (int) config('app.bloqueo_minutos', self::MINUTOS)));
+        return \App\Support\Seguridad::reglas(auth()->user()?->tenant_id)['inactividad_minutos'];
+    }
+
+    /** El admin puede apagar el bloqueo por inactividad. */
+    public static function activo(): bool
+    {
+        return \App\Support\Seguridad::reglas(auth()->user()?->tenant_id)['inactividad_activa'];
+    }
+
+    private static function maxIntentos(): int
+    {
+        return \App\Support\Seguridad::reglas(auth()->user()?->tenant_id)['intentos'];
     }
 
     /** El navegador avisa que el usuario esta inactivo: se bloquea en el servidor. */
@@ -52,27 +65,27 @@ class PantallaBloqueoController extends Controller
         return response()->json(['bloqueado' => false]);
     }
 
-    public function desbloquear(Request $request): JsonResponse
+    public function desbloquear(DesbloquearPantallaRequest $request): JsonResponse
     {
-        $request->validate(['password' => ['required', 'string', 'max:200']], [
-            'password.required' => 'Escribe tu contraseña para continuar.',
-        ]);
 
         $usuario = $request->user();
         $clave = 'desbloqueo:' . $usuario->id;
 
-        if (RateLimiter::tooManyAttempts($clave, self::MAX_INTENTOS)) {
+        $max = self::maxIntentos();
+        if (RateLimiter::tooManyAttempts($clave, $max)) {
             return $this->cerrarSesion($request, $clave);
         }
 
         if (! Hash::check($request->input('password'), $usuario->password)) {
-            RateLimiter::hit($clave, LoginController::MINUTOS_BLOQUEO * 60);
+            RateLimiter::hit($clave, 15 * 60);
 
-            if (RateLimiter::tooManyAttempts($clave, self::MAX_INTENTOS)) {
+            if (RateLimiter::tooManyAttempts($clave, $max)) {
+                \App\Support\Seguridad::registrar('fallido', (string) $usuario->email, $request, $usuario);
+
                 return $this->cerrarSesion($request, $clave);
             }
 
-            $quedan = RateLimiter::remaining($clave, self::MAX_INTENTOS);
+            $quedan = RateLimiter::remaining($clave, $max);
 
             return response()->json([
                 'message' => 'Contraseña incorrecta.',

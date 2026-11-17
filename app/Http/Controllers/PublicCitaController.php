@@ -81,7 +81,7 @@ class PublicCitaController extends Controller
 
     private function negocio(string $slug): Tenant
     {
-        return Tenant::query()->where('slug', $slug)->where('estado', 'activo')->firstOrFail();
+        return Tenant::query()->where('slug', $slug)->whereIn('estado', ['activo', 'trial'])->firstOrFail();
     }
 
     private function horarios(Tenant $negocio): ?array

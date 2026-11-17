@@ -25,6 +25,9 @@ class PublicResenaController extends Controller
             'resenas' => $resenas,
             'promedio' => $promedio,
             'enviada' => session('ok'),
+            'google' => ($g = \App\Support\GoogleResenas::config((int) $negocio->id)),
+            'googleDatos' => $g['mostrar'] ? \App\Support\GoogleResenas::datos((int) $negocio->id) : null,
+            'googleEscribir' => \App\Support\GoogleResenas::enlaceEscribir($g['place_id']),
         ]);
     }
 
@@ -50,6 +53,6 @@ class PublicResenaController extends Controller
 
     private function negocio(string $slug): Tenant
     {
-        return Tenant::query()->where('slug', $slug)->where('estado', 'activo')->firstOrFail();
+        return Tenant::query()->where('slug', $slug)->whereIn('estado', ['activo', 'trial'])->firstOrFail();
     }
 }

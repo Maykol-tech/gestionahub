@@ -1,2 +1,18 @@
 # Agregar al final de tu .env (y tambien en .env.example)
 STOCK_ALERTA_TELEFONO=51999999999
+
+# GEST-94: pago con tarjeta Niubiz. Si lo dejas vacío, los negocios pagan con Yape, Plin o transferencia.
+NIUBIZ_MERCHANT_ID=
+NIUBIZ_USUARIO=
+NIUBIZ_CLAVE=
+NIUBIZ_PRODUCCION=false
+
+# GEST-92: ingresar con Google. Si lo dejas vacío, el botón de Google no aparece.
+# Se crea en console.cloud.google.com → Credenciales → ID de cliente OAuth (aplicación web)
+# URI de redirección autorizada: http://localhost:8000/auth/google/callback (y la de tu dominio)
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REDIRECT_URI=http://localhost:8000/auth/google/callback
+
+# Correos (avisos de prueba, pagos aprobados). Con "log" se guardan en storage/logs en vez de enviarse.
+# MAIL_MAILER=smtp

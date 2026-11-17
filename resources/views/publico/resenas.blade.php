@@ -21,6 +21,9 @@
         button { margin-top:14px; width:100%; padding:12px; border:0; border-radius:10px; background:var(--brand); color:#fff; font:inherit; font-weight:700; cursor:pointer; }
         .ok { background:#DCFCE7; color:#15803D; border-radius:10px; padding:12px; font-size:14px; margin-bottom:12px; }
         .err { color:#B91C1C; font-size:12px; margin-top:4px; }
+        .g-res { border-top:1px solid var(--border); padding-top:10px; margin-top:10px; }
+        .g-link { display:inline-block; margin-top:10px; font-size:13px; font-weight:700; color:var(--brand); text-decoration:none; }
+        .g-boton { display:block; text-align:center; margin-top:10px; padding:11px; border:1px solid var(--border); border-radius:10px; color:var(--fg); text-decoration:none; font-weight:700; font-size:14px; }
         @media (prefers-reduced-motion: reduce) { .card { animation:none; } }
     </style>
 </head>
@@ -29,11 +32,23 @@
     <div class="card">
         <h1>{{ $negocio->nombre_negocio }}</h1>
         @if ($promedio)
-            <div class="promedio"><span class="estrellas">{{ str_repeat('˜…', (int) round($promedio)) }}</span> {{ $promedio }} de 5 · {{ $resenas->count() }} reseñas</div>
+            <div class="promedio"><span class="estrellas">{{ str_repeat('★', (int) round($promedio)) }}</span> {{ $promedio }} de 5 · {{ $resenas->count() }} reseñas</div>
         @else
             <div class="promedio">Todavía no hay reseñas publicadas.</div>
         @endif
     </div>
+
+    @if (is_array($googleDatos) && empty($googleDatos['error']) && $googleDatos['total'] > 0)
+        <div class="card g-card">
+            <div class="resena-hd"><strong>En Google</strong><span><span class="estrellas">{{ str_repeat('★', (int) round($googleDatos['nota'])) }}</span> {{ $googleDatos['nota'] }} · {{ $googleDatos['total'] }} reseñas</span></div>
+            @foreach ($googleDatos['resenas'] as $g)
+                @if ($g['texto'])
+                    <div class="g-res"><div class="resena-hd"><strong>{{ $g['autor'] }}</strong><span class="estrellas">{{ str_repeat('★', $g['nota']) }}</span></div><p class="comentario">{{ \Illuminate\Support\Str::limit($g['texto'], 280) }}</p></div>
+                @endif
+            @endforeach
+            @if ($googleDatos['url'])<a class="g-link" href="{{ $googleDatos['url'] }}" target="_blank" rel="noopener">Ver todas en Google</a>@endif
+        </div>
+    @endif
 
     @if ($enviada)<div class="ok">{{ $enviada }}</div>@endif
 
@@ -41,7 +56,7 @@
         <div class="card">
             <div class="resena-hd">
                 <strong>{{ $r->cliente_nombre }}</strong>
-                <span class="estrellas">{{ str_repeat('˜…', $r->calificacion) }}{{ str_repeat('˜†', 5 - $r->calificacion) }}</span>
+                <span class="estrellas">{{ str_repeat('★', $r->calificacion) }}{{ str_repeat('☆', 5 - $r->calificacion) }}</span>
             </div>
             @if ($r->comentario)<p class="comentario">{{ $r->comentario }}</p>@endif
         </div>
@@ -66,6 +81,9 @@
             <textarea id="comentario" name="comentario" rows="3" maxlength="1000">{{ old('comentario') }}</textarea>
             <button type="submit">Enviar reseña</button>
         </form>
+        @if ($googleEscribir)
+            <a class="g-boton" href="{{ $googleEscribir }}" target="_blank" rel="noopener">También puedes dejarla en Google</a>
+        @endif
     </div>
 </div>
 </body>

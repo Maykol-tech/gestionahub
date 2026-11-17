@@ -18,8 +18,7 @@ class OrdenProduccion extends Model
     protected $table = 'ordenes_produccion';
 
     protected $fillable = [
-        'tenant_id', 'titulo', 'receta_id', 'cantidad', 'fecha', 'estado', 'notas', 'costo_total', 'descontado_at',
-    ];
+        'tenant_id', 'titulo', 'receta_id', 'cantidad', 'fecha', 'estado', 'notas', 'costo_total', 'descontado_at', 'codigo', 'vence_at', 'responsable'];
 
     protected $casts = [
         'cantidad' => 'integer',

@@ -18,6 +18,9 @@ services:
       DB_USERNAME: ${DOCKER_DB_USERNAME:-gestionahub}
       DB_PASSWORD: ${DOCKER_DB_PASSWORD:-gestionahub_secret}
       RUN_MIGRATIONS: "true"
+      # GEST-42: servicio de prospeccion (carpeta prospeccion/)
+      PROSPECCION_IA_URL: http://prospeccion:8080
+      PROSPECCION_IA_TOKEN: ${PROSPECCION_IA_TOKEN:-}
     ports:
       - "${DOCKER_APP_PORT:-8000}:80"
     volumes:
@@ -49,6 +52,14 @@ services:
     depends_on:
       app:
         condition: service_healthy
+  prospeccion:
+    # GEST-42: busca negocios por rubro y zona en OpenStreetMap (FastAPI)
+    build:
+      context: ./prospeccion
+    image: gestionahub-prospeccion:latest
+    restart: unless-stopped
+    environment:
+      PROSPECCION_TOKEN: ${PROSPECCION_IA_TOKEN:-}
   mysql:
     image: mysql:8.4
     restart: unless-stopped

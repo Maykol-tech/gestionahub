@@ -18,6 +18,7 @@
                     <th>RUC</th>
                     <th>Contacto</th>
                     <th>Teléfono</th>
+                    <th>Pago</th>
                     <th>Estado</th>
                     <th style="text-align:right;">Acciones</th>
                 </tr>
@@ -25,6 +26,8 @@
             <tbody id="prov-filas"></tbody>
         </table>
     </div>
+
+    <div id="prov-pager" style="display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:12px 16px;font-size:12px;color:var(--fg3);"></div>
 
     <div id="prov-vacio" class="empty" style="padding:18px;" hidden>
         <div style="color:var(--fg3);font-size:13px;">Aún no tienes proveedores. Crea el primero con “+ Nuevo proveedor”.</div>
@@ -69,11 +72,23 @@
                     <div class="ferr" data-err="email"></div>
                 </div>
                 <div class="field">
+                    <label class="lbl" for="prov-condicion">Condición de pago</label>
+                    <select class="inp" id="prov-condicion" name="condicion_pago">
+                        @foreach (\App\Models\Proveedor::CONDICIONES as $k => $v)<option value="{{ $k }}">{{ $v }}</option>@endforeach
+                    </select>
+                    <div class="ferr" data-err="condicion_pago"></div>
+                </div>
+                <div class="field">
                     <label class="lbl" for="prov-activo">Estado</label>
                     <label style="display:flex;gap:8px;align-items:center;font-size:13px;margin-top:8px;">
                         <input type="checkbox" id="prov-activo" name="activo" checked> Activo
                     </label>
                 </div>
+            </div>
+            <div class="field" style="margin-top:12px;">
+                <label class="lbl" for="prov-direccion">Dirección</label>
+                <input class="inp" id="prov-direccion" name="direccion" maxlength="200" placeholder="Av. Los Próceres 123, Lima">
+                <div class="ferr" data-err="direccion"></div>
             </div>
             <div class="field" style="margin-top:12px;">
                 <label class="lbl" for="prov-notas">Notas</label>
@@ -105,6 +120,8 @@ window.ghProveedoresCrud = function (lista) {
     const csrf = document.querySelector('meta[name="csrf-token"]').content;
     let proveedores = lista || [];
     let editandoId = null;
+    let pagina = 1;
+    const porPagina = 8;
 
     const $ = (sel) => document.querySelector(sel);
     const esc = (t) => String(t ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -116,18 +133,31 @@ window.ghProveedoresCrud = function (lista) {
         const vacio = $('#prov-vacio');
         $('#prov-total').textContent = proveedores.length + (proveedores.length === 1 ? ' registrado' : ' registrados');
         vacio.hidden = proveedores.length > 0;
-        tbody.innerHTML = proveedores.map((p) => `
+        const paginas = Math.max(1, Math.ceil(proveedores.length / porPagina));
+        pagina = Math.min(pagina, paginas);
+        tbody.innerHTML = proveedores.slice((pagina - 1) * porPagina, pagina * porPagina).map((p) => `
             <tr data-id="${p.id}">
                 <td><b>${esc(p.nombre)}</b>${p.notas ? `<div style="color:var(--fg3);font-size:12px;">${esc(p.notas)}</div>` : ''}</td>
                 <td>${esc(p.ruc || '—')}</td>
                 <td>${esc(p.contacto || '—')}${p.email ? `<div style="color:var(--fg3);font-size:12px;">${esc(p.email)}</div>` : ''}</td>
                 <td>${esc(p.telefono || '—')}</td>
+                <td><span class="badge b-n">${esc(p.condicion_texto || 'Contado')}</span></td>
                 <td><span class="badge">${p.activo ? 'Activo' : 'Inactivo'}</span></td>
                 <td><div class="prov-acc">
                     <button type="button" class="btn btn-g btn-sm" data-editar="${p.id}">Editar</button>
                     <button type="button" class="btn btn-g btn-sm" data-eliminar="${p.id}">Eliminar</button>
                 </div></td>
             </tr>`).join('');
+        pintarPaginador(paginas);
+    }
+
+    function pintarPaginador(paginas) {
+        const cont = $('#prov-pager');
+        if (paginas <= 1) { cont.innerHTML = ''; return; }
+        cont.innerHTML = `
+            <button type="button" class="btn btn-g btn-sm" data-pag="-1" ${pagina === 1 ? 'disabled' : ''}>Anterior</button>
+            <span>Página ${pagina} de ${paginas}</span>
+            <button type="button" class="btn btn-g btn-sm" data-pag="1" ${pagina === paginas ? 'disabled' : ''}>Siguiente</button>`;
     }
 
     function limpiarErrores() {
@@ -147,6 +177,8 @@ window.ghProveedoresCrud = function (lista) {
         form.telefono.value = p?.telefono ?? '';
         form.email.value = p?.email ?? '';
         form.notas.value = p?.notas ?? '';
+        form.direccion.value = p?.direccion ?? '';
+        form.condicion_pago.value = p?.condicion_pago ?? 'contado';
         form.activo.checked = p ? !!p.activo : true;
         modal.hidden = false;
         modal.style.display = 'flex';
@@ -210,6 +242,8 @@ window.ghProveedoresCrud = function (lista) {
             telefono: form.telefono.value,
             email: form.email.value,
             notas: form.notas.value,
+            direccion: form.direccion.value,
+            condicion_pago: form.condicion_pago.value,
             activo: form.activo.checked,
         };
 
@@ -241,6 +275,13 @@ window.ghProveedoresCrud = function (lista) {
         // Recargamos para que el selector de orden de compra y su botón tomen la lista nueva
         cerrar();
         location.reload();
+    });
+
+    $('#prov-pager').addEventListener('click', (e) => {
+        const b = e.target.closest('[data-pag]');
+        if (!b || b.disabled) return;
+        pagina += Number(b.dataset.pag);
+        pintar();
     });
 
     pintar();

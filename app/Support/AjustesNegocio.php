@@ -14,6 +14,56 @@ class AjustesNegocio
     public const POR_DEFECTO = [
         'color_menu' => '#2B6EF6',
         'color_accion' => '#F47B20',
+        'margen_objetivo' => 60,
+        'margen_minimo' => 30,
+        // GEST-75: programa de puntos
+        'fid_activo' => true,
+        'fid_puntos_por_sol' => 1,
+        'fid_valor_punto' => 0.05,
+        'fid_tope_pct' => 30,
+        'fid_vence_meses' => 12,
+        // GEST-82 a 84: asistente, menú por rubro y diseño de la web
+        'onboarding_listo' => false,
+        'modulos_ocultos' => [],
+        'plantilla' => 'clasica',
+        'color_secundario' => '#F47B20',
+        'fuente' => 'Inter',
+        'favicon_url' => '',
+        'pie_texto' => '',
+        // GEST-85: carrito abandonado
+        'carrito_activo' => true,
+        'carrito_minutos' => 30,
+        'carrito_cupon' => '',
+        'carrito_mensaje' => 'Hola {nombre}, dejaste tu pedido de {total} en {negocio}. Puedes terminarlo aquí: {enlace}',
+        // GEST-86: minutos que dura el enlace para tomar un cupo liberado
+        'espera_minutos' => 30,
+        // GEST-78: boletín a inactivos
+        'boletin_dias' => 60,
+        'boletin_cupon' => '',
+        // GEST-103/106: tienda online (moneda, métodos de pago activos, WhatsApp, redes, programar pedidos)
+        'tienda_moneda' => 'PEN',
+        'tienda_pagos' => ['efectivo', 'yape', 'plin'],
+        'tienda_whatsapp' => '',
+        'tienda_facebook' => '',
+        'tienda_instagram' => '',
+        'tienda_tiktok' => '',
+        'tienda_programar' => true,
+        'tienda_puntos' => true,
+        'mp_access_token' => '', // Mercado Pago del negocio (cifrado)
+        'mp_public_key' => '', // Public Key: muestra el formulario de tarjeta dentro de la tienda
+        // Reseñas de Google: ID del lugar, clave de Google (cifrada) y si se muestran en la web
+        'google_place_id' => '',
+        'google_api_key' => '',
+        'google_mostrar' => false,
+        // GEST-62: API de pedidos. URL que recibe el aviso cuando un pedido cambia de estado y su clave de firma
+        'api_webhook_url' => '',
+        'api_webhook_secreto' => '',
+        // Seguridad del acceso: intentos antes de bloquear, tiempo de bloqueo y bloqueo por inactividad
+        'seg_intentos' => 5,
+        'seg_bloqueo_valor' => 15,
+        'seg_bloqueo_unidad' => 'minutos', // minutos | horas
+        'seg_inactividad_activa' => true,
+        'seg_inactividad_minutos' => 10,
         'bot_activo' => false,
         'bot_numero' => '',
         'bot_bienvenida' => '¡Hola! Gracias por escribirnos. ¿En qué podemos ayudarte?',
@@ -22,6 +72,12 @@ class AjustesNegocio
     ];
 
     private static array $cache = [];
+
+    /** Olvida lo leído en memoria (útil en pruebas y procesos largos). */
+    public static function limpiarCache(): void
+    {
+        self::$cache = [];
+    }
 
     private static function ruta(int $tenantId): string
     {

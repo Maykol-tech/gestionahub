@@ -20,7 +20,14 @@ class TiendaContenido extends Model
         'pie' => ['texto' => '', 'email' => ''],
         // SEO de la tienda (GEST-112): se usa en <title>, meta description y Open Graph
         'seo' => ['titulo' => '', 'descripcion' => '', 'imagen' => ''],
+        // GEST-110: carrusel, bienvenida, avisos y páginas legales / preguntas
+        'banners' => ['items' => []],          // [{imagen, titulo, texto, boton, enlace}]
+        'avisos' => ['items' => []],           // ["Delivery gratis desde S/ 50"]
+        'bienvenida' => ['texto' => ''],
+        'paginas' => ['terminos' => '', 'politicas' => '', 'faq' => []], // faq: [{pregunta, respuesta}]
     ];
+
+    public const PAGINAS = ['terminos' => 'Términos y condiciones', 'politicas' => 'Políticas de cambios y devoluciones', 'preguntas' => 'Preguntas frecuentes'];
 
     protected static function booted()
     {

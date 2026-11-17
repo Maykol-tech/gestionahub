@@ -7,7 +7,7 @@
     @include('admin.modulos._base')
     <style>
         .resumen-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(190px, 1fr)); gap:12px; margin-bottom:16px; }
-        .resumen-item { border:1px solid var(--border); border-radius:12px; padding:14px; background:#fff; }
+        .resumen-item { border:1px solid var(--border); border-radius:12px; padding:14px; background:var(--card, #fff); }
         .resumen-item small { display:block; font-size:12px; color:var(--fg3); margin-bottom:4px; }
         .resumen-item b { font-size:18px; font-variant-numeric: tabular-nums; }
         .arqueo { display:grid; grid-template-columns: 1fr 1fr; gap:16px; align-items:start; }
@@ -20,7 +20,7 @@
 @endpush
 
 @section('contenido')
-<div x-data="cierreCaja(@js((float) $sugerido), @js($resumen))">
+<div x-data="cierreCaja(@js((float) $sugerido), @js($resumen), @js($historial))">
 
     {{-- Dia --}}
     <div class="panel fade-in" style="padding:16px;margin-bottom:16px;">
@@ -38,6 +38,29 @@
         <div class="resumen-item fade-in" style="animation-delay:.05s"><small>Ventas digitales (Yape, Plin, tarjeta)</small><b>S/ {{ number_format($resumen['ventas_digitales'], 2) }}</b></div>
         <div class="resumen-item fade-in" style="animation-delay:.1s"><small>Gastos en efectivo</small><b>S/ {{ number_format($resumen['gastos_efectivo'], 2) }}</b></div>
         <div class="resumen-item fade-in" style="animation-delay:.15s"><small>Gastos digitales</small><b>S/ {{ number_format($resumen['gastos_digitales'], 2) }}</b></div>
+    </div>
+
+    {{-- Desglose por metodo de pago (GEST-67) --}}
+    <div class="panel fade-in" style="margin-bottom:16px;">
+        <div class="panel-hd"><span style="font-weight:700;">Lo esperado por método de pago</span><span style="font-size:12px;color:var(--fg3);margin-left:auto;">Solo el efectivo se cuenta en el arqueo</span></div>
+        @if (count($resumen['por_metodo']))
+            <div class="tbl-wrap"><table class="tbl">
+                <thead><tr><th>Método</th><th class="num">Operaciones</th><th class="num">Ventas</th><th class="num">Gastos</th><th class="num">Neto</th></tr></thead>
+                <tbody>
+                @foreach ($resumen['por_metodo'] as $m => $v)
+                    <tr class="row-in" style="--d:{{ $loop->index * 40 }}ms">
+                        <td style="font-weight:600;">{{ ['efectivo' => 'Efectivo', 'yape' => 'Yape', 'plin' => 'Plin', 'tarjeta' => 'Tarjeta', 'transferencia' => 'Transferencia', 'mercadopago' => 'Mercado Pago'][$m] ?? ucfirst($m) }}</td>
+                        <td class="num">{{ $v['operaciones'] }}</td>
+                        <td class="num">S/ {{ number_format($v['ventas'], 2) }}</td>
+                        <td class="num" style="color:var(--red);">{{ $v['gastos'] ? '− S/ ' . number_format($v['gastos'], 2) : '—' }}</td>
+                        <td class="num" style="font-weight:700;">S/ {{ number_format($v['neto'], 2) }}</td>
+                    </tr>
+                @endforeach
+                </tbody>
+            </table></div>
+        @else
+            <div class="empty" style="padding:22px;"><div style="font-size:13px;color:var(--fg3);">Sin ventas ni gastos en este día.</div></div>
+        @endif
     </div>
 
     {{-- Apertura de caja con registro --}}
@@ -69,7 +92,7 @@
                 <div class="arqueo-total">
                     <div><span>Monto inicial</span><span>S/ {{ number_format($cierre['monto_inicial'], 2) }}</span></div>
                     <div><span>+ Ventas en efectivo</span><span>S/ {{ number_format($cierre['ventas_efectivo'], 2) }}</span></div>
-                    <div><span>ˆ’ Gastos en efectivo</span><span>S/ {{ number_format($cierre['gastos_efectivo'], 2) }}</span></div>
+                    <div><span>− Gastos en efectivo</span><span>S/ {{ number_format($cierre['gastos_efectivo'], 2) }}</span></div>
                     <div style="font-weight:700;border-top:1px dashed var(--border);margin-top:6px;padding-top:8px;"><span>Esperado</span><span>S/ {{ number_format($cierre['esperado'], 2) }}</span></div>
                     <div style="font-weight:700;"><span>Contado</span><span>S/ {{ number_format($cierre['contado'], 2) }}</span></div>
                     <div style="font-weight:800;"><span>Diferencia</span><span class="{{ $cierre['diferencia'] == 0 ? 'dif-ok' : 'dif-mal' }}">S/ {{ number_format($cierre['diferencia'], 2) }}</span></div>
@@ -77,6 +100,7 @@
                 <div>
                     <div style="font-size:13px;color:var(--fg2);">Notas</div>
                     <div style="font-size:14px;margin-top:4px;">{{ $cierre['notas'] ?: 'Sin notas.' }}</div>
+                    <a class="btn btn-g" style="margin-top:14px;" href="{{ route('admin.caja.cierre.ticket', $cierre['id']) }}" target="_blank" rel="noopener"><x-icon name="download" size="15" /> Imprimir ticket de cierre</a>
                 </div>
             </div>
         </div>
@@ -97,15 +121,16 @@
                         <div class="ferr" x-show="errores.contado" x-text="errores.contado ? errores.contado[0] : ''"></div>
                     </div>
                     <div class="field">
-                        <label class="lbl" for="c-notas">Notas</label>
-                        <textarea class="inp" id="c-notas" rows="2" maxlength="500" x-model="notas"></textarea>
+                        <label class="lbl" for="c-notas">Notas <span x-show="contado !== null && contado !== '' && diferencia !== 0" style="color:var(--red);">* explica la diferencia</span></label>
+                        <textarea class="inp" id="c-notas" rows="2" maxlength="500" x-model="notas" :class="{ err: errores.notas }" placeholder="Ej.: se dio vuelto de más a un cliente"></textarea>
+                        <div class="ferr" x-show="errores.notas" x-text="errores.notas ? errores.notas[0] : ''"></div>
                     </div>
-                    <button type="submit" class="btn btn-p" :disabled="guardando" x-text="guardando ? 'Cerrando¦' : 'Cerrar caja'"></button>
+                    <button type="submit" class="btn btn-p" :disabled="guardando" x-text="guardando ? 'Cerrando…' : 'Cerrar caja'"></button>
                 </div>
                 <div class="arqueo-total">
                     <div><span>Monto inicial</span><span x-text="money(monto_inicial)"></span></div>
                     <div><span>+ Ventas en efectivo</span><span x-text="money(resumen.ventas_efectivo)"></span></div>
-                    <div><span>ˆ’ Gastos en efectivo</span><span x-text="money(resumen.gastos_efectivo)"></span></div>
+                    <div><span>− Gastos en efectivo</span><span x-text="money(resumen.gastos_efectivo)"></span></div>
                     <div style="font-weight:700;border-top:1px dashed var(--border);margin-top:6px;padding-top:8px;"><span>Esperado</span><span x-text="money(esperado)"></span></div>
                     <div style="font-weight:700;"><span>Contado</span><span x-text="money(contado)"></span></div>
                     <div style="font-weight:800;"><span>Diferencia</span><span :class="diferencia === 0 ? 'dif-ok' : 'dif-mal'" x-text="(diferencia > 0 ? '+' : '') + money(diferencia)"></span></div>
@@ -120,7 +145,7 @@
         <div class="tbl-wrap" x-show="historial.length" x-cloak>
             <table class="tbl">
                 <thead>
-                    <tr><th>Fecha</th><th class="num">Esperado</th><th class="num">Contado</th><th class="num">Diferencia</th><th>Cerrado por</th></tr>
+                    <tr><th>Fecha</th><th class="num">Esperado</th><th class="num">Contado</th><th class="num">Diferencia</th><th>Cerrado por</th><th></th></tr>
                 </thead>
                 <tbody>
                     @foreach ($historial as $h)
@@ -130,6 +155,7 @@
                             <td class="num">S/ {{ number_format($h['contado'], 2) }}</td>
                             <td class="num"><span class="{{ $h['diferencia'] == 0 ? 'dif-ok' : 'dif-mal' }}">S/ {{ number_format($h['diferencia'], 2) }}</span></td>
                             <td>{{ $h['cerrado_por'] }}</td>
+                            <td><a class="btn btn-g btn-sm" href="{{ route('admin.caja.cierre.ticket', $h['id']) }}" target="_blank" rel="noopener">Ticket</a></td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -143,11 +169,11 @@
 
 @push('scripts')
 <script>
-    window.cierreCaja = window.cierreCaja || function (sugerido, resumen) {
+    window.cierreCaja = window.cierreCaja || function (sugerido, resumen, historial) {
         const url = @js(route('admin.caja.cierre.guardar'));
         const dia = @js($dia);
         return {
-            resumen,
+            resumen, historial: historial || [],
             monto_inicial: sugerido, contado: null, notas: '', guardando: false, errores: {},
             money(n) { return 'S/ ' + Number(n || 0).toFixed(2); },
             get esperado() { return Math.round((Number(this.monto_inicial) + this.resumen.ventas_efectivo - this.resumen.gastos_efectivo) * 100) / 100; },

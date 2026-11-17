@@ -1,0 +1,6050 @@
+{
+    "accesos_log": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "user_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "email",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "ip",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "navegador",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "resultado",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "aperturas_caja": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "fecha",
+            "type": "date",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "monto_inicial",
+            "type": "numeric",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "abierto_por",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "notas",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "boletin_envios": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "cliente_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "telefono",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "cupon",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "enviado",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "volvio_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "bot_flujos": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "nombre",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "disparador",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "coincidencia",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'contiene'"
+        },
+        {
+            "name": "respuesta",
+            "type": "text",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "orden",
+            "type": "integer",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "activo",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "bot_menus": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "disparador",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "titulo",
+            "type": "text",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "opciones",
+            "type": "text",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "activo",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "cache": [
+        {
+            "name": "key",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "value",
+            "type": "text",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "expiration",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        }
+    ],
+    "cache_locks": [
+        {
+            "name": "key",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "owner",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "expiration",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        }
+    ],
+    "campana_gastos": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "campana_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "fecha",
+            "type": "date",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "monto",
+            "type": "numeric",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "concepto",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "campanas_publicidad": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "nombre",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "canal",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'facebook'"
+        },
+        {
+            "name": "inversion",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "ventas_atribuidas",
+            "type": "numeric",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "fecha_inicio",
+            "type": "date",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "fecha_fin",
+            "type": "date",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "activo",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "objetivo",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'ventas'"
+        },
+        {
+            "name": "alcance",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "clics",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "conversiones",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "notas",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "campanas_whatsapp": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "nombre",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "segmento",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'todos'"
+        },
+        {
+            "name": "plantilla",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "texto",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "estado",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'borrador'"
+        },
+        {
+            "name": "programada_para",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "enviados",
+            "type": "integer",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "fallidos",
+            "type": "integer",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "enviada_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "categorias": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "nombre",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "slug",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "imagen_url",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "orden",
+            "type": "integer",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "activo",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "meta_descripcion",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "checkout_abandonados": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "nombre",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "telefono",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "email",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "carrito",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "total",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "recuperado",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "recordado_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "token",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "cupon",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "recordatorio_ok",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "abierto_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "recuperado_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "pedido_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "checkouts_saas": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "plan_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "ciclo",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'mensual'"
+        },
+        {
+            "name": "metodo",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "estado",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'iniciado'"
+        },
+        {
+            "name": "lead_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "pago_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "cierres_caja": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "fecha",
+            "type": "date",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "monto_inicial",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "ventas_efectivo",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "ventas_digitales",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "gastos_efectivo",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "gastos_digitales",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "esperado",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "contado",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "diferencia",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "cerrado_por",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "notas",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "citas": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "servicio_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "crm_cliente_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "cliente_nombre",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "cliente_telefono",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "inicio",
+            "type": "datetime",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "duracion_min",
+            "type": "integer",
+            "nullable": false,
+            "default": "'30'"
+        },
+        {
+            "name": "precio",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "estado",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'pendiente'"
+        },
+        {
+            "name": "notas",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "origen",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'interno'"
+        },
+        {
+            "name": "recordatorio_enviado_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "cms_bloques": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "ambito",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'saas'"
+        },
+        {
+            "name": "orden",
+            "type": "integer",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "visible",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "seccion",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "icono",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "titulo",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "texto",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "imagen_url",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "enlace",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "cms_faqs": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "ambito",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'saas'"
+        },
+        {
+            "name": "orden",
+            "type": "integer",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "visible",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "pregunta",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "respuesta",
+            "type": "text",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "cms_logos": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "ambito",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'saas'"
+        },
+        {
+            "name": "orden",
+            "type": "integer",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "visible",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "nombre",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "imagen_url",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "enlace",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "cms_secciones": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "ambito",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'saas'"
+        },
+        {
+            "name": "orden",
+            "type": "integer",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "visible",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "clave",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "titulo",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "subtitulo",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "ajustes",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "cms_testimonios": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "ambito",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'saas'"
+        },
+        {
+            "name": "orden",
+            "type": "integer",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "visible",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "nombre",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "negocio",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "texto",
+            "type": "text",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "foto_url",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "estrellas",
+            "type": "integer",
+            "nullable": false,
+            "default": "'5'"
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "cobros_suscripcion": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "suscripcion_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "monto",
+            "type": "numeric",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "desde",
+            "type": "date",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "hasta",
+            "type": "date",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "vence",
+            "type": "date",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "estado",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'pendiente'"
+        },
+        {
+            "name": "metodo",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "referencia",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "captura",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "pagado_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "avisado_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "comandas": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "mesa_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "estado",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'pendiente'"
+        },
+        {
+            "name": "items",
+            "type": "text",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "total",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "notas",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "comprobantes_electronicos": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "pedido_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "tipo",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "serie",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "numero",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "cliente_tipo_documento",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "cliente_documento",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "cliente_nombre",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "cliente_direccion",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "subtotal",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "igv",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "total",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "estado",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'pendiente'"
+        },
+        {
+            "name": "aceptado",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "mensaje",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "enlace_pdf",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "enlace_xml",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "enlace_cdr",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "codigo_hash",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "payload",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "emitido_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "venta_pos_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "referencia_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "simulado",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'0'"
+        }
+    ],
+    "crm_clientes": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "nombre",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "telefono",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "email",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "dni",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "direccion",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "distrito",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "fuente",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'manual'"
+        },
+        {
+            "name": "score_lealtad",
+            "type": "integer",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "notas",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "activo",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "puntos_saldo",
+            "type": "integer",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "puntos_historicos",
+            "type": "integer",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "etiquetas",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "cumpleanos",
+            "type": "date",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "tarjeta_token",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "crm_interaccions": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "cliente_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tipo",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "detalle",
+            "type": "text",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "cupones_tienda": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "codigo",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tipo",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'porcentaje'"
+        },
+        {
+            "name": "valor",
+            "type": "numeric",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "minimo",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "usos_max",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "usos",
+            "type": "integer",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "vence",
+            "type": "date",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "activo",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "failed_jobs": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "uuid",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "connection",
+            "type": "text",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "queue",
+            "type": "text",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "payload",
+            "type": "text",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "exception",
+            "type": "text",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "failed_at",
+            "type": "datetime",
+            "nullable": false,
+            "default": "CURRENT_TIMESTAMP"
+        }
+    ],
+    "fidelizacion_movimientos": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "cliente_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "pedido_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "tipo",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "puntos",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "descripcion",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "venta_pos_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "saldo_resultante",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "fidelizacion_recompensas": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "nombre",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "puntos_requeridos",
+            "type": "integer",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "descuento_pct",
+            "type": "numeric",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "descripcion",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "activo",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "formas_entrega": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "nombre",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tipo",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'delivery'"
+        },
+        {
+            "name": "costo",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "tiempo_estimado",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "activa",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "orden",
+            "type": "integer",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "monto_minimo",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "gratis_desde",
+            "type": "numeric",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "usa_zonas",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "descripcion",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "galeria_items": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "titulo",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "descripcion",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "imagen_url",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "orden",
+            "type": "integer",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "activo",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "categoria",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "miniatura_url",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "archivo",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "gastos": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "concepto",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "monto",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "fecha",
+            "type": "date",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "metodo",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'efectivo'"
+        },
+        {
+            "name": "notas",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "categoria",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'otros'"
+        },
+        {
+            "name": "comprobante",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "sucursal_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "registrado_por",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "ingresos_manuales": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "fecha",
+            "type": "date",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "concepto",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "monto",
+            "type": "numeric",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "categoria",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "notas",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "insumos": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "nombre",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "unidad",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'und'"
+        },
+        {
+            "name": "stock",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "stock_minimo",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "costo_unitario",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "activo",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "proveedor_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "job_batches": [
+        {
+            "name": "id",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "name",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "total_jobs",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "pending_jobs",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "failed_jobs",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "failed_job_ids",
+            "type": "text",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "options",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "cancelled_at",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "finished_at",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "jobs": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "queue",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "payload",
+            "type": "text",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "attempts",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "reserved_at",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "available_at",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        }
+    ],
+    "landing_contenido": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "seccion",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "contenido",
+            "type": "text",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "landing_leads": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "nombre",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "email",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "telefono",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "mensaje",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "fuente",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'landing'"
+        },
+        {
+            "name": "utm",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "estado",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'nuevo'"
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "oferta",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "utm_source",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "utm_medium",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "utm_campaign",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "notas",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "contactado_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "libro_reclamaciones": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "numero",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tipo",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "nombre",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "documento_tipo",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "documento",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "email",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "telefono",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "pedido",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "detalle",
+            "type": "text",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "ip",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "lista_espera_citas": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "servicio_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "cliente_nombre",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "cliente_telefono",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "fecha_deseada",
+            "type": "date",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "estado",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'esperando'"
+        },
+        {
+            "name": "cita_origen_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "avisado_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "lista_espera_ofertas": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "espera_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "cita_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "token",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "estado",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'enviada'"
+        },
+        {
+            "name": "whatsapp_ok",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "expira_at",
+            "type": "datetime",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "cita_nueva_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "lote_consumos": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "orden_produccion_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "insumo_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "insumo",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "unidad",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "cantidad",
+            "type": "numeric",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "costo",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "mesas": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "nombre",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "capacidad",
+            "type": "integer",
+            "nullable": false,
+            "default": "'4'"
+        },
+        {
+            "name": "estado",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'libre'"
+        },
+        {
+            "name": "token",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "activo",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "model_has_permissions": [
+        {
+            "name": "permission_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "model_type",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "model_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        }
+    ],
+    "model_has_roles": [
+        {
+            "name": "role_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "model_type",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "model_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        }
+    ],
+    "movimientos_sucursal": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "producto_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "desde_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "hacia_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "cantidad",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "motivo",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'traslado'"
+        },
+        {
+            "name": "usuario",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "orden_compra_items": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "orden_compra_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "insumo_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "descripcion",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "cantidad",
+            "type": "numeric",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "precio_unitario",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "subtotal",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        }
+    ],
+    "ordenes_compra": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "proveedor_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "numero",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "fecha",
+            "type": "date",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "estado",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'borrador'"
+        },
+        {
+            "name": "total",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "notas",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "recibida_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "fecha_esperada",
+            "type": "date",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "vence_at",
+            "type": "date",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "pagada_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "pago_metodo",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "ordenes_produccion": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "titulo",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "cantidad",
+            "type": "integer",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "fecha",
+            "type": "date",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "estado",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'pendiente'"
+        },
+        {
+            "name": "notas",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "receta_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "costo_total",
+            "type": "numeric",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "descontado_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "codigo",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "vence_at",
+            "type": "date",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "responsable",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "pagos_manuales": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "pedido_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "metodo",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "monto",
+            "type": "numeric",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "referencia",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "estado",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'pendiente'"
+        },
+        {
+            "name": "notas",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "confirmado_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "captura",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "origen",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "pagos_saas": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "suscripcion_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "monto",
+            "type": "numeric",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "pasarela",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "pasarela_pago_id",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "estado",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'pendiente'"
+        },
+        {
+            "name": "fecha_pago",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "plan_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "ciclo",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'mensual'"
+        },
+        {
+            "name": "metodo",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "numero_operacion",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "comprobante_path",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "motivo_rechazo",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "revisado_por",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "revisado_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "intento",
+            "type": "integer",
+            "nullable": false,
+            "default": "'1'"
+        }
+    ],
+    "password_reset_tokens": [
+        {
+            "name": "email",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "token",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "pedido_items": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "pedido_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "producto_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "variante_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "nombre",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "cantidad",
+            "type": "integer",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "precio_unit",
+            "type": "numeric",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "subtotal",
+            "type": "numeric",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "notas",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "variante_nombre",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "peso_kg",
+            "type": "numeric",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "peso_real_kg",
+            "type": "numeric",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "pedidos": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "cliente_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "repartidor_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "numero",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "canal",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'manual'"
+        },
+        {
+            "name": "estado",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'pendiente'"
+        },
+        {
+            "name": "tipo",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'delivery'"
+        },
+        {
+            "name": "subtotal",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "descuento",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "costo_envio",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "igv",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "total",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "direccion_entrega",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "lat_entrega",
+            "type": "numeric",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "lng_entrega",
+            "type": "numeric",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "notas",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "metodo_pago",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'efectivo'"
+        },
+        {
+            "name": "pagado",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "confirmado_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "entregado_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "cancelado_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "zona_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "asignado_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "pago_ref",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "programado_para",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "cliente_nombre",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "cliente_telefono",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "forma_entrega_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "cupon_codigo",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "puntos_usados",
+            "type": "integer",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "whatsapp_ok",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'0'"
+        }
+    ],
+    "permissions": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "name",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "guard_name",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "personal_access_tokens": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tokenable_type",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tokenable_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "name",
+            "type": "text",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "token",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "abilities",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "last_used_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "expires_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "pesos_despacho": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "pedido_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "producto_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "peso_estimado_kg",
+            "type": "numeric",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "peso_real_kg",
+            "type": "numeric",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "precio_kg",
+            "type": "numeric",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "diferencia",
+            "type": "numeric",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "planes_cliente": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "nombre",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "descripcion",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "precio",
+            "type": "numeric",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "periodicidad",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'mensual'"
+        },
+        {
+            "name": "beneficios",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "activo",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "planes_saas": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "nombre",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "slug",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "precio_mensual",
+            "type": "numeric",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "precio_anual",
+            "type": "numeric",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "max_usuarios",
+            "type": "integer",
+            "nullable": false,
+            "default": "'3'"
+        },
+        {
+            "name": "max_sucursales",
+            "type": "integer",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "modulos_json",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "activo",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "max_fotos_galeria",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "producto_imagenes": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "producto_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "variante_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "ruta",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "alt",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "orden",
+            "type": "integer",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "es_principal",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "producto_kilo": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "producto_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "precio_kg",
+            "type": "numeric",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "activo",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "presentaciones",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "peso_libre",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "peso_minimo",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0.1'"
+        }
+    ],
+    "producto_variantes": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "producto_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "nombre",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "atributos",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "sku",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "precio",
+            "type": "numeric",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "precio_oferta",
+            "type": "numeric",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "stock",
+            "type": "integer",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "stock_minimo",
+            "type": "integer",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "orden",
+            "type": "integer",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "activo",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "productos": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "categoria_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "nombre",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "slug",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "descripcion",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "precio",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "precio_oferta",
+            "type": "numeric",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "stock",
+            "type": "integer",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "stock_minimo",
+            "type": "integer",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "sku",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "imagen_url",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "tiene_variantes",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "activo",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "meta_titulo",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "meta_descripcion",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "destacado",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'0'"
+        }
+    ],
+    "prospectos": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "nombre",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "telefono",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "email",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "rubro",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "fuente",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'manual'"
+        },
+        {
+            "name": "estado",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'nuevo'"
+        },
+        {
+            "name": "notas",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "proveedores": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "nombre",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "ruc",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "contacto",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "telefono",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "email",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "condicion_pago",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'contado'"
+        },
+        {
+            "name": "notas",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "activo",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "deleted_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "direccion",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "receta_insumos": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "receta_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "insumo_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "cantidad",
+            "type": "numeric",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "merma_pct",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        }
+    ],
+    "recetas": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "nombre",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "rendimiento",
+            "type": "integer",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "notas",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "activo",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "producto_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "pasos",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "alergenos",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "imagen_url",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "repartidor_ubicaciones": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "repartidor_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "pedido_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "lat",
+            "type": "numeric",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "lng",
+            "type": "numeric",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "precision_m",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "repartidores": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "user_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "nombre",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "telefono",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "dni",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "vehiculo",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'moto'"
+        },
+        {
+            "name": "activo",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "disponible",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "lat_actual",
+            "type": "numeric",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "lng_actual",
+            "type": "numeric",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_location_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "token",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "placa",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "deleted_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "resenas": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "pedido_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "cliente_nombre",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "calificacion",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "comentario",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "estado",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'pendiente'"
+        },
+        {
+            "name": "ip",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "role_has_permissions": [
+        {
+            "name": "permission_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "role_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        }
+    ],
+    "roles": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "name",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "guard_name",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "servicios": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "nombre",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "descripcion",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "precio",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "duracion_min",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "activo",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "color",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "sessions": [
+        {
+            "name": "id",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "user_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "ip_address",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "user_agent",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "payload",
+            "type": "text",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "last_activity",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        }
+    ],
+    "stock_sucursales": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "producto_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "sucursal_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "stock",
+            "type": "integer",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "sucursales": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "nombre",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "direccion",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "telefono",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "email",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "horario",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "activo",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "sunat_configuraciones": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "ruta",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "token",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "serie_factura",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'F001'"
+        },
+        {
+            "name": "serie_boleta",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'B001'"
+        },
+        {
+            "name": "ambiente",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'demo'"
+        },
+        {
+            "name": "activo",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "suscripciones_cliente": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "plan_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "cliente_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "estado",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'pendiente'"
+        },
+        {
+            "name": "precio",
+            "type": "numeric",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "periodicidad",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "inicio",
+            "type": "date",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "proximo_cobro",
+            "type": "date",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "cancelada_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "token",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "suscripciones_saas": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "plan_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "ciclo",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'mensual'"
+        },
+        {
+            "name": "monto",
+            "type": "numeric",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "pasarela",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'mercadopago'"
+        },
+        {
+            "name": "pasarela_sub_id",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "estado",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'trial'"
+        },
+        {
+            "name": "inicio_at",
+            "type": "datetime",
+            "nullable": false,
+            "default": "CURRENT_TIMESTAMP"
+        },
+        {
+            "name": "vence_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "cancelada_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "tarjeta_token",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "tarjeta_marca",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "tarjeta_ultimos",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "renovacion_auto",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "intentos_fallidos",
+            "type": "integer",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "proximo_intento_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "tenants": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "nombre_negocio",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "ruc",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "email",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "telefono",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "dominio",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "logo_url",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "plan_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "estado",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'trial'"
+        },
+        {
+            "name": "trial_ends_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "slug",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "tienda_activa",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "yape_numero",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "plin_numero",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "yape_qr",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "suscripcion_hasta",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "horarios",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "direccion",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "descripcion",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "sitio_web",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "boletin_activo",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "boletin_texto",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "rubro",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "color_primario",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "niveles_fidelizacion",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "trial_avisos",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "tienda_contenido": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "seccion",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "contenido",
+            "type": "text",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "users": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "name",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "email",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "email_verified_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "password",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "remember_token",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "google_id",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "avatar_url",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "ventas_pos": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "numero",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "metodo_pago",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'efectivo'"
+        },
+        {
+            "name": "total",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "recibido",
+            "type": "numeric",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "vuelto",
+            "type": "numeric",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "cliente_nombre",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "items",
+            "type": "text",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "gravada",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "igv",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "tipo_comprobante",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'ticket'"
+        },
+        {
+            "name": "cliente_documento",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "estado",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'pagada'"
+        },
+        {
+            "name": "anulada_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "user_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "cliente_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "descuento",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "puntos_usados",
+            "type": "integer",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "sucursal_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "whatsapp_conexiones": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "phone_id",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "token",
+            "type": "text",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "numero_visible",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "activo",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "whatsapp_mensajes": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "pedido_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "direccion",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "telefono",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tipo",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "texto",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "estado",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "meta_id",
+            "type": "varchar",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "error",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "whatsapp_sesiones": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "telefono",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "mensajes",
+            "type": "integer",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "ultimo_mensaje_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "contexto",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "crm_cliente_id",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        }
+    ],
+    "zonas_delivery": [
+        {
+            "name": "id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "tenant_id",
+            "type": "integer",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "nombre",
+            "type": "varchar",
+            "nullable": false,
+            "default": null
+        },
+        {
+            "name": "costo",
+            "type": "numeric",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "tiempo_min",
+            "type": "integer",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "color",
+            "type": "varchar",
+            "nullable": false,
+            "default": "'#2B6EF6'"
+        },
+        {
+            "name": "poligono",
+            "type": "text",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "activo",
+            "type": "tinyint(1)",
+            "nullable": false,
+            "default": "'1'"
+        },
+        {
+            "name": "orden",
+            "type": "integer",
+            "nullable": false,
+            "default": "'0'"
+        },
+        {
+            "name": "created_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        },
+        {
+            "name": "updated_at",
+            "type": "datetime",
+            "nullable": true,
+            "default": null
+        }
+    ]
+}

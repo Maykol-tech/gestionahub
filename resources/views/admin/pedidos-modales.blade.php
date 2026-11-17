@@ -23,7 +23,7 @@
                     <div class="field" x-show="!form.cliente_nuevo">
                         <div style="display:flex;gap:6px;">
                             <select class="inp" :class="{ err: errores.cliente_id }" x-model="form.cliente_id" @change="alElegirCliente()">
-                                <option value="">Elige un cliente¦</option>
+                                <option value="">Elige un cliente…</option>
                                 <template x-for="c in clientes" :key="c.id">
                                     <option :value="c.id" x-text="c.nombre + (c.telefono ? ' · ' + c.telefono : '')" :selected="String(c.id) === String(form.cliente_id)"></option>
                                 </template>
@@ -51,7 +51,7 @@
                         <div class="search" style="width:100%;">
                             <x-icon name="search" size="15" />
                             <input class="inp" x-ref="buscarProd" x-model="buscador.q" @focus="buscador.abierto = true" @input="buscador.abierto = true"
-                                   @keydown.enter.prevent="sugerencias[0] && agregar(sugerencias[0])" placeholder="Busca un producto para agregarlo¦">
+                                   @keydown.enter.prevent="sugerencias[0] && agregar(sugerencias[0])" placeholder="Busca un producto para agregarlo…">
                         </div>
                         <div class="pf-sug" x-show="buscador.abierto && sugerencias.length" x-cloak>
                             <template x-for="p in sugerencias" :key="p.id">
@@ -78,9 +78,9 @@
                                     <div style="font-weight:600;font-size:13px;" x-text="prod(l).nombre || 'Producto eliminado'"></div>
                                     <template x-if="prod(l).variantes?.length">
                                         <select class="inp inp-sm" :class="{ err: errores['items.' + i + '.variante_id'] }" x-model="l.variante_id">
-                                            <option value="">Elige la variante¦</option>
+                                            <option value="">Elige la variante…</option>
                                             <template x-for="v in prod(l).variantes" :key="v.id">
-                                                <option :value="v.id" :selected="String(v.id) === String(l.variante_id)" x-text="v.nombre + '  ' + gh.soles(v.precio) + '  ' + disponible(l, v) + ' disp.'"></option>
+                                                <option :value="v.id" :selected="String(v.id) === String(l.variante_id)" x-text="v.nombre + ' · ' + gh.soles(v.precio) + ' · ' + disponible(l, v) + ' disp.'"></option>
                                             </template>
                                         </select>
                                     </template>
@@ -89,7 +89,7 @@
                                     <div class="ferr" x-show="!errores['items.' + i + '.cantidad'] && l.cantidad > disponible(l)" x-text="'Solo hay ' + disponible(l) + ' disponibles'"></div>
                                 </div>
                                 <div class="qty">
-                                    <button type="button" @click="l.cantidad = Math.max(1, l.cantidad - 1); delete errores['items.' + i + '.cantidad']" aria-label="Menos"> </button>
+                                    <button type="button" @click="l.cantidad = Math.max(1, l.cantidad - 1); delete errores['items.' + i + '.cantidad']" aria-label="Menos">−</button>
                                     <input type="number" min="1" max="999" x-model.number="l.cantidad" @input="delete errores['items.' + i + '.cantidad']">
                                     <button type="button" @click="l.cantidad++" aria-label="Más">+</button>
                                 </div>
@@ -143,12 +143,12 @@
                     </div>
                     <div class="field">
                         <label class="lbl">Notas</label>
-                        <textarea class="inp" rows="2" x-model="form.notas" maxlength="1000" placeholder="Sin cebolla, tocar el timbre¦"></textarea>
+                        <textarea class="inp" rows="2" x-model="form.notas" maxlength="1000" placeholder="Sin cebolla, tocar el timbre…"></textarea>
                     </div>
 
                     <div class="pf-res">
                         <div><span>Subtotal</span><span x-text="gh.soles(resumen.subtotal)"></span></div>
-                        <div x-show="resumen.descuento > 0"><span>Descuento</span><span x-text="' ' + gh.soles(resumen.descuento)"></span></div>
+                        <div x-show="resumen.descuento > 0"><span>Descuento</span><span x-text="'− ' + gh.soles(resumen.descuento)"></span></div>
                         <div x-show="form.tipo === 'delivery'"><span>Envío</span><span x-text="gh.soles(resumen.envio)"></span></div>
                         <div class="pf-tot"><span>Total</span><span x-text="gh.soles(resumen.total)"></span></div>
                         <div class="sub" style="text-align:right;" x-text="'Incluye IGV ' + gh.soles(resumen.total - resumen.total / 1.18)"></div>
@@ -181,7 +181,7 @@
                     <span x-text="'Pedido ' + (detalle?.numero || '')"></span>
                     <span class="badge" :class="detalle?.badge" x-text="detalle?.estado_texto"></span>
                 </div>
-                <div class="modal-sub" x-text="(detalle?.fecha || '') + ' · ' + canalTexto(detalle?.canal) + ' · ' + tipoTexto(detalle?.tipo)"></div>
+                <div class="modal-sub" x-text="(detalle?.fecha || '') + ' · ' + canalTexto(detalle?.canal) + ' · ' + tipoTexto(detalle?.tipo) + (detalle?.programado_para ? ' · Programado ' + detalle.programado_para : '') + (detalle?.cupon_codigo ? ' · Cupón ' + detalle.cupon_codigo : '')"></div>
             </div>
             <button type="button" class="icon-btn sm" style="margin-left:auto;" @click="detalle = null" aria-label="Cerrar"><x-icon name="x" size="16" /></button>
         </div>
@@ -215,17 +215,28 @@
             </div>
 
             <div class="det-items">
-                <template x-for="l in detalle?.lineas || []" :key="l.nombre + l.cantidad">
-                    <div class="det-it">
-                        <span class="det-q" x-text="l.cantidad + '—'"></span>
-                        <span style="flex:1;"><span x-text="l.nombre"></span><span class="sub" x-show="l.notas" x-text="'  ' + l.notas"></span></span>
-                        <span class="sub" x-text="gh.soles(l.precio_unit)"></span>
-                        <b x-text="gh.soles(l.subtotal)"></b>
+                <template x-for="l in detalle?.lineas || []" :key="(l.id || l.nombre) + '-' + l.cantidad + '-' + l.subtotal">
+                    <div>
+                        <div class="det-it">
+                            <span class="det-q" x-text="l.cantidad + '×'"></span>
+                            <span style="flex:1;"><span x-text="l.nombre"></span><span class="sub" x-show="l.notas" x-text="' · ' + l.notas"></span>
+                                <span class="sub" x-show="l.peso_kg" x-text="' · pidió ' + l.peso_kg + ' kg' + (l.peso_real_kg ? ' · pesado ' + l.peso_real_kg + ' kg' : '')"></span></span>
+                            <span class="sub" x-text="gh.soles(l.precio_unit)"></span>
+                            <b x-text="gh.soles(l.subtotal)"></b>
+                        </div>
+                        {{-- GEST-111: peso real al despachar --}}
+                        <form class="peso-real" x-show="l.peso_kg && !['entregado', 'cancelado'].includes(detalle?.estado)" @submit.prevent="pesar(l, $event)">
+                            <x-icon name="package" size="14" />
+                            <span class="sub">Peso real:</span>
+                            <input class="inp inp-sm" type="number" step="0.001" min="0.001" max="999" required name="peso" :value="l.peso_real_kg || l.peso_kg" aria-label="Peso real en kilos">
+                            <span class="sub">kg</span>
+                            <button class="btn btn-g btn-sm" type="submit" :disabled="pesando === l.id" x-text="pesando === l.id ? 'Guardando…' : (l.peso_real_kg ? 'Corregir' : 'Ajustar precio')"></button>
+                        </form>
                     </div>
                 </template>
                 <div class="pf-res" style="margin-top:8px;">
                     <div><span>Subtotal</span><span x-text="gh.soles(detalle?.subtotal)"></span></div>
-                    <div x-show="detalle?.descuento > 0"><span>Descuento</span><span x-text="' ' + gh.soles(detalle?.descuento)"></span></div>
+                    <div x-show="detalle?.descuento > 0"><span>Descuento</span><span x-text="'− ' + gh.soles(detalle?.descuento)"></span></div>
                     <div x-show="detalle?.costo_envio > 0"><span>Envío</span><span x-text="gh.soles(detalle?.costo_envio)"></span></div>
                     <div class="pf-tot"><span>Total</span><span x-text="gh.soles(detalle?.total)"></span></div>
                 </div>
@@ -270,7 +281,7 @@
             <div class="conf-ico"><x-icon name="alert" size="22" /></div>
             <div class="modal-ttl" style="margin-bottom:6px;" x-text="'¿Cancelar el pedido ' + (confirmar?.numero || '') + '?'"></div>
             <div style="font-size:13px;color:var(--fg2);margin-bottom:12px;">Los productos vuelven al stock. Esta acción no se puede deshacer.</div>
-            <input class="inp" x-model="motivo" maxlength="200" placeholder="Motivo (opcional): cliente no contestó¦">
+            <input class="inp" x-model="motivo" maxlength="200" placeholder="Motivo (opcional): cliente no contestó…">
         </div>
         <div class="modal-ft" style="justify-content:center;">
             <button type="button" class="btn btn-g" @click="confirmar = null">Volver</button>
@@ -326,6 +337,9 @@
     .det-cli{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--border);border-radius:10px;margin-bottom:12px;}
     .det-items{border:1px solid var(--border);border-radius:10px;padding:8px 12px 12px;}
     .det-it{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px dashed var(--border);font-size:13px;}
+    .peso-real{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:6px 0 8px 30px;color:var(--fg2);animation:pesoIn .25s ease;}
+    @keyframes pesoIn{from{opacity:0;transform:translateY(-4px)}}
+    .peso-real .inp{width:90px;}
     .det-q{font-weight:800;color:var(--accent);min-width:28px;}
     .det-box{border:1px solid var(--border);border-radius:10px;padding:10px 12px;}
     .link{color:var(--accent);font-weight:600;}

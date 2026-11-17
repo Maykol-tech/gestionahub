@@ -22,8 +22,8 @@ class Roles
     public const MODULOS = [
         'superadmin' => ['*'],
         'admin' => ['*'],
-        'vendedor' => ['dashboard', 'pedidos', 'productos', 'clientes', 'fidelizacion', 'servicios', 'tienda', 'prospectar', 'pos'],
-        'cajero' => ['dashboard', 'pedidos', 'caja', 'cobros', 'reportes', 'pos', 'comprobantes'],
+        'vendedor' => ['dashboard', 'pedidos', 'productos', 'clientes', 'fidelizacion', 'membresias', 'servicios', 'tienda', 'prospectar', 'pos', 'exportar'],
+        'cajero' => ['dashboard', 'pedidos', 'caja', 'cobros', 'reportes', 'pos', 'comprobantes', 'exportar'],
         'repartidor' => [],
         'delivery' => [],
     ];
@@ -33,6 +33,7 @@ class Roles
         'categorias' => 'productos',
         'repartidores' => 'repartos',
         'zonas' => 'repartos',
+        'pulso' => 'dashboard',   // aviso de pedidos nuevos (sonido), lo usan todos los roles del panel
     ];
 
     /** Rol principal del usuario (o null si no tiene ninguno). */

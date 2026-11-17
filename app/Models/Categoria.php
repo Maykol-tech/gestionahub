@@ -8,7 +8,7 @@ class Categoria extends Model
 {
     use HasFactory;
     protected $table = 'categorias';
-    protected $fillable = ['tenant_id', 'nombre', 'slug', 'imagen_url', 'orden', 'activo'];
+    protected $fillable = ['tenant_id', 'nombre', 'slug', 'imagen_url', 'orden', 'activo', 'meta_descripcion'];
 
     protected static function booted()
     {

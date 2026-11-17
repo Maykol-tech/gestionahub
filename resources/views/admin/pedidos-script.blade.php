@@ -1,6 +1,6 @@
 <script>
     gh.ready(() => {
-        Alpine.store('pedidos', { buscar: '', activos: 0, vista: localStorage.getItem('gh-pedidos-vista') || 'tablero' });
+        Alpine.store('pedidos', { buscar: '', canal: '', activos: 0, vista: localStorage.getItem('gh-pedidos-vista') || 'tablero' });
         const URL_BASE = '{{ url('admin/pedidos') }}';
         const URL_LISTA = '{{ route('admin.pedidos.lista') }}';
         const toast = (t, tipo) => Alpine.store('toasts').push(t, tipo);
@@ -20,7 +20,7 @@
             ],
             pagos: { efectivo: 'Efectivo', yape: 'Yape', plin: 'Plin', tarjeta: 'Tarjeta', mercadopago: 'Mercado Pago', transferencia: 'Transferencia' },
             pasos: [['pendiente', 'Pendiente'], ['confirmado', 'Confirmado'], ['preparando', 'Preparando'], ['listo', 'Listo'], ['en_camino', 'En camino'], ['entregado', 'Entregado']],
-            detalle: null, cargandoDetalle: false,
+            detalle: null, cargandoDetalle: false, pesando: null,
             confirmar: null, motivo: '',
             guardando: false, errores: {},
             form: { abierto: false, items: [] },
@@ -35,17 +35,23 @@
                 this.$watch('pedidos', contar); contar();
                 this.$watch('$store.pedidos.vista', v => { try { localStorage.setItem('gh-pedidos-vista', v); } catch (e) {} });
                 this.$watch('$store.pedidos.buscar', () => this.pagina = 1);
+                this.$watch('$store.pedidos.canal', () => this.pagina = 1);
                 this.reloj = setInterval(() => {
                     if (!this.arrastrado && !this.menu && !this.moviendo && !this.form.abierto && !this.detalle && !this.confirmar && !document.hidden) this.recargar();
                 }, 30000);
+                // Cuando suena el aviso de pedido nuevo, el tablero se actualiza al instante
+                this._alNuevo = () => { if (!this.arrastrado && !this.moviendo && !this.form.abierto) this.recargar(); };
+                window.addEventListener('gh-pedido-nuevo', this._alNuevo);
                 const q = new URLSearchParams(location.search);
                 if (q.get('nuevo')) this.$nextTick(() => this.abrirForm());
             },
-            destroy() { clearInterval(this.reloj); this.terminarArrastre(); },
+            destroy() { clearInterval(this.reloj); this.terminarArrastre(); window.removeEventListener('gh-pedido-nuevo', this._alNuevo); },
 
             // ---------- Filtros y totales ----------
             coincide(p) {
                 const q = gh.norm(Alpine.store('pedidos').buscar.trim());
+                const canal = Alpine.store('pedidos').canal;
+                if (canal && (p.canal || 'manual') !== canal) return false;
                 return !q || gh.norm(p.numero).includes(q) || gh.norm(p.cliente).includes(q) || String(p.telefono || '').includes(q);
             },
             deColumna(clave) {
@@ -81,7 +87,7 @@
             editable(p) { return p && !['entregado', 'cancelado'].includes(p.estado); },
             tipoTexto(t) { return { delivery: 'Delivery', recojo: 'Recojo', mesa: 'En mesa' }[t] || t || ''; },
             pagoTexto(m) { return this.pagos[m] || m || ''; },
-            canalTexto(c) { return { web: 'Web', whatsapp: 'WhatsApp', pos: 'POS', app: 'App', manual: 'Manual' }[c] || c || ''; },
+            canalTexto(c) { return { web: 'Web', whatsapp: 'WhatsApp', pos: 'POS', app: 'App', manual: 'Manual', tienda: 'Tienda online' }[c] || c || ''; },
             indicePaso(e) { return this.pasos.findIndex(x => x[0] === e); },
             whatsapp(p) {
                 if (!p?.telefono) return '#';
@@ -92,8 +98,7 @@
             },
             exportar() {
                 const filas = this.enLista.map(p => [p.numero, p.fecha, p.cliente, p.telefono, this.tipoTexto(p.tipo), this.pagoTexto(p.metodo_pago), p.pagado ? 'Sí' : 'No', p.total, p.estado_texto]);
-                gh.csv('pedidos.csv', [['Pedido', 'Fecha', 'Cliente', 'Teléfono', 'Entrega', 'Pago', 'Pagado', 'Total', 'Estado'], ...filas]);
-                toast('Se descargó pedidos.csv', 'info');
+                gh.excel('Pedidos', [['Pedido'], ['Fecha', 'fecha'], ['Cliente'], ['Teléfono'], ['Entrega'], ['Pago'], ['Pagado'], ['Total', 'moneda'], ['Estado']], filas);
             },
 
             // ---------- Kanban: arrastrar y soltar (mouse, tactil y lapiz) ----------
@@ -273,6 +278,16 @@
             async verDetalle(p) {
                 this.detalle = { ...p, lineas: [], historial: [] };
                 await this.cargarDetalle(p.id);
+            },
+            // GEST-111: peso real de una línea por kilo; el total se recalcula en el servidor
+            async pesar(l, e) {
+                const peso = Number(e.target.peso.value);
+                if (!(peso > 0)) return;
+                this.pesando = l.id;
+                const r = await gh.api(URL_BASE + '/items/' + l.id + '/peso', { method: 'PATCH', body: { peso_real_kg: peso } });
+                this.pesando = null;
+                if (r.ok) { this.detalle = r.data.data; toast(r.data.message, 'ok'); this.recargar(); }
+                else toast(r.data.errors?.peso_real_kg?.[0] || r.data.message || 'No se pudo guardar el peso', 'error');
             },
             async cargarDetalle(id) {
                 this.cargandoDetalle = true;

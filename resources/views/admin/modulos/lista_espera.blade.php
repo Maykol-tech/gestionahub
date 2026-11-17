@@ -22,18 +22,23 @@
         </div>
     @endif
 
-    <div class="panel fade-in" style="padding:18px;margin-bottom:12px;">
-        <div style="font-weight:700;margin-bottom:10px;">Boletín automático para clientes inactivos</div>
-        <form method="POST" action="{{ route('admin.espera.boletin') }}">
-            @csrf
-            <label style="display:flex;gap:6px;align-items:center;font-size:13px;margin-bottom:8px;">
-                <input type="checkbox" name="boletin_activo" value="1" @checked($boletinActivo)> Enviar cada mes a clientes sin compras en 60 días
-            </label>
-            <label class="lbl" for="boletin_texto">Mensaje (se envía solo dentro de la ventana de 24 horas; para clientes lejanos usa una plantilla en Campañas)</label>
-            <textarea class="inp" id="boletin_texto" name="boletin_texto" rows="3" maxlength="1000">{{ old('boletin_texto', $boletinTexto) }}</textarea>
-            <button class="btn btn-p" type="submit" style="margin-top:10px;">Guardar boletín</button>
-        </form>
+    <div class="panel fade-in" style="padding:14px 18px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div>
+            <div style="font-weight:700;">Boletín para clientes inactivos</div>
+            <div style="font-size:13px;color:var(--fg3);">{{ $boletinActivo ? 'Activo: se envía cada lunes.' : 'Desactivado.' }} Se configura junto con los puntos en Fidelización.</div>
+        </div>
+        <a class="btn btn-g btn-sm" href="{{ route('admin.fidelizacion') }}#boletin">Configurar boletín</a>
     </div>
+
+    <form method="POST" action="{{ route('admin.espera.configurar') }}" class="panel fade-in" style="padding:14px 18px;margin-bottom:12px;display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
+        @csrf
+        <div style="flex:1;min-width:240px;">
+            <div style="font-weight:700;">Cuando se cancela una cita</div>
+            <div style="font-size:13px;color:var(--fg3);">Avisamos por WhatsApp a la primera persona en espera de ese día y servicio, con un enlace para tomar el cupo. Si no lo toma a tiempo, pasa a la siguiente.</div>
+        </div>
+        <div><label class="lbl" for="esp-min">El enlace dura (minutos)</label><input class="inp" id="esp-min" type="number" min="5" max="240" name="espera_minutos" value="{{ $minutos }}" style="width:120px;"></div>
+        <button class="btn btn-p" type="submit">Guardar y revisar ahora</button>
+    </form>
 
     <div class="panel fade-in" style="padding:18px;margin-bottom:12px;">
         <div style="font-weight:700;margin-bottom:10px;">Agregar a la lista de espera</div>
@@ -59,7 +64,7 @@
         <div class="tbl-wrap" @if ($espera->isEmpty()) style="display:none" @endif>
             <table class="tbl">
                 <thead>
-                    <tr><th>Cliente</th><th>Día</th><th>Servicio</th><th>Estado</th></tr>
+                    <tr><th>Cliente</th><th>Día</th><th>Servicio</th><th>Último aviso</th><th>Estado</th></tr>
                 </thead>
                 <tbody>
                     @foreach ($espera as $e)
@@ -67,6 +72,21 @@
                             <td>{{ $e->cliente_nombre }}<div style="font-size:11px;color:var(--fg3);">{{ $e->cliente_telefono }}</div></td>
                             <td>{{ $e->fecha_deseada->format('d/m/Y') }}</td>
                             <td>{{ $e->servicio->nombre ?? 'Cualquiera' }}</td>
+                            <td style="font-size:12px;">
+                                @php $o = $ofertas->get($e->id); @endphp
+                                @if ($o)
+                                    @if ($o->estado === 'enviada' && now()->lessThan($o->expira_at))
+                                        <span style="color:#92400E;font-weight:600;">Esperando respuesta hasta las {{ \Carbon\Carbon::parse($o->expira_at)->timezone('America/Lima')->format('H:i') }}</span>
+                                    @elseif ($o->estado === 'tomada')
+                                        <span style="color:var(--green);font-weight:600;">Tomó el cupo</span>
+                                    @else
+                                        <span style="color:var(--fg3);">No respondió a tiempo</span>
+                                    @endif
+                                    @unless ($o->whatsapp_ok)<div style="color:var(--fg3);">Sin WhatsApp conectado: <a href="https://wa.me/{{ preg_replace('/\D/', '', $e->cliente_telefono) }}?text={{ rawurlencode('Se liberó un cupo, tómalo aquí: ' . url('/espera/' . $o->token)) }}" target="_blank" rel="noopener">enviar a mano</a></div>@endunless
+                                @else
+                                    <span style="color:var(--fg3);">—</span>
+                                @endif
+                            </td>
                             <td>
                                 <form method="POST" action="{{ route('admin.espera.estado', $e->id) }}">
                                     @csrf

@@ -15,7 +15,7 @@ class ReportesFinanzasController extends DashboardController
     {
         $this->compartirLayout();
 
-        $tipo = in_array($request->query('tipo'), self::TIPOS, true) ? $request->query('tipo') : 'comparativo';
+        $tipo = in_array($request->query('tipo'), self::TIPOS, true) ? $request->query('tipo') : 'rentabilidad';
 
         $desde = Carbon::parse($request->query('desde', now()->subDays(30)->toDateString()))->startOfDay();
         $hasta = Carbon::parse($request->query('hasta', now()->toDateString()))->endOfDay();
@@ -26,7 +26,12 @@ class ReportesFinanzasController extends DashboardController
             default => Finanzas::comparativoMes(),
         };
 
-        return view('admin.modulos.reportes_finanzas', [
+        $extra = $tipo === 'rentabilidad' ? [
+            'resumen' => Finanzas::resumenMes(),
+            'categorias' => Finanzas::gastosPorCategoria(now()->startOfMonth(), now()->endOfDay()),
+        ] : [];
+
+        return view('admin.modulos.reportes_finanzas', $extra + [
             'titulo' => 'Reportes y finanzas',
             'modulo' => 'reportes',
             'tipo' => $tipo,

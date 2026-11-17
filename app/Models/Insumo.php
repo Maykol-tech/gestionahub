@@ -10,7 +10,7 @@ class Insumo extends Model
 {
     protected $table = 'insumos';
 
-    protected $fillable = ['tenant_id', 'nombre', 'unidad', 'stock', 'stock_minimo', 'costo_unitario', 'activo'];
+    protected $fillable = ['tenant_id', 'nombre', 'unidad', 'stock', 'stock_minimo', 'costo_unitario', 'activo', 'proveedor_id'];
 
     protected $casts = [
         'stock' => 'float',

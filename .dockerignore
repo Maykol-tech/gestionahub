@@ -20,4 +20,4 @@ database/database.sqlite
 docker-compose*.yml
 Dockerfile
 prototipo
-*.zip
+*.zipprospeccion

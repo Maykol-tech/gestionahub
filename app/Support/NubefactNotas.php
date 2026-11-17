@@ -69,6 +69,10 @@ class NubefactNotas
         }
 
         $calculo = Nubefact::calcular($items);
+        if ($total === null && $calculo['total'] > (float) $original->total) {
+            // El comprobante original tuvo descuento global (canje de puntos): la nota lo repite
+            $calculo = Nubefact::calcular($items, $calculo['total'] - (float) $original->total);
+        }
 
         if ($calculo['total'] > (float) $original->total + 0.01) {
             throw ValidationException::withMessages(['items' => 'La nota de crédito no puede superar el total del comprobante.']);

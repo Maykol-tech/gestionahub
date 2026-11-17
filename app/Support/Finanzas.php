@@ -57,6 +57,51 @@ class Finanzas
         return $filas;
     }
 
+    /** Gastos agrupados por categoria entre dos fechas (GEST-68). */
+    public static function gastosPorCategoria(Carbon $desde, Carbon $hasta): array
+    {
+        if (! \Illuminate\Support\Facades\Schema::hasColumn('gastos', 'categoria')) {
+            return [];
+        }
+
+        return Gasto::query()->whereBetween('fecha', [$desde->toDateString(), $hasta->toDateString()])
+            ->selectRaw('categoria, SUM(monto) as total, COUNT(*) as cantidad')
+            ->groupBy('categoria')->orderByDesc('total')->get()
+            ->map(fn ($g) => [
+                'categoria' => Gasto::CATEGORIAS[$g->categoria ?? 'otros'] ?? ucfirst((string) $g->categoria),
+                'total' => round((float) $g->total, 2),
+                'cantidad' => (int) $g->cantidad,
+            ])->all();
+    }
+
+    /** Mes en curso (hasta hoy) frente al mismo tramo del mes anterior: ingresos, gastos, utilidad y margen. */
+    public static function resumenMes(): array
+    {
+        $hoy = now();
+        $calc = function (Carbon $ini, Carbon $fin) {
+            $ing = self::ingresos($ini, $fin);
+            $gas = self::gastos($ini, $fin);
+            $uti = round($ing - $gas, 2);
+
+            return ['ingresos' => $ing, 'gastos' => $gas, 'utilidad' => $uti, 'margen' => $ing > 0 ? round($uti / $ing * 100, 1) : null];
+        };
+        $actual = $calc($hoy->copy()->startOfMonth(), $hoy->copy()->endOfDay());
+        $anterior = $calc($hoy->copy()->subMonthNoOverflow()->startOfMonth(), $hoy->copy()->subMonthNoOverflow()->endOfDay());
+        $var = fn ($a, $b) => $b != 0 ? round(($a - $b) / abs($b) * 100, 1) : null;
+
+        return [
+            'actual' => $actual,
+            'anterior' => $anterior,
+            'variacion' => [
+                'ingresos' => $var($actual['ingresos'], $anterior['ingresos']),
+                'gastos' => $var($actual['gastos'], $anterior['gastos']),
+                'utilidad' => $var($actual['utilidad'], $anterior['utilidad']),
+                'margen' => $actual['margen'] !== null && $anterior['margen'] !== null ? round($actual['margen'] - $anterior['margen'], 1) : null,
+            ],
+            'mes' => ucfirst($hoy->translatedFormat('F Y')),
+        ];
+    }
+
     /** Mes actual frente al mes anterior, hasta el mismo dia. */
     public static function comparativoMes(): array
     {

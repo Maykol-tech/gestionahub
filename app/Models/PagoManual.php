@@ -15,7 +15,7 @@ class PagoManual extends Model
     public const ESTADOS = ['pendiente' => 'Pendiente', 'confirmado' => 'Confirmado', 'rechazado' => 'Rechazado'];
 
     protected $fillable = [
-        'tenant_id', 'pedido_id', 'metodo', 'monto', 'referencia', 'estado', 'notas', 'confirmado_at',
+        'tenant_id', 'pedido_id', 'metodo', 'monto', 'referencia', 'estado', 'notas', 'confirmado_at', 'captura', 'origen',
     ];
 
     protected $casts = ['monto' => 'decimal:2', 'confirmado_at' => 'datetime'];

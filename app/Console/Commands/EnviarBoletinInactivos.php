@@ -2,45 +2,37 @@
 
 namespace App\Console\Commands;
 
-use App\Models\CampanaWhatsapp;
+use App\Support\BoletinInactivos;
+use App\Support\Fidelizacion;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Crea, una vez al mes, la campaña de boletín para clientes inactivos de cada negocio que lo tenga activo.
- * La campaña queda programada y la envía campanas:enviar-programadas.
+ * GEST-78: cada semana escribe a los clientes inactivos de los negocios con boletín activo
+ * (sin repetir al mismo cliente en 30 días). También vence los puntos sin movimiento (GEST-75).
  */
 class EnviarBoletinInactivos extends Command
 {
     protected $signature = 'campanas:boletin-inactivos';
 
-    protected $description = 'Programa el boletín mensual para clientes inactivos (negocios con boletín activo)';
+    protected $description = 'Envía el boletín semanal a clientes inactivos y vence puntos sin movimiento';
 
     public function handle(): int
     {
-        $nombre = 'Boletín automático ' . now()->format('Y-m');
+        foreach (DB::table('tenants')->pluck('id') as $tenantId) {
+            $vencidos = Fidelizacion::vencerSaldos((int) $tenantId);
+            if ($vencidos) {
+                $this->info("Negocio #{$tenantId}: vencieron los puntos de {$vencidos} clientes.");
+            }
+        }
 
         $negocios = DB::table('tenants')->where('boletin_activo', true)
-            ->whereNotNull('boletin_texto')->where('boletin_texto', '!=', '')->get(['id', 'boletin_texto']);
+            ->whereNotNull('boletin_texto')->where('boletin_texto', '!=', '')->pluck('id');
 
-        foreach ($negocios as $negocio) {
-            $yaCreada = CampanaWhatsapp::withoutGlobalScopes()
-                ->where('tenant_id', $negocio->id)->where('nombre', $nombre)->exists();
-
-            if ($yaCreada) {
-                continue;
-            }
-
-            CampanaWhatsapp::withoutGlobalScopes()->create([
-                'tenant_id' => $negocio->id,
-                'nombre' => $nombre,
-                'segmento' => 'inactivos',
-                'texto' => $negocio->boletin_texto,
-                'estado' => 'programada',
-                'programada_para' => now(),
-            ]);
-
-            $this->info("Boletín programado para el negocio #{$negocio->id}.");
+        foreach ($negocios as $tenantId) {
+            [$registrados, $enviados] = BoletinInactivos::enviar((int) $tenantId);
+            BoletinInactivos::marcarRegresos((int) $tenantId);
+            $this->info("Negocio #{$tenantId}: {$registrados} clientes inactivos, {$enviados} mensajes enviados.");
         }
 
         return self::SUCCESS;

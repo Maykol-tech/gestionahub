@@ -16,7 +16,8 @@ class Produccion
     {
         $receta->loadMissing('items.insumo');
 
-        $total = $receta->items->sum(fn ($item) => (float) $item->cantidad * (float) optional($item->insumo)->costo_unitario);
+        // La merma (GEST-72) encarece el insumo: para obtener 1 kg útil con 10 % de merma se compra 1.1 kg
+        $total = $receta->items->sum(fn ($item) => (float) $item->cantidad * (1 + (float) ($item->merma_pct ?? 0) / 100) * (float) optional($item->insumo)->costo_unitario);
 
         return round($total / max(1, (int) $receta->rendimiento), 4);
     }
@@ -50,10 +51,12 @@ class Produccion
                 ->keyBy('id');
 
             $faltantes = [];
+            $consumos = [];
             $costo = 0.0;
 
             foreach ($receta->items as $item) {
-                $necesario = round((float) $item->cantidad * $factor, 3);
+                // Se descuenta lo que realmente se usa, incluida la merma (GEST-72)
+                $necesario = round((float) $item->cantidad * (1 + (float) ($item->merma_pct ?? 0) / 100) * $factor, 3);
                 $insumo = $insumos->get($item->insumo_id);
 
                 if (! $insumo || (float) $insumo->stock < $necesario) {
@@ -64,12 +67,22 @@ class Produccion
 
                 $insumo->decrement('stock', $necesario);
                 $costo += $necesario * (float) $insumo->costo_unitario;
+                $consumos[] = [
+                    'tenant_id' => $lote->tenant_id, 'orden_produccion_id' => $lote->id, 'insumo_id' => $insumo->id,
+                    'insumo' => $insumo->nombre, 'unidad' => $insumo->unidad, 'cantidad' => $necesario,
+                    'costo' => round($necesario * (float) $insumo->costo_unitario, 2), 'created_at' => now(), 'updated_at' => now(),
+                ];
             }
 
             if ($faltantes) {
                 throw ValidationException::withMessages([
                     'estado' => 'Falta stock para terminar el lote: ' . implode(', ', $faltantes) . '.',
                 ]);
+            }
+
+            // GEST-74: trazabilidad, qué insumos (y cuánto) consumió el lote
+            if ($consumos && \Illuminate\Support\Facades\Schema::hasTable('lote_consumos')) {
+                DB::table('lote_consumos')->insert($consumos);
             }
 
             $lote->update([

@@ -10,9 +10,9 @@ class CheckoutAbandonado extends Model
 {
     protected $table = 'checkout_abandonados';
 
-    protected $fillable = ['tenant_id', 'nombre', 'telefono', 'email', 'carrito', 'total', 'recuperado', 'recordado_at'];
+    protected $fillable = ['tenant_id', 'nombre', 'telefono', 'email', 'carrito', 'total', 'recuperado', 'recordado_at', 'token', 'cupon', 'recordatorio_ok', 'abierto_at', 'recuperado_at', 'pedido_id'];
 
-    protected $casts = ['carrito' => 'array', 'total' => 'decimal:2', 'recuperado' => 'boolean', 'recordado_at' => 'datetime'];
+    protected $casts = ['carrito' => 'array', 'total' => 'decimal:2', 'recuperado' => 'boolean', 'recordado_at' => 'datetime', 'abierto_at' => 'datetime', 'recuperado_at' => 'datetime', 'recordatorio_ok' => 'boolean'];
 
     protected static function booted()
     {

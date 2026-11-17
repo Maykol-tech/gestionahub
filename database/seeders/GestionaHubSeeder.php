@@ -64,6 +64,9 @@ class GestionaHubSeeder extends Seeder
         if (Schema::hasColumn('tenants', 'trial_ends_at') && ! $tenant->trial_ends_at) {
             $tenant->trial_ends_at = now()->addDays(14);
         }
+        if (Schema::hasColumn('tenants', 'slug') && ! $tenant->slug) {
+            $tenant->slug = 'el-clasico';
+        }
         $tenant->save();
 
         // 4) Usuario administrador predeterminado

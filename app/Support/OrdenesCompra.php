@@ -37,11 +37,19 @@ class OrdenesCompra
                     continue;
                 }
 
-                $insumo->increment('stock', (float) $item->cantidad);
-                $insumo->update(['costo_unitario' => (float) $item->precio_unitario]);
+                // Costo promedio ponderado: (stock actual x costo actual + cantidad recibida x precio) / stock nuevo
+                $stockActual = max(0, (float) $insumo->stock);
+                $cantidad = (float) $item->cantidad;
+                $nuevoStock = $stockActual + $cantidad;
+                $promedio = $nuevoStock > 0
+                    ? round(($stockActual * (float) $insumo->costo_unitario + $cantidad * (float) $item->precio_unitario) / $nuevoStock, 4)
+                    : (float) $item->precio_unitario;
+                $insumo->update(['stock' => $nuevoStock, 'costo_unitario' => $promedio]);
             }
 
-            $lote->update(['estado' => 'recibida', 'recibida_at' => now()]);
+            // Compra a credito: queda como cuenta por pagar con fecha de vencimiento
+            $dias = optional($lote->proveedor)->diasCredito() ?? 0;
+            $lote->update(['estado' => 'recibida', 'recibida_at' => now()] + ($dias > 0 ? ['vence_at' => now()->addDays($dias)->toDateString()] : []));
         });
     }
 }

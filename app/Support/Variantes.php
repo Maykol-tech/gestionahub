@@ -71,4 +71,42 @@ class Variantes
         return ProductoVariante::query()->where('producto_id', $productoId)->where('activo', true)
             ->orderBy('precio')->get(['id', 'nombre', 'precio', 'stock']);
     }
+
+    /**
+     * GEST-111: registra el peso real de una línea vendida por kilo (pedido de la tienda) y recalcula
+     * el subtotal de la línea y el total del pedido. Se puede corregir varias veces: siempre parte del peso pedido.
+     */
+    public static function ajustarPesoItem(\App\Models\PedidoItem $item, float $pesoRealKg): \App\Models\PedidoItem
+    {
+        if ($pesoRealKg <= 0 || $pesoRealKg > 999) {
+            throw ValidationException::withMessages(['peso_real_kg' => 'Escribe el peso real en kilos (por ejemplo 0.48).']);
+        }
+        $pesoPedido = (float) $item->peso_kg;
+        if ($pesoPedido <= 0) {
+            throw ValidationException::withMessages(['peso_real_kg' => 'Esta línea no se vende por kilo.']);
+        }
+
+        return DB::transaction(function () use ($item, $pesoRealKg, $pesoPedido) {
+            $pedido = Pedido::query()->whereKey($item->pedido_id)->lockForUpdate()->firstOrFail();
+            $item = \App\Models\PedidoItem::query()->whereKey($item->id)->lockForUpdate()->firstOrFail();
+
+            $precioKg = round((float) $item->precio_unit / $pesoPedido, 4);
+            $nuevoUnit = self::montoPorKilo($precioKg, $pesoRealKg);
+            $nuevoSubtotal = round($nuevoUnit * (int) $item->cantidad, 2);
+            $diferencia = round($nuevoSubtotal - (float) $item->subtotal, 2);
+
+            $item->forceFill(['peso_real_kg' => $pesoRealKg, 'subtotal' => $nuevoSubtotal])->save();
+            $pedido->update([
+                'subtotal' => round((float) $pedido->subtotal + $diferencia, 2),
+                'total' => round(max(0, (float) $pedido->total + $diferencia), 2),
+            ]);
+
+            PesoDespacho::query()->create([
+                'tenant_id' => $pedido->tenant_id, 'pedido_id' => $pedido->id, 'producto_id' => $item->producto_id,
+                'peso_estimado_kg' => $pesoPedido, 'peso_real_kg' => $pesoRealKg, 'precio_kg' => round($precioKg, 2), 'diferencia' => $diferencia,
+            ]);
+
+            return $item;
+        });
+    }
 }

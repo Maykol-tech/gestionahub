@@ -8,6 +8,7 @@
     $usuarioBloqueo = auth()->user();
     $cfgBloqueo = [
         'minutos' => $Bloqueo::minutos(),
+        'activo' => $Bloqueo::activo(),
         'bloqueada' => (bool) session($Bloqueo::SESION, false),
         'urls' => [
             'bloquear' => route('bloqueo.bloquear'),
@@ -118,7 +119,7 @@ document.addEventListener('alpine:init', () => {
 
         tick() {
             this.reloj();
-            if (this.activo) return;
+            if (this.activo || !cfg.activo) return; // inactividad apagada en Seguridad: solo bloqueo manual
             const quieto = Date.now() - this.ultimo;
             if (quieto >= this.limite) { this.bloquear(true); return; }
             const resta = Math.ceil((this.limite - quieto) / 1000);

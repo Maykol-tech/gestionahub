@@ -10,7 +10,7 @@ class ListaEsperaCita extends Model
 {
     protected $table = 'lista_espera_citas';
 
-    public const ESTADOS = ['esperando' => 'Esperando', 'avisado' => 'Avisado', 'reservado' => 'Reservado'];
+    public const ESTADOS = ['esperando' => 'Esperando', 'avisado' => 'Avisado', 'reservado' => 'Reservado', 'cancelado' => 'Ya no espera'];
 
     protected $fillable = [
         'tenant_id', 'servicio_id', 'cliente_nombre', 'cliente_telefono', 'fecha_deseada',

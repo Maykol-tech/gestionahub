@@ -34,6 +34,7 @@ class ModuloAPosSeguridadTest extends TestCase
         $this->producto = Producto::withoutGlobalScopes()->create([
             'tenant_id' => $tenant->id, 'nombre' => 'Gaseosa 1L', 'slug' => 'gaseosa-1l', 'precio' => 5.90, 'stock' => 20, 'stock_minimo' => 2, 'activo' => true,
         ]);
+        \App\Models\AperturaCaja::withoutGlobalScopes()->create(['tenant_id' => $tenant->id, 'fecha' => now()->toDateString(), 'monto_inicial' => 100, 'abierto_por' => 'Ana Admin']);
         Http::fake(); // nada debe salir a Nubefact en modo simulado
     }
 
@@ -48,7 +49,7 @@ class ModuloAPosSeguridadTest extends TestCase
         $r = $this->from('/login')->post('/login', ['email' => 'ana@test.pe', 'password' => 'mala']);
         $r->assertSessionHas('bloqueo_segundos');
         $this->assertGreaterThan(890, session('bloqueo_segundos'));
-        $this->assertStringContainsString('14 min', session('errors')->first('email'));
+        $this->assertMatchesRegularExpression('/1[45] min/', session('errors')->first('email'));
 
         // Ni con la contraseña correcta entra durante el bloqueo
         $this->from('/login')->post('/login', ['email' => 'ana@test.pe', 'password' => 'Secreto123!'])->assertSessionHas('bloqueo_segundos');

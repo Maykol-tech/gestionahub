@@ -11,7 +11,7 @@ class Receta extends Model
 {
     protected $table = 'recetas';
 
-    protected $fillable = ['tenant_id', 'nombre', 'rendimiento', 'notas', 'activo'];
+    protected $fillable = ['tenant_id', 'nombre', 'rendimiento', 'notas', 'activo', 'producto_id', 'pasos', 'alergenos', 'imagen_url'];
 
     protected $casts = [
         'rendimiento' => 'integer',

@@ -25,7 +25,7 @@ class VerificarPantallaBloqueo
 
         $sesion = $request->session();
         $ultima = (int) $sesion->get(Bloqueo::ACTIVIDAD, 0);
-        $vencida = $ultima > 0 && (now()->timestamp - $ultima) > (Bloqueo::minutos() * 60 + 30);
+        $vencida = Bloqueo::activo() && $ultima > 0 && (now()->timestamp - $ultima) > (Bloqueo::minutos() * 60 + 30);
 
         if ($vencida) {
             $sesion->put(Bloqueo::SESION, true);

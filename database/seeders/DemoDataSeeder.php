@@ -161,19 +161,4 @@ class DemoDataSeeder extends Seeder
             );
         }
     }
-        // Insertar mesas demo
-        $zonas = ['Terraza', 'Salón', 'Barra'];
-        foreach ($zonas as $zona) {
-            for ($i = 1; $i <= 3; $i++) {
-                \App\Models\Mesa::create([
-                    'tenant_id' => 1,
-                    'nombre' => "$zona $i",
-                    'zona' => $zona,
-                    'capacidad' => 4,
-                    'estado' => 'libre',
-                    'token' => \Illuminate\Support\Str::random(10)
-                ]);
-            }
-        }
-    }
 }
