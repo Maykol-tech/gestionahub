@@ -44,11 +44,17 @@
 <div x-data="agenda(@js($citas), @js($servicios))" @crud-servicios.window="servicios = $event.detail.filter(s => s.activo)" @keydown.escape.window="cerrar()">
 
     {{-- Indicadores --}}
+    <x-ia modulo="servicios" />
     <div class="stat-row">
-        <div class="stat fade-in"><div class="stat-lbl">Citas hoy</div><div class="stat-val">{{ $stats['hoy'] }}</div></div>
-        <div class="stat fade-in" style="animation-delay:.05s"><div class="stat-lbl">Pendientes de confirmar</div><div class="stat-val">{{ $stats['pendientes'] }}</div></div>
-        <div class="stat fade-in" style="animation-delay:.1s"><div class="stat-lbl">Próximas citas</div><div class="stat-val">{{ $stats['proximas'] }}</div></div>
-        <div class="stat fade-in" style="animation-delay:.15s"><div class="stat-lbl">Ingresos del mes</div><div class="stat-val">S/ {{ number_format($stats['ingresos_mes'], 2) }}</div></div>
+        @php($varHoy = $stats['ingresos_semana_pasada'] > 0 ? (int) round(($stats['ingresos_hoy'] - $stats['ingresos_semana_pasada']) * 100 / $stats['ingresos_semana_pasada']) : null)
+        <div class="stat fade-in"><div class="stat-lbl">Ingresos hoy</div><div class="stat-val">S/ {{ number_format($stats['ingresos_hoy'], 2) }}</div>
+            <div class="stat-ch {{ ($varHoy ?? 0) >= 0 ? 'up' : 'dn' }}">{{ $varHoy !== null ? (($varHoy >= 0 ? '↑ ' : '↓ ') . abs($varHoy) . '% vs el ' . today()->subWeek()->translatedFormat('l') . ' pasado') : 'S/ ' . number_format($stats['ingresos_mes'], 2) . ' en el mes' }}</div></div>
+        <div class="stat fade-in" style="animation-delay:.05s"><div class="stat-lbl">Citas del día</div><div class="stat-val">{{ $stats['hoy'] }}</div>
+            <div class="stat-ch neutral">{{ $stats['completadas_hoy'] }} {{ $stats['completadas_hoy'] === 1 ? 'completada' : 'completadas' }} · {{ $stats['pendientes'] }} por confirmar</div></div>
+        <div class="stat fade-in" style="animation-delay:.1s"><div class="stat-lbl">Ticket promedio</div><div class="stat-val">S/ {{ number_format($stats['ticket'], 2) }}</div>
+            <div class="stat-ch neutral">{{ $stats['proximas'] }} próximas citas</div></div>
+        <div class="stat fade-in" style="animation-delay:.15s"><div class="stat-lbl">Clientes recurrentes</div><div class="stat-val">{{ $stats['recurrentes'] }}%</div>
+            <div class="stat-ch neutral">De tus clientes este mes</div></div>
     </div>
 
     {{-- Agenda --}}

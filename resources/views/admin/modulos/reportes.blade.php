@@ -42,6 +42,7 @@
     </div>
 
     {{-- ================= GEST-40: VENTAS POR PERIODO Y MODULO ================= --}}
+    <x-ia modulo="reportes" />
     <section x-show="vista === 'ventas'" {{ $vista === 'ventas' ? '' : 'x-cloak' }}>
         <div class="stat-row">
             <div class="stat fade-in">

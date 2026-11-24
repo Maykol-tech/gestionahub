@@ -28,26 +28,22 @@
         <a class="btn btn-sm {{ $cierre ? 'btn-g' : 'btn-p' }}" style="margin-left:auto;" href="{{ route('admin.caja.cierre', ['fecha' => $fecha]) }}">{{ $cierre ? 'Ver cierre' : ($apertura ? 'Cerrar caja' : 'Abrir caja') }}</a>
     </div>
 
-    <div class="stat-row">
-        <div class="stat fade-in">
-            <div class="stat-lbl">Ingresos <span class="stat-ico" style="background:var(--greenl);color:var(--green)"><x-icon name="trending" size="14" /></span></div>
-            <div class="stat-val">S/ {{ number_format($ingresos, 2) }}</div>
-            <div class="stat-ch neutral">{{ count($movimientos) - $cantGastos }} {{ count($movimientos) - $cantGastos === 1 ? 'cobro' : 'cobros' }} (pedidos, POS y manuales)</div>
+    {{-- Tarjetas del día, como el prototipo --}}
+    <div class="caja-kpis">
+        <div class="caja-kpi k-res fade-in">
+            <div class="ck-lbl">Resultado del día</div>
+            <div class="ck-val">{{ $resultado < 0 ? '− ' : '' }}S/ {{ number_format(abs($resultado), 2) }}</div>
+            <div class="ck-sub">Ingresos − Egresos</div>
         </div>
-        <div class="stat fade-in" style="animation-delay:.05s">
-            <div class="stat-lbl">Egresos <span class="stat-ico" style="background:var(--redl);color:var(--red)"><x-icon name="cash" size="14" /></span></div>
-            <div class="stat-val">S/ {{ number_format($egresos, 2) }}</div>
-            <div class="stat-ch neutral">{{ $cantGastos ? $cantGastos . ($cantGastos === 1 ? ' gasto registrado' : ' gastos registrados') : 'Sin gastos registrados' }}</div>
+        <div class="caja-kpi k-ing fade-in" style="animation-delay:.05s">
+            <div class="ck-lbl">Ingresos</div>
+            <div class="ck-val">S/ {{ number_format($ingresos, 2) }}</div>
+            <div class="ck-sub">{{ count($movimientos) - $cantGastos }} {{ count($movimientos) - $cantGastos === 1 ? 'cobro' : 'cobros' }} · {{ $canales }} {{ $canales === 1 ? 'método' : 'métodos' }}@if ($porCobrar > 0) · S/ {{ number_format($porCobrar, 2) }} por cobrar @endif</div>
         </div>
-        <div class="stat fade-in" style="animation-delay:.1s">
-            <div class="stat-lbl">Resultado <span class="stat-ico" style="background:var(--acl);color:var(--accent)"><x-icon name="chart" size="14" /></span></div>
-            <div class="stat-val" style="color:{{ $resultado < 0 ? 'var(--red)' : 'var(--fg)' }}">S/ {{ number_format($resultado, 2) }}</div>
-            <div class="stat-ch neutral">Ingresos menos egresos</div>
-        </div>
-        <div class="stat fade-in" style="animation-delay:.15s">
-            <div class="stat-lbl">Por cobrar <span class="stat-ico" style="background:var(--ambl);color:var(--amber)"><x-icon name="clock" size="14" /></span></div>
-            <div class="stat-val">S/ {{ number_format($porCobrar, 2) }}</div>
-            <div class="stat-ch neutral">Pedidos del día sin cobrar</div>
+        <div class="caja-kpi k-egr fade-in" style="animation-delay:.1s">
+            <div class="ck-lbl">Egresos</div>
+            <div class="ck-val">S/ {{ number_format($egresos, 2) }}</div>
+            <div class="ck-sub">{{ $gastosPorCategoria->isNotEmpty() ? $gastosPorCategoria->take(2)->pluck('texto')->join(' + ') : 'Sin gastos registrados' }}</div>
         </div>
     </div>
 
@@ -106,6 +102,40 @@
             @empty
                 <x-vacio icono="card" titulo="Sin cobros en esta fecha" texto="El detalle por efectivo, Yape, Plin y tarjeta se mostrará cuando registres cobros." />
             @endforelse
+            @if ($gastosPorCategoria->isNotEmpty())
+                <div class="panel-hd" style="border-top:1px solid var(--border);"><div class="panel-ttl">Resumen de gastos</div></div>
+                @foreach ($gastosPorCategoria as $g)
+                    <div class="kv" style="display:flex;justify-content:space-between;">
+                        <span>{{ $g['texto'] }}</span>
+                        <span style="font-weight:700;color:var(--red);font-variant-numeric:tabular-nums;">S/ {{ number_format($g['monto'], 2) }}</span>
+                    </div>
+                @endforeach
+            @endif
+        </div>
+    </div>
+
+    {{-- Resumen para el cierre (prototipo) --}}
+    <div class="cierre-hd fade-in">
+        <div class="panel-ttl" style="display:flex;align-items:center;gap:6px;"><x-icon name="lock" size="15" /> Cierre de caja</div>
+        <a class="btn btn-p" style="background:#1A2332;border-color:#1A2332;" href="{{ route('admin.caja.cierre', ['fecha' => $fecha]) }}">{{ $cierre ? 'Ver cierre del día' : 'Cerrar caja del día' }}</a>
+    </div>
+    <div class="panel fade-in cierre-res" style="animation-delay:.28s">
+        <div class="panel-hd" style="background:var(--surface-2, #F6F8FB);">
+            <div class="panel-ttl" style="text-transform:uppercase;letter-spacing:.04em;font-size:12px;">Resumen para cierre · {{ \Illuminate\Support\Carbon::parse($fecha)->translatedFormat('j M Y') }}</div>
+            <div class="panel-sub">Actualizado: {{ now()->format('g:i a') }}</div>
+        </div>
+        <div class="cr-metodos">
+            <div class="cr-m m-dig"><span><x-icon name="phone" size="12" /> Yape/Plin</span><b>S/ {{ number_format($resumenCierre['digital'], 2) }}</b></div>
+            <div class="cr-m m-tar"><span><x-icon name="card" size="12" /> Tarjeta</span><b>S/ {{ number_format($resumenCierre['tarjeta'], 2) }}</b></div>
+            <div class="cr-m m-efe"><span><x-icon name="cash" size="12" /> Efectivo</span><b>S/ {{ number_format($resumenCierre['efectivo'], 2) }}</b></div>
+            @if ($resumenCierre['otros'] > 0)
+                <div class="cr-m m-efe"><span>Otros</span><b>S/ {{ number_format($resumenCierre['otros'], 2) }}</b></div>
+            @endif
+        </div>
+        <div class="cr-tot">
+            <div><span>Total ingresos brutos</span><b style="color:var(--green)">S/ {{ number_format($ingresos, 2) }}</b></div>
+            <div><span>Total egresos del día</span><b style="color:var(--red)">− S/ {{ number_format($egresos, 2) }}</b></div>
+            <div class="cr-neta"><span>Ganancia neta del día</span><b style="color:{{ $resultado < 0 ? 'var(--red)' : 'var(--green)' }}">{{ $resultado < 0 ? '− ' : '' }}S/ {{ number_format(abs($resultado), 2) }}</b></div>
         </div>
     </div>
     {{-- Ventana: registrar gasto (GEST-66) --}}
@@ -177,6 +207,27 @@
 @push('styles')
     @include('admin.modulos._base')
     <style>
+        .caja-kpis { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:16px; }
+        .caja-kpi { border-radius:14px; padding:18px 18px 16px; transition: transform .2s var(--ease), box-shadow .2s var(--ease); }
+        .caja-kpi:hover { transform: translateY(-2px); box-shadow:0 10px 26px rgba(26,35,50,.09); }
+        .caja-kpi .ck-lbl { font-size:11px; font-weight:600; opacity:.85; }
+        .caja-kpi .ck-val { font-size:28px; font-weight:800; margin:6px 0 8px; font-variant-numeric:tabular-nums; letter-spacing:-.01em; }
+        .caja-kpi .ck-sub { font-size:11px; opacity:.8; }
+        .k-res { background:var(--accent, #4B7CF5); color:#fff; }
+        .k-ing { background:#EEF3FE; color:#64748B; } .k-ing .ck-val { color:var(--accent, #4B7CF5); }
+        .k-egr { background:#FDE2E2; color:#64748B; } .k-egr .ck-val { color:#DC2626; }
+        .cierre-hd { display:flex; align-items:center; justify-content:space-between; gap:10px; margin:20px 0 10px; }
+        .cr-metodos { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; padding:14px 16px; }
+        .cr-m { border-radius:10px; padding:14px; text-align:center; display:grid; gap:4px; }
+        .cr-m span { font-size:11px; font-weight:700; display:inline-flex; align-items:center; justify-content:center; gap:4px; }
+        .cr-m b { font-size:20px; font-variant-numeric:tabular-nums; }
+        .m-dig { background:#DCFCE7; color:#15803D; } .m-tar { background:#EEF3FE; color:var(--accent, #4B7CF5); } .m-efe { background:#F1F5F9; color:var(--fg); }
+        .cr-tot { padding:4px 16px 14px; border-top:1px solid var(--border); margin:0 16px; padding-left:0; padding-right:0; }
+        .cr-tot > div { display:flex; justify-content:space-between; padding:7px 0; font-size:14px; color:var(--fg2); }
+        .cr-tot b { font-variant-numeric:tabular-nums; }
+        .cr-tot .cr-neta { border-top:1px solid var(--border); margin-top:6px; padding-top:12px; font-size:16px; font-weight:800; color:var(--fg); }
+        .cr-tot .cr-neta b { font-size:20px; }
+        @media (max-width: 760px) { .caja-kpis { grid-template-columns:1fr; } }
         .caja-estado { display:flex; align-items:center; gap:12px; padding:12px 16px; border-radius:14px; margin-bottom:14px; border:1px solid var(--bd); background:var(--card, #fff); font-size:14px; }
         .caja-estado .ce-dot { width:10px; height:10px; border-radius:50%; flex:none; }
         .caja-estado.abierta { border-color:color-mix(in srgb, var(--green) 35%, var(--bd)); background:color-mix(in srgb, var(--green) 6%, var(--card, #fff)); }

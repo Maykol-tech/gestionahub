@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('titulo', 'Datos del negocio')
-@section('subtitulo', 'Datos del negocio y colores del panel')
+@section('titulo', 'Personalizar')
+@section('subtitulo', 'Datos del negocio, colores, tipografía y modo del panel')
 
 @section('contenido')
 <div x-data="personalizarPage(@js($negocio), @js($porDefecto))" class="g-21">
@@ -52,6 +52,22 @@
                 @endforeach
             </div>
         </div>
+        <div style="padding:0 16px 8px;">
+            <div class="form-sec">Tipografía</div>
+            <div class="fuentes">
+                @foreach (['Inter' => 'Moderna, muy legible', 'DM Sans' => 'Amigable y redondeada', 'Nunito' => 'Cálida y accesible', 'Poppins' => 'Geométrica y profesional'] as $f => $desc)
+                    <button type="button" class="fuente-op" :class="{ on: form.panel_fuente === '{{ $f }}' }" @click="form.panel_fuente = '{{ $f }}'; aplicar()" style="font-family:'{{ $f }}',system-ui;">
+                        <b>{{ $f }} · Aa Bb Cc 123</b><span>{{ $desc }}</span>
+                    </button>
+                @endforeach
+            </div>
+            <div class="form-sec" style="margin-top:14px;">Modo de visualización</div>
+            <div class="modos">
+                @foreach (['claro' => ['Claro', '☀️'], 'oscuro' => ['Oscuro', '🌙'], 'sistema' => ['Sistema', '🖥️']] as $k => [$t, $ico])
+                    <button type="button" class="modo-op" :class="{ on: form.panel_modo === '{{ $k }}' }" @click="form.panel_modo = '{{ $k }}'; aplicar()"><span>{{ $ico }}</span>{{ $t }}</button>
+                @endforeach
+            </div>
+        </div>
         <div class="modal-ft" style="border-radius:0 0 10px 10px;">
             <button type="button" class="btn btn-g" style="margin-right:auto;" @click="restaurar()">Restaurar colores</button>
             <button type="button" class="btn btn-g" @click="descartar()">Descartar</button>
@@ -87,13 +103,20 @@
     @include('admin.modulos._base')
     <style>
         .color-row{display:flex;gap:8px;align-items:center;}
+        .fuentes{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+        .fuente-op,.modo-op{border:1px solid var(--border);background:var(--surface);color:var(--fg);border-radius:10px;padding:10px 12px;text-align:left;cursor:pointer;display:grid;gap:2px;transition:border-color .15s,box-shadow .15s;}
+        .fuente-op b{font-size:14px;} .fuente-op span{font-size:11px;color:var(--fg3);}
+        .fuente-op.on,.modo-op.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--acl);}
+        .modos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+        .modo-op{justify-items:center;text-align:center;font-weight:600;font-size:13px;} .modo-op span{font-size:20px;}
+        @media (max-width:640px){.fuentes{grid-template-columns:1fr;}}
         .color-pick{width:38px;height:36px;border-radius:8px;border:1px solid var(--border);flex-shrink:0;cursor:pointer;position:relative;overflow:hidden;}
         .color-pick input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
         .swatches{display:flex;gap:6px;margin-top:8px;}
         .sw{width:22px;height:22px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--border);cursor:pointer;transition:transform .15s var(--ease),box-shadow .15s;}
         .sw:hover{transform:scale(1.1);}
         .sw.on{box-shadow:0 0 0 2px var(--fg);}
-        .prev{display:flex;height:240px;border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);background:#fff;}
+        .prev{display:flex;height:240px;border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);background:var(--surface);}
         .prev-nav{width:34%;padding:14px 10px;display:flex;flex-direction:column;gap:8px;transition:background .25s;}
         .prev-brand{color:#fff;font-weight:700;font-size:12px;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
         .prev-item{height:8px;border-radius:4px;background:rgba(255,255,255,.25);}
@@ -116,6 +139,20 @@
                 const raiz = document.documentElement.style;
                 if (this.hex(f.color_menu)) raiz.setProperty('--nav-bg', f.color_menu);
                 if (this.hex(f.color_accion)) raiz.setProperty('--cta', f.color_accion);
+                if (f.panel_fuente) {
+                    const id = 'gh-fuente-' + f.panel_fuente.replace(' ', '-');
+                    if (f.panel_fuente !== 'Inter' && !document.getElementById(id)) {
+                        const l = document.createElement('link'); l.id = id; l.rel = 'stylesheet';
+                        l.href = 'https://fonts.googleapis.com/css2?family=' + f.panel_fuente.replace(' ', '+') + ':wght@400;500;600;700;800&display=swap';
+                        document.head.appendChild(l);
+                    }
+                    raiz.setProperty('--fuente', "'" + f.panel_fuente + "'");
+                }
+                if (f.panel_modo) {
+                    const d = document.documentElement;
+                    d.dataset.modo = f.panel_modo;
+                    d.dataset.theme = f.panel_modo === 'sistema' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'oscuro' : 'claro') : f.panel_modo;
+                }
             },
             restaurar() { Object.assign(this.form, this.porDefecto); this.aplicar(); },
             descartar() { this.form = { ...this.original }; this.errores = {}; this.aplicar(); },

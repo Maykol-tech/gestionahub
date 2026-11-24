@@ -17,6 +17,7 @@ class LandingController extends Controller
 {
     public function inicio()
     {
+        \App\Support\Suscripciones::asegurarPlanes();
         $planes = DB::table('planes_saas')->where('activo', true)->orderBy('precio_mensual')
             ->get(['slug', 'nombre', 'precio_mensual', 'max_sucursales'])
             ->map(fn ($p) => [

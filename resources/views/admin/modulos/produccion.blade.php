@@ -35,6 +35,7 @@
 <div x-data="produccion(@js($insumos), @js($recetas), @js($lotes))" @keydown.escape.window="cerrar(); traza = null">
 
     {{-- Indicadores --}}
+    <x-ia modulo="produccion" />
     <div class="stat-row">
         <div class="stat fade-in"><div class="stat-lbl">Lotes por terminar</div><div class="stat-val">{{ $stats['en_proceso'] }}</div></div>
         <div class="stat fade-in" style="animation-delay:.05s"><div class="stat-lbl">Insumos bajo mínimo</div><div class="stat-val" style="{{ $stats['bajo_minimo'] ? 'color:#B91C1C' : '' }}">{{ $stats['bajo_minimo'] }}</div></div>

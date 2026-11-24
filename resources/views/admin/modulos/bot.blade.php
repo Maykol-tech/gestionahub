@@ -4,7 +4,11 @@
 @section('subtitulo', 'Atención automática para tus clientes')
 
 @section('acciones')
-    <span class="pronto"><x-icon name="clock" size="11" /> Conexión con WhatsApp próximamente</span>
+    @if ($botStats['numero'])
+        <span class="pronto" style="background:#DCFCE7;color:#15803D;">● Número vinculado: {{ $botStats['numero'] }}</span>
+    @else
+        <span class="pronto"><x-icon name="clock" size="11" /> Número de WhatsApp sin vincular</span>
+    @endif
 @endsection
 
 @section('contenido')
@@ -57,6 +61,13 @@
     </form>
 
     <div class="fade-in" style="animation-delay:.08s">
+        <div class="sec-ttl">Estadísticas del bot ({{ $botStats['mes'] }})</div>
+        <div class="bot-stats">
+            <div><small>Conversaciones iniciadas</small><b>{{ $botStats['conversaciones'] }}</b>
+                <span style="color:{{ ($botStats['variacion'] ?? 0) >= 0 ? 'var(--green)' : 'var(--red)' }}">{{ $botStats['variacion'] !== null ? (($botStats['variacion'] >= 0 ? '↑ ' : '↓ ') . abs($botStats['variacion']) . '% vs mes pasado') : 'Este mes' }}</span></div>
+            <div><small>Pedidos generados vía bot</small><b>{{ $botStats['pedidos'] }}</b><span>{{ $botStats['conversion'] }}% de conversión</span></div>
+            <div><small>Mensajes respondidos</small><b>{{ $botStats['respondidos'] !== null ? $botStats['respondidos'] . '%' : '—' }}</b><span>Automático 24/7</span></div>
+        </div>
         <div class="sec-ttl">Vista previa</div>
         <div class="wa">
             <div class="wa-hd">
@@ -84,6 +95,11 @@
 @push('styles')
     @include('admin.modulos._base')
     <style>
+        .bot-stats{display:grid;gap:10px;margin-bottom:16px;}
+        .bot-stats>div{background:var(--surface,#fff);border:1px solid var(--border);border-radius:12px;padding:12px 14px;display:grid;gap:2px;}
+        .bot-stats small{font-size:11px;color:var(--fg3);font-weight:600;}
+        .bot-stats b{font-size:24px;font-variant-numeric:tabular-nums;}
+        .bot-stats span{font-size:11px;color:var(--fg3);}
         .switch{display:flex;align-items:center;gap:10px;cursor:pointer;}
         .switch input{display:none;}
         .track{width:38px;height:22px;border-radius:99px;background:var(--border);position:relative;transition:background .2s;}

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Repartidor;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -62,5 +63,31 @@ class SeguridadRolesTest extends TestCase
     public function test_negocio_suspendido_bloquea_el_panel(): void
     {
         $this->actingAs($this->usuario('admin', 'suspendido'))->get('/admin')->assertRedirect('/login');
+    }
+
+    public function test_repartidor_sin_enlace_entra_a_su_app(): void
+    {
+        $usuario = $this->usuario('repartidor');
+        // Repartidor guardado sin token, como los creados antes del enlace privado
+        $id = Repartidor::withoutGlobalScopes()->insertGetId([
+            'tenant_id' => $usuario->tenant_id, 'user_id' => $usuario->id, 'nombre' => 'Repartidor', 'vehiculo' => 'moto',
+            'activo' => true, 'disponible' => true, 'created_at' => now(), 'updated_at' => now(),
+        ]);
+
+        $respuesta = $this->post('/login', ['email' => $usuario->email, 'password' => 'Secreto123!']);
+
+        $token = Repartidor::withoutGlobalScopes()->find($id)->token;
+        $this->assertNotEmpty($token);
+        $respuesta->assertRedirect(route('repartidor.app', $token));
+    }
+
+    public function test_repartidor_nuevo_nace_con_enlace(): void
+    {
+        $usuario = $this->usuario('repartidor');
+        $r = Repartidor::withoutGlobalScopes()->create([
+            'tenant_id' => $usuario->tenant_id, 'nombre' => 'Nuevo', 'vehiculo' => 'moto',
+        ]);
+
+        $this->assertSame(40, strlen((string) $r->token));
     }
 }

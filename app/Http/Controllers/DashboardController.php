@@ -102,7 +102,15 @@ class DashboardController extends Controller
             'rango' => $rango, 'rango_texto' => $textos[$rango][0], 'rango_compara' => $textos[$rango][1],
             'clientes_total' => CrmCliente::where('tenant_id', $tenantId)->count(),
             'productos_activos' => Producto::where('tenant_id', $tenantId)->where('activo', true)->count(),
+            // Tarjeta "Gasto publicidad" del prototipo: lo gastado en el periodo y el retorno de las campañas
+            'gasto_publicidad' => Schema::hasTable('campana_gastos')
+                ? (float) DB::table('campana_gastos')->where('tenant_id', $tenantId)->where('fecha', '>=', $desde->toDateString())->sum('monto') : 0.0,
+            'roi_publicidad' => null,
         ];
+        if (Schema::hasTable('campanas_publicidad')) {
+            $inv = (float) DB::table('campanas_publicidad')->where('tenant_id', $tenantId)->sum('inversion');
+            $datos['roi_publicidad'] = $inv > 0 ? (float) DB::table('campanas_publicidad')->where('tenant_id', $tenantId)->sum('ventas_atribuidas') / $inv : null;
+        }
 
         $ultimosPedidos = collect();
 

@@ -22,6 +22,13 @@ class CrmClienteController extends Controller
         ]);
 
         $validated['tenant_id'] = $request->user()->tenant_id;
+        // Un celular = un cliente: si ya existe, se devuelve el mismo
+        $cliente = ! empty($validated['telefono'])
+            ? CrmCliente::where('tenant_id', $validated['tenant_id'])->where('telefono', $validated['telefono'])->first()
+            : null;
+        if ($cliente) {
+            return response()->json(['success' => true, 'data' => $cliente, 'message' => 'El cliente ya existía'], 200);
+        }
         $cliente = CrmCliente::create($validated);
 
         return response()->json(['success' => true, 'data' => $cliente, 'message' => 'Cliente creado'], 201);
@@ -40,11 +47,17 @@ class CrmClienteController extends Controller
         $count = 0;
 
         while ($row = fgetcsv($file)) {
+            $tenantId = $request->user()->tenant_id;
+            $telefono = trim((string) ($row[1] ?? ''));
+            // No repite clientes: si el celular ya existe, se salta la fila
+            if ($telefono !== '' && CrmCliente::where('tenant_id', $tenantId)->where('telefono', $telefono)->exists()) {
+                continue;
+            }
             CrmCliente::create([
-                'tenant_id' => $request->user()->tenant_id,
+                'tenant_id' => $tenantId,
                 'nombre' => $row[0],
-                'telefono' => $row[1],
-                'email' => $row[2],
+                'telefono' => $telefono ?: null,
+                'email' => $row[2] ?? null,
                 'fuente' => $row[3] ?? 'importacion',
             ]);
             $count++;

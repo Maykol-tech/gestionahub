@@ -15,17 +15,29 @@
     @if ($enRevision ?? false)
         <div class="pl-aviso info fade-in"><x-icon name="clock" size="16" /> Tu pago está en revisión. Te avisamos por correo apenas lo confirmemos.</div>
     @endif
+    @php($planActual = $actual ? collect($planes)->firstWhere('slug', $actual) : null)
     @if (! empty($suscripcion) && $suscripcion->estado === 'activa')
-        <div class="panel fade-in" style="padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-            <x-icon name="check" size="18" style="color:var(--green)" />
-            <div style="flex:1;min-width:220px;font-size:13px;">
-                <strong>Plan activo hasta el {{ \Carbon\Carbon::parse($suscripcion->vence_at)->format('d/m/Y') }}</strong> · {{ $suscripcion->ciclo === 'anual' ? 'Anual' : 'Mensual' }}
-                @if ($suscripcion->tarjeta_ultimos)<span style="color:var(--fg3);"> · {{ $suscripcion->tarjeta_marca ? ucfirst(strtolower($suscripcion->tarjeta_marca)) : 'Tarjeta' }} •••• {{ $suscripcion->tarjeta_ultimos }}</span>@endif
-                <div style="color:var(--fg3);">{{ $suscripcion->renovacion_auto ? 'Se renueva solo con tu tarjeta.' : 'La renovación es manual: te avisaremos antes de que venza.' }}</div>
+        <div class="pl-hero fade-in">
+            <div>
+                <div class="ph-lbl">Plan actual</div>
+                <div class="ph-nom">{{ $planActual['nombre'] ?? 'Activo' }}</div>
+                <div class="ph-sub">
+                    @if ($planActual)S/ {{ number_format($suscripcion->ciclo === 'anual' ? $planActual['anual'] : $planActual['precio'], 0) }} / {{ $suscripcion->ciclo === 'anual' ? 'año' : 'mes' }} · @endif
+                    {{ $suscripcion->renovacion_auto ? 'Renovación automática' : 'Renovación manual' }} · vence el {{ \Carbon\Carbon::parse($suscripcion->vence_at)->format('d/m/Y') }}
+                </div>
             </div>
-            @if ($suscripcion->renovacion_auto)
-                <form method="POST" action="{{ route('admin.planes.renovacion') }}" onsubmit="return confirm('¿Apagar la renovación automática? Borraremos los datos de tu tarjeta.')">@csrf<input type="hidden" name="activar" value="0"><button class="btn btn-g btn-sm" type="submit">Apagar renovación automática</button></form>
-            @endif
+            <div class="ph-der">
+                <div class="ph-lbl" style="text-transform:none;letter-spacing:0;">Método de pago</div>
+                <div class="ph-met">
+                    @if ($suscripcion->tarjeta_ultimos){{ $suscripcion->tarjeta_marca ? ucfirst(strtolower($suscripcion->tarjeta_marca)) : 'Tarjeta' }} •••• {{ $suscripcion->tarjeta_ultimos }}
+                    @else{{ ucfirst($pagos->first()['pasarela'] ?? 'Yape / Plin') }}@endif
+                </div>
+                @if ($suscripcion->renovacion_auto)
+                    <form method="POST" action="{{ route('admin.planes.renovacion') }}" onsubmit="return confirm('¿Apagar la renovación automática? Borraremos los datos de tu tarjeta.')">@csrf<input type="hidden" name="activar" value="0"><button class="ph-btn" type="submit">Apagar renovación automática</button></form>
+                @else
+                    <div class="ph-nota">Te avisaremos antes de que venza</div>
+                @endif
+            </div>
         </div>
     @elseif (! empty($suscripcion) && $suscripcion->estado === 'vencida')
         <div class="pl-aviso no fade-in"><x-icon name="alert" size="16" /> No pudimos renovar tu plan con tu tarjeta. Elige un plan abajo para pagarlo de nuevo.</div>
@@ -56,7 +68,7 @@
             @php($destacado = $p['slug'] === 'negocio')
             <div class="plan fade-in {{ $destacado ? 'plan-dest' : '' }} {{ $esActual ? 'plan-act' : '' }}" style="animation-delay:{{ .06 + $i * .05 }}s">
                 @if ($esActual)
-                    <span class="plan-cinta">Tu plan</span>
+                    <span class="plan-cinta">Plan actual</span>
                 @elseif ($destacado)
                     <span class="plan-cinta">Recomendado</span>
                 @endif
@@ -112,12 +124,22 @@
 @push('styles')
     @include('admin.modulos._base')
     <style>
+        .pl-hero { display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; border-radius:16px; padding:22px 24px; margin-bottom:20px; color:#fff;
+                   background:linear-gradient(120deg, var(--accent, #4B7CF5) 0%, #1E3A8A 70%, #1A2332 100%); box-shadow:0 12px 30px rgba(30,58,138,.18); }
+        .pl-hero .ph-lbl { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; opacity:.8; }
+        .pl-hero .ph-nom { font-size:24px; font-weight:800; margin:4px 0; }
+        .pl-hero .ph-sub { font-size:13px; opacity:.85; }
+        .pl-hero .ph-der { text-align:right; display:grid; gap:4px; justify-items:end; }
+        .pl-hero .ph-met { font-size:14px; font-weight:700; }
+        .pl-hero .ph-nota { font-size:11px; opacity:.75; }
+        .pl-hero .ph-btn { margin-top:4px; background:rgba(255,255,255,.12); color:#fff; border:1px solid rgba(255,255,255,.35); border-radius:8px; padding:6px 12px; font:inherit; font-size:12px; cursor:pointer; }
+        @media (max-width:640px) { .pl-hero .ph-der { text-align:left; justify-items:start; } }
         .plan{position:relative;display:flex;flex-direction:column;border:1px solid var(--border);border-radius:12px;padding:20px;background:#fff;transition:transform .2s var(--ease),box-shadow .2s var(--ease);}
         .plan:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(26,35,50,.08);}
         .plan-dest{border-color:var(--acm);box-shadow:0 0 0 1px var(--acm);}
-        .plan-act{border-color:var(--green);box-shadow:0 0 0 1px var(--green);}
+        .plan-act{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);background:linear-gradient(180deg,#fff 0%,#EEF3FE 100%);}
         .plan-cinta{position:absolute;top:-10px;left:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;background:var(--accent);color:#fff;padding:3px 10px;border-radius:99px;}
-        .plan-act .plan-cinta{background:var(--green);}
+        .plan-act .plan-cinta{background:var(--accent);left:auto;right:16px;}
         .plan-nom{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--fg3);}
         .plan-pr{font-size:28px;font-weight:700;letter-spacing:-.5px;margin:6px 0 14px;font-variant-numeric:tabular-nums;}
         .plan-pr small{font-size:13px;font-weight:500;color:var(--fg3);margin-left:2px;}

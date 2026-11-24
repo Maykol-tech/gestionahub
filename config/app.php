@@ -15,6 +15,10 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+    // Módulos que no están en el prototipo (POS, mesas, cocina, comprobantes, membresías, lista de espera,
+    // reseñas y API). false = ocultos, como pidió el profesor. true = se vuelven a mostrar.
+    'modulos_extra' => (bool) env('MODULOS_EXTRA', false),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

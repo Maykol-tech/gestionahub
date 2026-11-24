@@ -49,7 +49,27 @@ class RepartosController extends DashboardController
                 'pagado' => (bool) $p->pagado,
             ]);
 
+        // Entregas del día (prototipo): todo pedido con delivery de hoy o aún por entregar
+        $hoy = Pedido::query()->where('tenant_id', $tenantId)->where('estado', '!=', 'cancelado')
+            ->where(fn ($q) => $q->where('tipo', 'delivery')->orWhereNotNull('direccion_entrega'))
+            ->where(fn ($q) => $q->whereDate('created_at', today())->orWhereDate('updated_at', today())->orWhereIn('estado', ['confirmado', 'preparando', 'listo', 'en_camino']))
+            ->with('cliente')->orderByRaw("CASE estado WHEN 'en_camino' THEN 0 WHEN 'listo' THEN 1 WHEN 'entregado' THEN 3 ELSE 2 END")->orderBy('created_at')->limit(100)->get()
+            ->map(fn (Pedido $p) => [
+                'numero' => $p->numero,
+                'cliente' => $p->cliente->nombre ?? ($p->cliente_nombre ?: 'Cliente'),
+                'telefono' => $p->cliente_telefono ?: ($p->cliente->telefono ?? null),
+                'direccion' => $p->direccion_entrega,
+                'estado' => $p->estado,
+                'grupo' => $p->estado === 'entregado' ? 'entregados' : ($p->estado === 'en_camino' ? 'en_camino' : 'pendientes'),
+                'repartidor' => $p->repartidor_id ? ($nombres[$p->repartidor_id] ?? null) : null,
+                'total' => (float) $p->total,
+                'pagado' => (bool) $p->pagado,
+                'metodo' => $p->metodo_pago,
+                'programado' => $p->programado_para ? \Carbon\Carbon::parse($p->programado_para)->format('H:i') : null,
+            ])->values();
+
         return view('admin.modulos.repartos', [
+            'entregasHoy' => $hoy,
             'titulo' => 'Repartos',
             'modulo' => 'repartos',
             'enCamino' => $enCamino,

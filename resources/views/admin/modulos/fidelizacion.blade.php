@@ -27,6 +27,7 @@
 <div x-data="fidelizacion(@js($clientes), @js($recompensas), @js($niveles->keyBy('clave')))" @crud-fidelizacion.window="recompensas = $event.detail.filter(r => r.activo)" @keydown.escape.window="cerrar()">
 
     {{-- Indicadores --}}
+    <x-ia modulo="fidelizacion" />
     <div class="stat-row">
         <div class="stat fade-in"><div class="stat-lbl">Clientes con puntos</div><div class="stat-val">{{ $stats['clientes'] }}</div></div>
         <div class="stat fade-in" style="animation-delay:.05s"><div class="stat-lbl">Puntos vigentes</div><div class="stat-val" x-text="formato(totales.saldo)">{{ number_format($stats['puntos_vigentes']) }}</div></div>

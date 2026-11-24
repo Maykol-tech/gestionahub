@@ -118,7 +118,9 @@ class Bloque2SucursalesMesasCocinaTest extends TestCase
             ->assertSee(route('admin.mesas'), false)
             ->assertSee(route('admin.cocina'), false)
             ->assertSee(route('admin.modulo', 'bot'), false)
-            ->assertSee(route('admin.prospectos'), false);
+            ->assertSee(route('admin.modulo', 'prospectar'), false);
+        // "Mis prospectos" va como pestaña dentro de Prospectar (como el prototipo)
+        $this->actingAs($this->admin)->get(route('admin.modulo', 'prospectar'))->assertOk()->assertSee(route('admin.prospectos'), false);
         // Campañas va como pestaña dentro de WhatsApp
         $this->actingAs($this->admin)->get(route('admin.modulo', 'bot'))->assertOk()->assertSee(route('admin.campanas'), false);
     }

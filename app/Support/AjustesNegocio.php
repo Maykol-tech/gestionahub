@@ -14,6 +14,9 @@ class AjustesNegocio
     public const POR_DEFECTO = [
         'color_menu' => '#2B6EF6',
         'color_accion' => '#F47B20',
+        // Personalizar (prototipo): tipografía y modo claro/oscuro del panel
+        'panel_fuente' => 'Inter',
+        'panel_modo' => 'claro',
         'margen_objetivo' => 60,
         'margen_minimo' => 30,
         // GEST-75: programa de puntos

@@ -20,6 +20,11 @@
         .metricas-modal small { font-size:11px; color:var(--fg3); }
         .gasto-fila { display:flex; align-items:center; gap:10px; padding:8px 0; border-top:1px dashed var(--border); font-size:13px; }
         @media (max-width: 640px) { .campos-2, .campos-3, .metricas-modal { grid-template-columns:1fr; } }
+        .pub-2 { display:grid; grid-template-columns:1fr 1.2fr; gap:14px; margin-bottom:16px; }
+        .canal-fila { display:flex; gap:12px; align-items:center; padding:12px 16px; border-top:1px solid var(--border); }
+        .roi-chip { display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:6px; background:var(--acl, #EEF3FE); color:var(--accent); }
+        .roi-chip.malo { background:#FEE2E2; color:#B91C1C; }
+        @media (max-width: 900px) { .pub-2 { grid-template-columns:1fr; } }
     </style>
 @endpush
 
@@ -27,11 +32,57 @@
 <div x-data="publicidad(@js($campanas))" @keydown.escape.window="cerrar()">
 
     {{-- Indicadores --}}
+    <x-ia modulo="publicidad" />
     <div class="stat-row">
         <div class="stat fade-in"><div class="stat-lbl">Gasto real</div><div class="stat-val">S/ {{ number_format($stats['gastado'], 2) }}</div></div>
         <div class="stat fade-in" style="animation-delay:.05s"><div class="stat-lbl">Ventas atribuidas</div><div class="stat-val">S/ {{ number_format($stats['ventas'], 2) }}</div></div>
         <div class="stat fade-in" style="animation-delay:.1s"><div class="stat-lbl">ROAS</div><div class="stat-val">{{ $stats['roas'] !== null ? number_format($stats['roas'], 2) . 'x' : '—' }}</div></div>
         <div class="stat fade-in" style="animation-delay:.15s"><div class="stat-lbl">Alcance / conversiones</div><div class="stat-val">{{ number_format($stats['alcance']) }} / {{ number_format($stats['conversiones']) }}</div></div>
+    </div>
+
+    {{-- Canales activos e historial de gastos (prototipo) --}}
+    <div class="pub-2 fade-in" style="animation-delay:.08s">
+        <div class="panel">
+            <div class="panel-hd"><div class="panel-ttl">Canales activos</div></div>
+            @forelse ($porCanal as $c)
+                <div class="canal-fila">
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-weight:600;">{{ $c['nombre'] }}</div>
+                        <div style="font-size:11px;color:var(--fg3);">Alcance: {{ number_format($c['alcance']) }} personas · {{ $c['conversiones'] }} {{ $c['conversiones'] === 1 ? 'conversión' : 'conversiones' }}</div>
+                        <div class="barra {{ $c['roi'] !== null && $c['roi'] < 1 ? 'alerta' : '' }}"><span style="width:{{ $c['barra'] }}%"></span></div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-weight:700;">S/ {{ number_format($c['gasto'], 2) }}</div>
+                        <span class="roi-chip {{ $c['roi'] !== null && $c['roi'] < 1 ? 'malo' : '' }}">{{ $c['roi'] !== null ? 'ROI ' . number_format($c['roi'], 1) . 'x' : 'Sin ventas' }}</span>
+                    </div>
+                </div>
+            @empty
+                <x-vacio icono="activity" titulo="Aún no hay campañas" texto="Crea tu primera campaña para ver aquí cómo rinde cada red social." />
+            @endforelse
+        </div>
+        <div class="panel">
+            <div class="panel-hd"><div class="panel-ttl">Historial de gastos</div></div>
+            @if ($historial->isEmpty())
+                <x-vacio icono="cash" titulo="Sin gastos registrados" texto="Registra lo que pagas en cada campaña con el botón Gastos." />
+            @else
+                <div class="tbl-wrap">
+                    <table class="tbl">
+                        <thead><tr><th>Fecha</th><th>Canal</th><th>Campaña</th><th class="num">Monto</th><th class="num">ROI</th></tr></thead>
+                        <tbody>
+                            @foreach ($historial as $h)
+                                <tr>
+                                    <td style="color:var(--fg3);white-space:nowrap;">{{ $h['fecha']->format('d/m') }}</td>
+                                    <td>{{ $h['canal'] }}</td>
+                                    <td>{{ $h['campana'] }}@if ($h['concepto'])<div style="font-size:11px;color:var(--fg3);">{{ $h['concepto'] }}</div>@endif</td>
+                                    <td class="num" style="font-weight:700;">S/ {{ number_format($h['monto'], 2) }}</td>
+                                    <td class="num"><span class="roi-chip {{ $h['roi'] !== null && $h['roi'] < 1 ? 'malo' : '' }}">{{ $h['roi'] !== null ? number_format($h['roi'], 1) . 'x' : '—' }}</span></td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+        </div>
     </div>
 
     <div class="panel fade-in" style="animation-delay:.12s">

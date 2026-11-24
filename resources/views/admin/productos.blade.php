@@ -85,6 +85,17 @@
                     </div>
                 </div>
             </div>
+            {{-- Categorías como pestañas y vista en tarjetas (prototipo) --}}
+            <div class="cat-pills">
+                <button type="button" :class="{ on: categoria === '' }" @click="categoria = ''; pagina = 1">Todos</button>
+                <template x-for="cat in categorias.filter(c => c.productos > 0)" :key="cat.id">
+                    <button type="button" :class="{ on: categoria === String(cat.id) }" @click="categoria = String(cat.id); pagina = 1" x-text="cat.nombre"></button>
+                </template>
+                <div class="modo-sel">
+                    <button type="button" :class="{ on: modo === 'tarjetas' }" @click="ponerModo('tarjetas')" title="Ver en tarjetas"><x-icon name="grid" size="14" /></button>
+                    <button type="button" :class="{ on: modo === 'tabla' }" @click="ponerModo('tabla')" title="Ver en tabla"><x-icon name="menu" size="14" /></button>
+                </div>
+            </div>
             <div class="loadbar" x-show="cargando" x-cloak></div>
             <div class="aviso-foto" x-show="contar('sin_foto') && filtro !== 'sin_foto'" x-cloak>
                 <x-icon name="image" size="16" />
@@ -97,7 +108,27 @@
             </div>
             <input type="file" accept="image/jpeg,image/png,image/webp" x-ref="fotoRapida" style="display:none" @change="subirFotoRapida($event)">
 
-            <div class="tbl-wrap" x-show="filtrados.length" x-cloak>
+            <div class="prod-grid" x-show="modo === 'tarjetas' && filtrados.length" x-cloak>
+                <template x-for="(p, i) in visibles" :key="'c' + p.id">
+                    <div class="prod-card" :class="{ off: !p.activo }">
+                        <div class="pc-img" :style="p.foto_real ? 'background-image:url(' + p.imagen_url + ')' : ''">
+                            <button type="button" class="pc-foto" x-show="!p.foto_real" @click="elegirFotoRapida(p)"><x-icon name="image" size="26" /><span>+ Foto</span></button>
+                        </div>
+                        <div class="pc-bd">
+                            <div class="pc-nom" x-text="p.nombre"></div>
+                            <div class="pc-precio" x-text="(p.tiene_variantes && p.variantes.length > 1 ? 'desde ' : '') + gh.soles(p.precio_oferta ?? (p.precio_desde ?? p.precio))"></div>
+                            <div class="pc-meta"><span x-text="'Stock: ' + p.stock + ' und.'"></span> · <span :class="p.estado === 'sin_stock' ? 'pc-r' : (p.estado === 'bajo' ? 'pc-a' : 'pc-ok')" x-text="textoEstado(p.estado)"></span></div>
+                            <div class="pc-acc">
+                                <button class="btn btn-g btn-sm" @click="abrir(p)">Editar</button>
+                                <button class="btn btn-p btn-sm" x-show="p.estado === 'sin_stock' || p.estado === 'bajo'" @click="reponer(p)">Reponer</button>
+                                <button class="btn btn-g btn-sm" x-show="p.estado !== 'sin_stock' && p.estado !== 'bajo'" @click="alternar(p)" x-text="p.activo ? 'Pausar' : 'Publicar'"></button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <div class="tbl-wrap" x-show="modo === 'tabla' && filtrados.length" x-cloak>
                 <table class="tbl">
                     <thead>
                         <tr>
@@ -228,6 +259,25 @@
 @push('styles')
     @include('admin.modulos._base')
     <style>
+    .cat-pills { display:flex; gap:6px; flex-wrap:wrap; align-items:center; padding:0 16px 12px; }
+    .cat-pills > button { border:1px solid var(--border); background:var(--surface, #fff); border-radius:99px; padding:6px 14px; font:inherit; font-size:13px; font-weight:600; color:var(--fg2); cursor:pointer; }
+    .cat-pills > button.on { background:var(--accent); border-color:var(--accent); color:#fff; }
+    .modo-sel { margin-left:auto; display:inline-flex; gap:3px; padding:3px; border:1px solid var(--border); border-radius:10px; }
+    .modo-sel button { border:0; background:none; padding:5px 9px; border-radius:7px; color:var(--fg3); cursor:pointer; display:grid; place-items:center; }
+    .modo-sel button.on { background:var(--accent); color:#fff; }
+    .prod-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(190px, 1fr)); gap:14px; padding:4px 16px 16px; }
+    .prod-card { border:1px solid var(--border); border-radius:14px; overflow:hidden; background:var(--surface, #fff); transition: transform .2s var(--ease), box-shadow .2s var(--ease); }
+    .prod-card:hover { transform:translateY(-2px); box-shadow:0 10px 26px rgba(26,35,50,.09); }
+    .prod-card.off { opacity:.6; }
+    .pc-img { height:120px; background:#F1F5F9 center/cover no-repeat; display:grid; place-items:center; }
+    .pc-foto { border:0; background:none; color:#94A3B8; display:grid; justify-items:center; gap:4px; font:inherit; font-size:11px; font-weight:600; cursor:pointer; }
+    .pc-bd { padding:12px; }
+    .pc-nom { font-weight:700; font-size:14px; }
+    .pc-precio { font-size:18px; font-weight:800; color:var(--accent); margin:4px 0; }
+    .pc-meta { font-size:11px; color:var(--fg3); }
+    .pc-ok { color:var(--accent); } .pc-a { color:#D97706; } .pc-r { color:#DC2626; }
+    .pc-acc { display:flex; gap:6px; margin-top:10px; flex-wrap:wrap; }
+
         .filtros-der{margin-left:auto;display:flex;gap:8px;align-items:center;}
         .thumb-p{position:relative;width:42px;height:42px;border-radius:8px;background:var(--surface2) center/cover no-repeat;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--fg3);flex-shrink:0;transition:transform .2s var(--ease);}
         .thumb-n{position:absolute;right:-5px;bottom:-5px;min-width:17px;height:17px;border-radius:99px;background:var(--fg);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid #fff;padding:0 3px;}

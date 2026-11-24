@@ -123,9 +123,13 @@ class ModulosController extends DashboardController
 
         // Egresos (GEST-66)
         $gastos = collect();
+        $gastosPorCategoria = collect();
         if (\Illuminate\Support\Facades\Schema::hasColumn('gastos', 'concepto')) {
-            $gastos = \App\Models\Gasto::query()->whereDate('fecha', $fecha->toDateString())->orderBy('created_at')->get()
-                ->map(fn ($g) => \App\Http\Controllers\GastoController::presentar($g));
+            $crudos = \App\Models\Gasto::query()->whereDate('fecha', $fecha->toDateString())->orderBy('created_at')->get();
+            $gastosPorCategoria = $crudos->groupBy(fn ($g) => $g->categoria ?: 'otros')
+                ->map(fn ($g, $k) => ['texto' => \App\Models\Gasto::CATEGORIAS[$k] ?? 'Otros', 'monto' => (float) $g->sum('monto')])
+                ->sortByDesc('monto')->values();
+            $gastos = $crudos->map(fn ($g) => \App\Http\Controllers\GastoController::presentar($g));
         }
         $egresos = (float) $gastos->sum('monto');
         $movimientos = $movimientos->concat($gastos)->sortBy('hora')->values();
@@ -145,6 +149,15 @@ class ModulosController extends DashboardController
             'porCobrar' => $porCobrar,
             'movimientos' => $movimientos->values(),
             'porMetodo' => $porMetodo,
+            'gastosPorCategoria' => $gastosPorCategoria,
+            // Resumen para el cierre, agrupado como en el prototipo
+            'resumenCierre' => [
+                'digital' => (float) $porMetodo->whereIn('clave', ['yape', 'plin'])->sum('monto'),
+                'tarjeta' => (float) $porMetodo->whereIn('clave', ['tarjeta', 'mercadopago'])->sum('monto'),
+                'efectivo' => (float) $porMetodo->where('clave', 'efectivo')->sum('monto'),
+                'otros' => (float) $porMetodo->whereNotIn('clave', ['yape', 'plin', 'tarjeta', 'mercadopago', 'efectivo'])->sum('monto'),
+            ],
+            'canales' => $movimientos->where('tipo', 'ingreso')->pluck('metodo')->unique()->count(),
             'hayPedidos' => $this->hayPedidos(),
         ];
     }
@@ -302,6 +315,18 @@ class ModulosController extends DashboardController
     // PRESENCIA
     // =================================================================
 
+    /** Buscar negocios: usa el microservicio de prospección y muestra lo encontrado. */
+    protected function datosProspectar(Request $request): array
+    {
+        $prospectos = \App\Models\Prospecto::query()->where('tenant_id', $this->tenantId())
+            ->orderByDesc('id')->limit(100)->get();
+
+        return [
+            'prospectos' => $prospectos,
+            'conteos' => $prospectos->countBy('estado'),
+        ];
+    }
+
     protected function datosVitrina(Request $request): array
     {
         $tenant = Tenant::find($this->tenantId());
@@ -346,6 +371,31 @@ class ModulosController extends DashboardController
             'ajustes' => $ajustes,
             'negocio' => $tenant->nombre_negocio ?? 'Mi negocio',
             'productos' => Producto::where('tenant_id', $this->tenantId())->where('activo', true)->count(),
+            'botStats' => $this->estadisticasBot(),
+        ];
+    }
+
+    /** Estadísticas del bot del mes (prototipo): conversaciones, pedidos por WhatsApp y respuesta. */
+    private function estadisticasBot(): array
+    {
+        $t = $this->tenantId();
+        $mes = now()->startOfMonth();
+        $antes = [now()->subMonthNoOverflow()->startOfMonth(), $mes];
+        $conv = Schema::hasTable('whatsapp_sesiones') ? DB::table('whatsapp_sesiones')->where('tenant_id', $t)->where('created_at', '>=', $mes)->count() : 0;
+        $convAntes = Schema::hasTable('whatsapp_sesiones') ? DB::table('whatsapp_sesiones')->where('tenant_id', $t)->whereBetween('created_at', $antes)->count() : 0;
+        $pedidos = $this->hayPedidos() ? DB::table('pedidos')->where('tenant_id', $t)->where('canal', 'whatsapp')->where('created_at', '>=', $mes)->count() : 0;
+        $entrantes = Schema::hasTable('whatsapp_mensajes') ? DB::table('whatsapp_mensajes')->where('tenant_id', $t)->where('direccion', 'entrante')->where('created_at', '>=', $mes)->count() : 0;
+        $salientes = Schema::hasTable('whatsapp_mensajes') ? DB::table('whatsapp_mensajes')->where('tenant_id', $t)->where('direccion', 'saliente')->where('created_at', '>=', $mes)->count() : 0;
+        $conexion = Schema::hasTable('whatsapp_conexiones') ? DB::table('whatsapp_conexiones')->where('tenant_id', $t)->where('activo', true)->first() : null;
+
+        return [
+            'mes' => ucfirst(now()->translatedFormat('F')),
+            'conversaciones' => $conv,
+            'variacion' => $convAntes > 0 ? (int) round(($conv - $convAntes) * 100 / $convAntes) : null,
+            'pedidos' => $pedidos,
+            'conversion' => $conv > 0 ? (int) round($pedidos * 100 / $conv) : 0,
+            'respondidos' => $entrantes > 0 ? min(100, (int) round($salientes * 100 / $entrantes)) : null,
+            'numero' => $conexion->numero_visible ?? null,
         ];
     }
 
@@ -397,6 +447,7 @@ class ModulosController extends DashboardController
         $tenant = Tenant::find($this->tenantId());
         $planes = collect();
         if (Schema::hasTable('planes_saas')) {
+            \App\Support\Suscripciones::asegurarPlanes();
             $planes = DB::table('planes_saas')->where('activo', true)->orderBy('precio_mensual')->get()->map(function ($p) {
                 $base = collect(self::PLANES_BASE)->firstWhere('slug', $p->slug) ?? ['beneficios' => [], 'faltan' => []];
 
@@ -459,8 +510,10 @@ class ModulosController extends DashboardController
                 'email' => $tenant->email ?? '',
                 'color_menu' => $ajustes['color_menu'],
                 'color_accion' => $ajustes['color_accion'],
+                'panel_fuente' => $ajustes['panel_fuente'] ?? 'Inter',
+                'panel_modo' => $ajustes['panel_modo'] ?? 'claro',
             ],
-            'porDefecto' => ['color_menu' => AjustesNegocio::POR_DEFECTO['color_menu'], 'color_accion' => AjustesNegocio::POR_DEFECTO['color_accion']],
+            'porDefecto' => ['color_menu' => AjustesNegocio::POR_DEFECTO['color_menu'], 'color_accion' => AjustesNegocio::POR_DEFECTO['color_accion'], 'panel_fuente' => 'Inter', 'panel_modo' => 'claro'],
         ];
     }
 
@@ -472,6 +525,8 @@ class ModulosController extends DashboardController
             'ruc' => ['nullable', 'digits:11'],
             'color_menu' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'color_accion' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+            'panel_fuente' => ['nullable', 'in:Inter,DM Sans,Nunito,Poppins'],
+            'panel_modo' => ['nullable', 'in:claro,oscuro,sistema'],
         ], self::MENSAJES + ['ruc.digits' => 'El RUC debe tener 11 dígitos.', 'color_menu.regex' => 'Color no válido.', 'color_accion.regex' => 'Color no válido.']);
 
         $tenant = Tenant::findOrFail($this->tenantId());
@@ -483,6 +538,8 @@ class ModulosController extends DashboardController
         AjustesNegocio::guardar($this->tenantId(), [
             'color_menu' => strtoupper($datos['color_menu']),
             'color_accion' => strtoupper($datos['color_accion']),
+            'panel_fuente' => $datos['panel_fuente'] ?? 'Inter',
+            'panel_modo' => $datos['panel_modo'] ?? 'claro',
         ]);
 
         return response()->json(['message' => 'Cambios guardados', 'data' => ['negocio' => $tenant->nombre_negocio, 'iniciales' => $this->iniciales($tenant->nombre_negocio)]]);

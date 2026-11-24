@@ -268,7 +268,12 @@ class PedidosPanelController extends DashboardController
             }
 
             if ($clienteNuevo) {
-                $cliente = CrmCliente::create([
+                // Si ya existe un cliente con ese celular, se usa el mismo en vez de crear otro repetido
+                $telefono = trim((string) ($datos['cliente_telefono'] ?? ''));
+                $cliente = $telefono !== ''
+                    ? CrmCliente::where('tenant_id', $tenantId)->where('telefono', $telefono)->first()
+                    : null;
+                $cliente ??= CrmCliente::create([
                     'tenant_id' => $tenantId, 'nombre' => trim($datos['cliente_nombre']),
                     'telefono' => $datos['cliente_telefono'] ?? null, 'fuente' => 'manual', 'activo' => true,
                     'direccion' => $datos['tipo'] === 'delivery' ? ($datos['direccion_entrega'] ?? null) : null,

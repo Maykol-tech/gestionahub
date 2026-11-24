@@ -47,24 +47,13 @@
             <div class="stat-ch up">↑ {{ $datos['rango_texto'] }} · {{ $datos['clientes_total'] }} en total</div>
         </div>
         <div class="stat fade-in" style="animation-delay:.2s">
-            <div class="stat-lbl">Productos activos</div>
-            <div class="stat-val">{{ $datos['productos_activos'] }}</div>
-            <div class="stat-ch {{ $stockBajo->count() ? 'dn' : 'neutral' }}">{{ $stockBajo->count() }} con stock bajo</div>
+            <div class="stat-lbl">Gasto publicidad</div>
+            <div class="stat-val">S/ {{ number_format($datos['gasto_publicidad'], 2) }}</div>
+            <div class="stat-ch neutral">{{ $datos['roi_publicidad'] !== null ? 'ROI ' . number_format($datos['roi_publicidad'], 1) . 'x' : 'Sin campañas registradas' }} · {{ $datos['productos_activos'] }} productos activos</div>
         </div>
     </div>
 
-    <div class="card fade-in" style="background:#F0F5FF;border-color:#C7D9F8;border-left:4px solid var(--accent);margin-bottom:16px;animation-delay:.25s">
-        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);display:flex;align-items:center;gap:6px;margin-bottom:6px;">
-            <x-icon name="sparkles" size="13" /> IA · Resumen semanal
-        </div>
-        <div style="font-size:15px;font-weight:700;">
-            @if ($datos['ventas_semana'] > 0)
-                Esta semana vendiste S/ {{ number_format($datos['ventas_semana'], 2) }} en {{ $datos['pedidos_semana'] }} pedidos
-            @else
-                Registra tus primeros pedidos para generar el resumen automático
-            @endif
-        </div>
-    </div>
+    <x-ia modulo="dashboard" delay=".25s" />
 
     <div class="two">
         <div class="fade-in" style="animation-delay:.3s">

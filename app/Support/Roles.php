@@ -5,6 +5,7 @@ namespace App\Support;
 use App\Models\Repartidor;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 /**
  * Roles funcionales del panel (Spatie) y los modulos que puede ver cada uno.
@@ -108,6 +109,14 @@ class Roles
         }
         $repartidor = Repartidor::withoutGlobalScopes()->where('user_id', $usuario->id)->first();
 
-        return $repartidor ? route('repartidor.app', $repartidor->token) : null;
+        if (! $repartidor) {
+            return null;
+        }
+        // Repartidores creados sin enlace (datos antiguos o seeders): se les crea en el primer ingreso
+        if (! $repartidor->token) {
+            $repartidor->forceFill(['token' => Str::random(40)])->save();
+        }
+
+        return route('repartidor.app', $repartidor->token);
     }
 }

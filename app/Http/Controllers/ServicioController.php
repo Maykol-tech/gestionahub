@@ -41,6 +41,18 @@ class ServicioController extends DashboardController
                 'ingresos_mes' => (float) Cita::query()->where('estado', 'completada')
                     ->whereBetween('inicio', [now()->startOfMonth(), now()->endOfMonth()])
                     ->sum('precio'),
+                // Indicadores del prototipo
+                'ingresos_hoy' => (float) Cita::query()->where('estado', 'completada')->whereDate('inicio', today())->sum('precio'),
+                'ingresos_semana_pasada' => (float) Cita::query()->where('estado', 'completada')->whereDate('inicio', today()->subWeek())->sum('precio'),
+                'completadas_hoy' => Cita::query()->whereDate('inicio', today())->where('estado', 'completada')->count(),
+                'ticket' => (float) Cita::query()->where('estado', 'completada')->where('inicio', '>=', now()->startOfMonth())->avg('precio'),
+                'recurrentes' => (function () {
+                    $porCliente = Cita::query()->where('estado', '!=', 'cancelada')->where('inicio', '>=', now()->startOfMonth())
+                        ->whereNotNull('cliente_telefono')->selectRaw('cliente_telefono, COUNT(*) as n')->groupBy('cliente_telefono')->get();
+                    $antes = Cita::query()->where('inicio', '<', now()->startOfMonth())->whereIn('cliente_telefono', $porCliente->pluck('cliente_telefono'))->distinct()->count('cliente_telefono');
+
+                    return $porCliente->count() ? (int) round($antes * 100 / $porCliente->count()) : 0;
+                })(),
             ],
             'cfgServicios' => CrudModulos::cliente('servicios'),
         ]);

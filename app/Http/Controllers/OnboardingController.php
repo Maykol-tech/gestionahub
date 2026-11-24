@@ -41,7 +41,7 @@ class OnboardingController extends DashboardController
                     'clave' => $k, 'nombre' => $r['nombre'], 'icono' => $r['icono'], 'modulos' => $r['modulos'],
                     'categorias' => $r['categorias'], 'servicios' => $r['servicios'], 'color' => $r['paletas'][0][0], 'color2' => $r['paletas'][0][1],
                 ])->values(),
-                'modulos' => PlantillasRubro::MODULOS_OPCIONALES,
+                'modulos' => array_diff_key(PlantillasRubro::MODULOS_OPCIONALES, array_flip(\App\Support\ModulosPrototipo::ocultos())),
                 'datos' => [
                     'rubro' => $rubro ?? '',
                     'nombre_negocio' => $tenant->nombre_negocio,

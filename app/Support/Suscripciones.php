@@ -21,6 +21,13 @@ use Illuminate\Validation\ValidationException;
  */
 class Suscripciones
 {
+    /** Planes base [slug, nombre, mensual, anual, usuarios, sucursales]; los mismos del GestionaHubSeeder. */
+    public const PLANES_BASE = [
+        ['emprendedor', 'Emprendedor', 49, 490, 2, 1],
+        ['negocio', 'Negocio', 89, 890, 5, 2],
+        ['pro', 'Pro', 149, 1490, 15, 5],
+    ];
+
     public const METODOS_MANUALES = ['yape' => 'Yape', 'plin' => 'Plin', 'transferencia' => 'Transferencia bancaria'];
     public const MINUTOS_ABANDONO = 30;
     public const MAX_INTENTOS = 3;
@@ -34,7 +41,26 @@ class Suscripciones
 
     public static function plan(string $slug): ?object
     {
+        self::asegurarPlanes();
+
         return DB::table('planes_saas')->where('slug', $slug)->where('activo', true)->first();
+    }
+
+    /**
+     * Si la tabla de planes esta vacia (base creada sin el seeder), agrega los 3 planes base.
+     * Solo inserta: nunca cambia ni borra planes existentes.
+     */
+    public static function asegurarPlanes(): void
+    {
+        if (DB::table('planes_saas')->exists()) {
+            return;
+        }
+        foreach (self::PLANES_BASE as [$slug, $nombre, $mes, $anio, $usuarios, $sucursales]) {
+            DB::table('planes_saas')->insertOrIgnore([
+                'slug' => $slug, 'nombre' => $nombre, 'precio_mensual' => $mes, 'precio_anual' => $anio,
+                'max_usuarios' => $usuarios, 'max_sucursales' => $sucursales, 'activo' => true,
+            ]);
+        }
     }
 
     public static function precio(object $plan, string $ciclo): float

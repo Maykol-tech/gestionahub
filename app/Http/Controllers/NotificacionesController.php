@@ -33,7 +33,7 @@ class NotificacionesController extends DashboardController
         }
 
         $comandas = Comanda::query()->where('estado', 'pendiente')->count();
-        if ($comandas > 0) {
+        if ($comandas > 0 && ! \App\Support\ModulosPrototipo::bloqueada('admin.cocina')) {
             $items[] = ['tipo' => 'cocina', 'texto' => "{$comandas} comandas pendientes en cocina", 'url' => url('admin/cocina')];
         }
 

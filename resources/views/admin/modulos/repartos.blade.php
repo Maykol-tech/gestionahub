@@ -15,27 +15,43 @@
     @if ($errors->any())
         <div class="panel fade-in" style="padding:12px;margin-bottom:12px;color:#B91C1C;">@foreach ($errors->all() as $e)<div>{{ $e }}</div>@endforeach</div>
     @endif
-    <div class="stat-row">
-        <div class="stat fade-in">
-            <div class="stat-lbl">En camino <span class="stat-ico" style="background:var(--acl);color:var(--accent)"><x-icon name="truck" size="14" /></span></div>
-            <div class="stat-val">{{ count($enCamino) }}</div>
-            <div class="stat-ch neutral">Pedidos en ruta ahora</div>
+    <x-ia modulo="repartos" />
+    @php
+        $pendHoy = $entregasHoy->where('grupo', '!=', 'entregados');
+    @endphp
+    <div class="rep-kpis">
+        <div class="rk fade-in"><b>{{ $entregasHoy->count() }}</b><span>Pedidos totales</span></div>
+        <div class="rk fade-in" style="animation-delay:.04s"><b style="color:var(--green)">{{ $entregasHoy->where('grupo', 'entregados')->count() }}</b><span>Entregados</span></div>
+        <div class="rk fade-in" style="animation-delay:.08s"><b style="color:var(--cta, #F47B20)">{{ $pendHoy->count() }}</b><span>Pendientes · {{ count($enCamino) }} en camino</span></div>
+        <div class="rk fade-in" style="animation-delay:.12s"><b>S/ {{ number_format($entregasHoy->sum('total'), 2) }}</b><span>Total ruta</span></div>
+        <div class="rk fade-in" style="animation-delay:.16s"><b style="color:var(--accent)">S/ {{ number_format($pendHoy->where('pagado', false)->sum('total'), 2) }}</b><span>Por cobrar</span></div>
+    </div>
+
+    {{-- Entregas del día con filtros (prototipo) --}}
+    <div class="panel fade-in" style="margin-bottom:16px;animation-delay:.18s" x-data="{ filtro: 'todos' }">
+        <div class="panel-hd" style="flex-wrap:wrap;gap:8px;">
+            <div class="panel-ttl">Entregas de hoy</div>
+            <div class="rep-filtros">
+                @foreach (['todos' => 'Todos', 'pendientes' => 'Pendientes', 'en_camino' => 'En camino', 'entregados' => 'Entregados'] as $k => $t)
+                    <button type="button" :class="{ on: filtro === '{{ $k }}' }" @click="filtro = '{{ $k }}'">{{ $t }} ({{ $k === 'todos' ? $entregasHoy->count() : $entregasHoy->where('grupo', $k)->count() }})</button>
+                @endforeach
+            </div>
         </div>
-        <div class="stat fade-in" style="animation-delay:.05s">
-            <div class="stat-lbl">Por cobrar en ruta <span class="stat-ico" style="background:var(--ambl);color:var(--amber)"><x-icon name="cash" size="14" /></span></div>
-            <div class="stat-val">S/ {{ number_format($porCobrarRuta, 2) }}</div>
-            <div class="stat-ch neutral">Contra entrega</div>
-        </div>
-        <div class="stat fade-in" style="animation-delay:.1s">
-            <div class="stat-lbl">Entregados hoy <span class="stat-ico" style="background:var(--greenl);color:var(--green)"><x-icon name="check-circle" size="14" /></span></div>
-            <div class="stat-val">{{ $entregadosHoy }}</div>
-            <div class="stat-ch neutral">Desde las 00:00</div>
-        </div>
-        <div class="stat fade-in" style="animation-delay:.15s">
-            <div class="stat-lbl">Repartidores <span class="stat-ico" style="background:var(--ctl);color:var(--cta)"><x-icon name="users" size="14" /></span></div>
-            <div class="stat-val">{{ count($repartidores) }}</div>
-            <div class="stat-ch neutral">{{ $hayRepartidores ? 'Registrados' : 'Aún sin registrar' }}</div>
-        </div>
+        @forelse ($entregasHoy as $i => $e)
+            <div class="ent-fila {{ $e['grupo'] }}" x-show="filtro === 'todos' || filtro === '{{ $e['grupo'] }}'">
+                <span class="ent-n">{{ $i + 1 }}</span>
+                <div style="flex:1;min-width:0;">
+                    <div style="font-weight:700;">{{ $e['cliente'] }} @if ($e['programado'])<span class="ent-urg">Entregar {{ $e['programado'] }}</span>@endif</div>
+                    <div style="font-size:12px;color:var(--fg3);">{{ $e['direccion'] ?: 'Sin dirección' }}@if ($e['telefono']) · {{ $e['telefono'] }}@endif · #{{ $e['numero'] }}{{ $e['repartidor'] ? ' · ' . $e['repartidor'] : ' · sin repartidor' }}</div>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-weight:800;">S/ {{ number_format($e['total'], 2) }}</div>
+                    <span class="ent-est">{{ ['entregados' => 'Entregado', 'en_camino' => 'En camino', 'pendientes' => 'Pendiente'][$e['grupo']] }}{{ $e['pagado'] ? ' · pagado' : '' }}</span>
+                </div>
+            </div>
+        @empty
+            <x-vacio icono="truck" titulo="Sin entregas hoy" texto="Los pedidos con delivery de hoy aparecerán aquí en el orden de la ruta." />
+        @endforelse
     </div>
 
     {{-- Izquierda: pedidos en camino y equipo. Derecha: mapa fijo al desplazar --}}
@@ -164,6 +180,19 @@
 @push('styles')
     @include('admin.modulos._base')
     <style>
+        .rep-kpis { display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:10px; margin-bottom:14px; }
+        .rk { background:var(--surface, #fff); border:1px solid var(--border); border-radius:12px; padding:12px; text-align:center; }
+        .rk b { display:block; font-size:22px; font-variant-numeric:tabular-nums; } .rk span { font-size:11px; color:var(--fg3); }
+        .rep-filtros { display:flex; gap:6px; flex-wrap:wrap; margin-left:auto; }
+        .rep-filtros button { border:1px solid var(--border); background:var(--surface, #fff); border-radius:99px; padding:5px 12px; font:inherit; font-size:12px; font-weight:600; color:var(--fg2); cursor:pointer; }
+        .rep-filtros button.on { background:var(--accent); border-color:var(--accent); color:#fff; }
+        .ent-fila { display:flex; gap:12px; align-items:center; padding:12px 16px; border-top:1px solid var(--border); }
+        .ent-fila.entregados { background:#F0FDF4; } .ent-fila.en_camino { background:#FFF7ED; box-shadow:inset 3px 0 0 var(--cta, #F47B20); }
+        .ent-n { width:26px; height:26px; border-radius:50%; display:grid; place-items:center; background:var(--acl, #EEF3FE); color:var(--accent); font-size:12px; font-weight:800; flex:none; }
+        .ent-urg { font-size:11px; font-weight:700; color:#C2410C; margin-left:6px; }
+        .ent-est { font-size:11px; color:var(--fg3); }
+        @media (max-width: 900px) { .rep-kpis { grid-template-columns:repeat(2, minmax(0,1fr)); } }
+
         .rep-grid{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:16px;align-items:start;margin-top:16px;}
         .rep-col{display:flex;flex-direction:column;gap:16px;min-width:0;}
         .rep-lado{position:sticky;top:72px;}

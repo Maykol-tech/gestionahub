@@ -15,20 +15,66 @@
         .campos-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
         .campos-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
         @media (max-width: 640px) { .campos-2, .campos-3 { grid-template-columns:1fr; } }
+        .sa-kpis { display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:12px; margin-bottom:18px; }
+        .sa-kpi { background:var(--surface-2, #F6F8FB); border:1px solid var(--border); border-radius:14px; padding:16px; transition: transform .2s var(--ease), box-shadow .2s var(--ease); }
+        .sa-kpi:hover { transform:translateY(-2px); box-shadow:0 10px 26px rgba(26,35,50,.09); }
+        .sk-lbl { font-size:11px; font-weight:600; color:var(--fg3); }
+        .sk-val { font-size:26px; font-weight:800; margin:6px 0; font-variant-numeric:tabular-nums; }
+        .sk-val small { font-size:14px; color:var(--fg3); font-weight:600; }
+        .sk-sub { font-size:11px; color:var(--fg3); }
+        .sa-mrr { background:linear-gradient(130deg, var(--accent, #4B7CF5) 0%, #1E3A8A 75%, #1A2332 100%); border:0; color:#fff; }
+        .sa-mrr .sk-lbl, .sa-mrr .sk-sub { color:rgba(255,255,255,.8); }
+        .sa-grid { display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:16px; align-items:start; }
+        .sa-side { display:grid; gap:14px; }
+        .dist-fila { margin-bottom:12px; }
+        .dist-top { display:flex; justify-content:space-between; gap:8px; font-size:13px; }
+        .dist-top small { color:var(--fg3); font-size:11px; }
+        .dist-bar { height:5px; border-radius:99px; background:#E2E8F0; margin-top:6px; overflow:hidden; }
+        .dist-bar span { display:block; height:100%; border-radius:99px; background:var(--accent, #4B7CF5); }
+        .sa-link { display:flex; align-items:center; gap:8px; padding:9px 0; border-top:1px solid var(--border); font-size:13px; font-weight:600; color:var(--fg); text-decoration:none; }
+        .sa-link:first-of-type { border-top:0; }
+        .sa-link:hover { color:var(--accent); }
+        .sa-badge { margin-left:auto; background:var(--cta, #F47B20); color:#fff; border-radius:99px; font-size:11px; padding:1px 8px; }
+        .plan-pill { display:inline-block; font-size:11px; font-weight:700; padding:2px 9px; border-radius:6px; background:#94A3B8; color:#fff; }
+        .pp-negocio { background:#6366F1; } .pp-pro { background:var(--accent, #4B7CF5); } .pp-emprendedor { background:#94A3B8; } .pp-sinplan { background:#E2E8F0; color:#475569; }
+        @media (max-width: 1200px) { .sa-kpis { grid-template-columns:repeat(3, minmax(0,1fr)); } .sa-grid { grid-template-columns:1fr; } }
+        @media (max-width: 640px) { .sa-kpis { grid-template-columns:1fr 1fr; } }
     </style>
 @endpush
 
 @section('contenido')
 <div x-data="superadmin(@js($negocios), @js($planes), @js($estados))" @keydown.escape.window="modal = null">
 
-    <div class="stat-row">
-        <div class="stat fade-in"><div class="stat-lbl">Negocios</div><div class="stat-val">{{ $stats['total'] }}</div></div>
-        <div class="stat fade-in" style="animation-delay:.05s"><div class="stat-lbl">Activos</div><div class="stat-val">{{ $stats['activos'] }}</div></div>
-        <div class="stat fade-in" style="animation-delay:.1s"><div class="stat-lbl">Suspendidos</div><div class="stat-val" style="{{ $stats['suspendidos'] ? 'color:#B91C1C' : '' }}">{{ $stats['suspendidos'] }}</div></div>
-        <div class="stat fade-in" style="animation-delay:.15s"><div class="stat-lbl">Vencen en 7 días</div><div class="stat-val">{{ $stats['por_vencer'] }}</div></div>
-        <div class="stat fade-in" style="animation-delay:.2s"><div class="stat-lbl">Ingreso mensual estimado</div><div class="stat-val">S/ {{ number_format($stats['ingresos_mensuales'], 2) }}</div></div>
+    <div class="sa-kpis">
+        <div class="sa-kpi sa-mrr fade-in">
+            <div class="sk-lbl">Ingreso mensual (MRR)</div>
+            <div class="sk-val">S/ {{ number_format($stats['ingresos_mensuales'], 2) }}</div>
+            <div class="sk-sub">De {{ $stats['activos'] }} {{ $stats['activos'] === 1 ? 'negocio activo' : 'negocios activos' }}</div>
+        </div>
+        <div class="sa-kpi fade-in" style="animation-delay:.05s">
+            <div class="sk-lbl">Negocios activos</div>
+            <div class="sk-val">{{ $stats['activos'] }}<small> / {{ $stats['total'] }}</small></div>
+            <div class="sk-sub" style="color:var(--green)">+{{ $stats['nuevos_mes'] }} este mes</div>
+        </div>
+        <div class="sa-kpi fade-in" style="animation-delay:.1s">
+            <div class="sk-lbl">Suspendidos</div>
+            <div class="sk-val" style="{{ $stats['suspendidos'] ? 'color:#B91C1C' : '' }}">{{ $stats['suspendidos'] }}</div>
+            <div class="sk-sub" style="color:{{ $stats['por_vencer'] ? '#B91C1C' : 'var(--fg3)' }}">{{ $stats['por_vencer'] }} vencen en 7 días</div>
+        </div>
+        <div class="sa-kpi fade-in" style="animation-delay:.15s">
+            <div class="sk-lbl">Pedidos totales hoy</div>
+            <div class="sk-val">{{ number_format($stats['pedidos_hoy']) }}</div>
+            <div class="sk-sub">En todos los negocios</div>
+        </div>
+        <a class="sa-kpi fade-in" href="{{ route('superadmin.suscripciones') }}" style="animation-delay:.2s;text-decoration:none;color:inherit;">
+            <div class="sk-lbl">Pagos por revisar</div>
+            <div class="sk-val" style="color:var(--cta, #F47B20)">S/ {{ number_format($stats['pagos_revision_monto'], 2) }}</div>
+            <div class="sk-sub" style="color:var(--cta, #F47B20)">{{ $stats['pagos_revision'] }} {{ $stats['pagos_revision'] === 1 ? 'pago pendiente' : 'pagos pendientes' }}</div>
+        </a>
     </div>
 
+    <div class="sa-grid">
+    <div style="min-width:0;">
     <div class="tabs" role="tablist">
         <button type="button" class="tab-btn" :class="{ on: tab === 'negocios' }" @click="tab = 'negocios'" role="tab">Negocios</button>
         <button type="button" class="tab-btn" :class="{ on: tab === 'planes' }" @click="tab = 'planes'" role="tab">Planes</button>
@@ -54,6 +100,7 @@
                     <tr>
                         <th>Negocio</th>
                         <th>Plan</th>
+                        <th class="num">Sucursales</th>
                         <th>Vence</th>
                         <th>Estado</th>
                         <th style="width:270px;"></th>
@@ -66,7 +113,8 @@
                                 <div style="font-weight:600;" x-text="n.nombre"></div>
                                 <div style="font-size:11px;color:var(--fg3);" x-text="n.email + ' · alta ' + n.alta"></div>
                             </td>
-                            <td x-text="n.plan"></td>
+                            <td><span class="plan-pill" :class="'pp-' + (n.plan || '').toLowerCase().replace(/[^a-z]/g, '')" x-text="n.plan"></span></td>
+                            <td class="num" x-text="n.sucursales"></td>
                             <td x-text="n.vence_label"></td>
                             <td>
                                 <span class="chip" :style="chipEstado(n.estado)" x-text="estados[n.estado]"></span>
@@ -123,6 +171,29 @@
                 </tbody>
             </table>
         </div>
+    </div>
+
+    </div>
+    <aside class="sa-side">
+        <div class="panel fade-in" style="padding:16px;">
+            <div class="panel-ttl" style="margin-bottom:12px;">Distribución de planes</div>
+            @php($maxNeg = max(1, $distribucion->max('negocios')))
+            @forelse ($distribucion as $d)
+                <div class="dist-fila">
+                    <div class="dist-top"><span>{{ $d['nombre'] }} S/{{ number_format($d['precio'], 0) }}</span><small>{{ $d['negocios'] }} {{ $d['negocios'] === 1 ? 'negocio' : 'negocios' }} · S/{{ number_format($d['monto'], 0) }}</small></div>
+                    <div class="dist-bar"><span style="width:{{ round($d['negocios'] * 100 / $maxNeg) }}%"></span></div>
+                </div>
+            @empty
+                <div style="font-size:13px;color:var(--fg3);">Aún no hay planes.</div>
+            @endforelse
+        </div>
+        <div class="panel fade-in" style="padding:16px;animation-delay:.05s">
+            <div class="panel-ttl" style="margin-bottom:10px;">Accesos rápidos</div>
+            <a class="sa-link" href="{{ route('superadmin.suscripciones') }}"><x-icon name="card" size="15" /> Pagos de suscripción @if ($stats['pagos_revision'])<span class="sa-badge">{{ $stats['pagos_revision'] }}</span>@endif</a>
+            <a class="sa-link" href="{{ route('superadmin.leads') }}"><x-icon name="users" size="15" /> Leads de la landing</a>
+            <a class="sa-link" href="{{ route('superadmin.landing') }}"><x-icon name="pen" size="15" /> Editor de la landing</a>
+        </div>
+    </aside>
     </div>
 
     {{-- Ventana: extender suscripcion --}}

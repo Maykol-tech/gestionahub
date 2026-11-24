@@ -13,6 +13,7 @@
 @section('contenido')
 <div x-data="cobrosPage(@js($cobros), @js($puedeMarcar), @js($porPagar))" @exportar-cobros.window="exportar()">
 
+    <x-ia modulo="cobros" />
     <div class="stat-row">
         <div class="stat fade-in">
             <div class="stat-lbl">Cobrado <span class="stat-ico" style="background:var(--greenl);color:var(--green)"><x-icon name="check-circle" size="14" /></span></div>
@@ -34,6 +35,18 @@
             <div class="stat-val" x-text="tasa() + '%'">0%</div>
             <div class="stat-ch neutral">Del monto total de pedidos</div>
         </div>
+    </div>
+
+    {{-- Cobrado por método de pago (prototipo) --}}
+    <div class="met-row fade-in" style="animation-delay:.14s">
+        <template x-for="m in porMetodo()" :key="m.nombre">
+            <div class="met-card">
+                <div class="met-ico" x-text="m.icono"></div>
+                <div class="met-nom" x-text="m.nombre"></div>
+                <div class="met-val" x-text="gh.soles(m.monto)"></div>
+                <div class="met-sub" x-text="m.cantidad + (m.cantidad === 1 ? ' transacción' : ' transacciones') + ' · ' + m.pct + '%'"></div>
+            </div>
+        </template>
     </div>
 
     <div class="panel fade-in" style="animation-delay:.18s">
@@ -161,6 +174,14 @@
 
 @push('styles')
     @include('admin.modulos._base')
+    <style>
+        .met-row { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:12px; margin-bottom:16px; }
+        .met-card { background:var(--surface, #fff); border:1px solid var(--border); border-radius:14px; padding:14px; text-align:center; transition: transform .2s var(--ease), box-shadow .2s var(--ease); }
+        .met-card:hover { transform:translateY(-2px); box-shadow:0 10px 26px rgba(26,35,50,.09); }
+        .met-ico { font-size:20px; } .met-nom { font-size:12px; color:var(--fg3); margin-top:4px; }
+        .met-val { font-size:20px; font-weight:800; margin:4px 0; font-variant-numeric:tabular-nums; } .met-sub { font-size:11px; color:var(--fg3); }
+        @media (max-width: 760px) { .met-row { grid-template-columns:1fr 1fr; } }
+    </style>
 @endpush
 
 @push('scripts')
@@ -172,6 +193,14 @@
             cobros, puedeMarcar, porPagar, tab: 'pendientes', buscar: '', marcando: null, resaltado: null, entrada: true,
             pagando: null, pago: { metodo: 'efectivo', registrar_gasto: true }, guardandoPago: false,
             deuda() { return this.porPagar.reduce((s, d) => s + d.total, 0); },
+            porMetodo() {
+                const grupos = [['Yape', '📱', ['Yape']], ['Tarjeta', '💳', ['Tarjeta', 'Mercado Pago']], ['Efectivo', '💵', ['Efectivo']], ['Plin', '📲', ['Plin']]];
+                const pagados = this.cobros.filter(c => c.pagado), total = pagados.reduce((s, c) => s + c.total, 0) || 1;
+                return grupos.map(([nombre, icono, claves]) => {
+                    const l = pagados.filter(c => claves.includes(c.metodo)), monto = l.reduce((s, c) => s + c.total, 0);
+                    return { nombre, icono, monto, cantidad: l.length, pct: Math.round(monto * 100 / total) };
+                });
+            },
             vencidas() { return this.porPagar.filter(d => d.dias < 0).length; },
             abrirPago(d) { this.pagando = d; this.pago = { metodo: 'efectivo', registrar_gasto: true }; },
             async confirmarPago() {

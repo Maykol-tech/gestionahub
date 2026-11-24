@@ -40,7 +40,32 @@ class PublicidadController extends DashboardController
         $gastado = round((float) $filas->sum('gastado'), 2);
         $ventas = round((float) $filas->sum(fn ($f) => (float) $f['ventas_atribuidas']), 2);
 
+        // Como el prototipo: resumen por canal y los últimos gastos registrados
+        $porCanal = $filas->groupBy('canal')->map(function ($g, $canal) {
+            $gasto = (float) $g->sum('gastado');
+            $ventasCanal = (float) $g->sum(fn ($f) => (float) $f['ventas_atribuidas']);
+
+            return [
+                'canal' => $canal,
+                'nombre' => self::CANALES[$canal] ?? ucfirst($canal),
+                'gasto' => $gasto,
+                'alcance' => (int) $g->sum('alcance'),
+                'conversiones' => (int) $g->sum('conversiones'),
+                'roi' => $gasto > 0 ? round($ventasCanal / $gasto, 1) : null,
+            ];
+        })->sortByDesc('gasto')->values();
+        $maxGasto = max(1, (float) $porCanal->max('gasto'));
+        $porCanal = $porCanal->map(fn ($c) => $c + ['barra' => (int) round($c['gasto'] * 100 / $maxGasto)]);
+
+        $historial = $campanas->flatMap(fn (CampanaPublicidad $c) => $c->gastos->map(fn (CampanaGasto $g) => [
+            'fecha' => $g->fecha, 'canal' => self::CANALES[$c->canal] ?? $c->canal, 'campana' => $c->nombre,
+            'concepto' => $g->concepto, 'monto' => (float) $g->monto, 'conversiones' => $c->conversiones,
+            'roi' => (float) $c->inversion > 0 && $c->ventas_atribuidas !== null ? round((float) $c->ventas_atribuidas / (float) $c->inversion, 1) : null,
+        ]))->sortByDesc('fecha')->take(10)->values();
+
         return view('admin.modulos.publicidad', [
+            'porCanal' => $porCanal,
+            'historial' => $historial,
             'titulo' => 'Publicidad',
             'modulo' => 'publicidad',
             'campanas' => $filas,

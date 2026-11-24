@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Scopes\TenantScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 /**
  * Repartidor del negocio. Columnas tomadas de la migracion completar_tablas_pedidos (+ placa).
@@ -35,6 +36,10 @@ class Repartidor extends Model
     protected static function booted()
     {
         static::addGlobalScope(new TenantScope);
+        // Cada repartidor nace con su enlace privado para la app (/r/{token})
+        static::creating(function (Repartidor $r) {
+            $r->token ??= Str::random(40);
+        });
     }
 
     public function pedidos()

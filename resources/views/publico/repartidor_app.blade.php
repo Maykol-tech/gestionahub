@@ -75,6 +75,17 @@
         .hoja h3 { margin:0 0 6px; }
         .hoja p { margin:0 0 14px; color:var(--fg2); font-size:14px; }
         .hoja .sec-btn { width:100%; margin-top:8px; border:1px solid var(--border); background:var(--bg); color:var(--fg); border-radius:14px; padding:14px; font:inherit; font-weight:700; }
+        .ruta-box { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:12px; margin-top:14px; }
+        .ruta-hd { display:flex; align-items:center; gap:6px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--fg3); margin:2px 2px 10px; }
+        #mapa-ruta { height:210px; border-radius:12px; overflow:hidden; background:#0F172A; }
+        .ruta-sin { height:120px; border-radius:12px; display:grid; place-items:center; text-align:center; font-size:13px; color:var(--fg3); background:var(--bg); padding:12px; }
+        .ruta-chips { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+        .ruta-chips span { flex:none; font-size:12px; color:var(--fg3); background:var(--bg); border-radius:8px; padding:6px 10px; }
+        .ruta-chips b { color:var(--fg); margin-left:4px; }
+        .ruta-chips .cobro b { color:#EA580C; }
+        .pin { width:26px; height:26px; border-radius:50%; display:grid; place-items:center; color:#fff; font-size:12px; font-weight:800; border:2px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,.35); }
+        .pin.p { background:var(--brand); } .pin.r { background:#F97316; } .pin.h { background:var(--ok); } .pin.yo { background:#111827; }
+        .orden { display:inline-grid; place-items:center; width:24px; height:24px; border-radius:50%; background:var(--brand); color:#fff; font-size:12px; font-weight:800; }
         @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation:none !important; transition:none !important; } }
     </style>
 </head>
@@ -103,6 +114,21 @@
     </div>
 
     <main>
+        {{-- Ruta del día (como el prototipo): paradas en orden, distancia y tiempo estimado --}}
+        <section class="ruta-box" x-show="pedidos.length" x-cloak>
+            <div class="ruta-hd">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z"/><path d="M8 2v16M16 6v16"/></svg>
+                <span x-text="'Ruta del día — ' + paradas.length + (paradas.length === 1 ? ' parada' : ' paradas')"></span>
+            </div>
+            <div id="mapa-ruta" x-show="conCoordenadas.length" x-ref="mapa"></div>
+            <div class="ruta-sin" x-show="!conCoordenadas.length">Los pedidos aún no tienen ubicación en el mapa. Usa el botón Ruta de cada pedido para abrir Google Maps.</div>
+            <div class="ruta-chips">
+                <span>Distancia <b x-text="distanciaKm.toFixed(1) + ' km'"></b></span>
+                <span>T. estimado <b x-text="tiempoTexto"></b></span>
+                <span class="cobro">Cobrar en efectivo <b x-text="'S/ ' + porCobrar.toFixed(2)"></b></span>
+            </div>
+        </section>
+
         <template x-if="pedidos.length === 0">
             <div class="vacio"><div>🛵</div><b>No tienes pedidos asignados</b><br>Cuando el negocio te asigne uno aparecerá aquí solo.</div>
         </template>
@@ -113,6 +139,7 @@
                 <template x-for="(p, i) in grupo.lista" :key="p.id + p.estado">
                     <article class="card" :class="{ ruta: p.estado === 'en_camino', hecho: p.estado === 'entregado' }" :style="'animation-delay:' + (i * 50) + 'ms'">
                         <div class="c-top">
+                            <span class="orden" x-show="p.estado !== 'entregado' && orden(p)" x-text="orden(p)"></span>
                             <span class="num" x-text="'#' + p.numero"></span>
                             <span class="chip" :class="{ ruta: p.estado === 'en_camino', listo: p.estado === 'listo', hecho: p.estado === 'entregado' }" x-text="textoEstado(p)"></span>
                             <span class="total" x-text="'S/ ' + p.total.toFixed(2)"></span>
@@ -163,9 +190,45 @@ document.addEventListener('alpine:init', () => {
         get pendientes() { return this.pedidos.filter(p => !['en_camino', 'entregado'].includes(p.estado)); },
         get hechos() { return this.pedidos.filter(p => p.estado === 'entregado'); },
         get grupos() { return [{ titulo: 'En camino', lista: this.enRuta }, { titulo: 'Por llevar', lista: this.pendientes }, { titulo: 'Entregados hoy', lista: this.hechos }]; },
+        mapaObj: null, capa: null, yo: null,
+        get paradas() { return [...this.enRuta, ...this.pendientes]; },
+        get conCoordenadas() { return this.pedidos.filter(p => p.lat && p.lng); },
+        orden(p) { const i = this.paradas.findIndex(x => x.id === p.id); return i >= 0 ? i + 1 : null; },
+        get porCobrar() { return this.paradas.filter(p => !p.pagado && p.metodo_pago === 'efectivo').reduce((t, p) => t + p.total, 0); },
+        km(a, b) { const R = 6371, r = x => x * Math.PI / 180, dLat = r(b[0] - a[0]), dLng = r(b[1] - a[1]);
+            const h = Math.sin(dLat / 2) ** 2 + Math.cos(r(a[0])) * Math.cos(r(b[0])) * Math.sin(dLng / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(h)); },
+        get puntosRuta() { const pts = this.paradas.filter(p => p.lat && p.lng).map(p => [p.lat, p.lng]); return this.yo ? [this.yo, ...pts] : pts; },
+        get distanciaKm() { const pts = this.puntosRuta; let d = 0; for (let i = 1; i < pts.length; i++) d += this.km(pts[i - 1], pts[i]); return d * 1.3; },
+        get tiempoTexto() { const min = Math.round(this.distanciaKm / 20 * 60 + this.paradas.length * 5); return min >= 60 ? Math.floor(min / 60) + 'h ' + (min % 60) + 'min' : min + ' min'; },
+        cargarMapa() {
+            if (!this.conCoordenadas.length) return;
+            if (window.L) return this.dibujar();
+            const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'; document.head.appendChild(css);
+            const js = document.createElement('script'); js.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'; js.onload = () => this.dibujar(); document.head.appendChild(js);
+        },
+        dibujar() {
+            if (!window.L || !this.$refs.mapa || !this.conCoordenadas.length) return;
+            if (!this.mapaObj) {
+                this.mapaObj = L.map(this.$refs.mapa, { zoomControl: false, attributionControl: true });
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(this.mapaObj);
+            }
+            if (this.capa) this.capa.remove();
+            this.capa = L.layerGroup().addTo(this.mapaObj);
+            const icono = (cls, txt) => L.divIcon({ className: '', html: '<div class="pin ' + cls + '">' + txt + '</div>', iconSize: [26, 26], iconAnchor: [13, 13] });
+            const linea = this.puntosRuta;
+            if (linea.length > 1) L.polyline(linea, { color: '#4B7CF5', weight: 3, dashArray: '6 6' }).addTo(this.capa);
+            this.hechos.filter(p => p.lat && p.lng).forEach(p => L.marker([p.lat, p.lng], { icon: icono('h', '✓') }).addTo(this.capa).bindPopup('#' + p.numero + ' · ' + p.cliente));
+            this.paradas.forEach((p, i) => { if (p.lat && p.lng) L.marker([p.lat, p.lng], { icon: icono(p.estado === 'en_camino' ? 'r' : 'p', i + 1) }).addTo(this.capa).bindPopup('#' + p.numero + ' · ' + p.cliente); });
+            if (this.yo) L.marker(this.yo, { icon: icono('yo', '🛵') }).addTo(this.capa);
+            const todos = [...this.conCoordenadas.map(p => [p.lat, p.lng]), ...(this.yo ? [this.yo] : [])];
+            this.mapaObj.fitBounds(todos, { padding: [24, 24], maxZoom: 15 });
+            setTimeout(() => this.mapaObj.invalidateSize(), 100);
+        },
         get gpsTexto() { return { vivo: 'Compartiendo tu ubicación con el negocio', negado: 'Ubicación bloqueada: actívala en tu navegador', apagado: 'Tu ubicación no se está compartiendo', sin: 'Este celular no comparte ubicación' }[this.gps]; },
 
         iniciar() {
+            this.$nextTick(() => this.cargarMapa());
+            this.$watch('pedidos', () => this.$nextTick(() => this.cargarMapa()));
             setInterval(() => this.refrescar(), 30000);
             document.addEventListener('visibilitychange', () => { if (!document.hidden) this.refrescar(); });
             try { if (localStorage.getItem('gh_rep_gps') === '1') this.activarGps(); } catch (e) {}
@@ -206,6 +269,8 @@ document.addEventListener('alpine:init', () => {
             if (this.watch !== null) return;
             this.watch = navigator.geolocation.watchPosition(pos => {
                 this.gps = 'vivo';
+                const nuevoYo = [pos.coords.latitude, pos.coords.longitude];
+                if (!this.yo || this.km(this.yo, nuevoYo) > 0.1) { this.yo = nuevoYo; this.dibujar(); }
                 try { localStorage.setItem('gh_rep_gps', '1'); } catch (e) {}
                 if (Date.now() - this.ultimoEnvio < 25000) return;
                 this.ultimoEnvio = Date.now();
