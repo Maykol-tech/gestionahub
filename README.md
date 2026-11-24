@@ -18,65 +18,140 @@ Páginas públicas: landing de GestionaHub (`/landing`), registro con 14 días d
 
 ## Tareas realizadas
 
-| Tareas | Qué se hizo |
-|---|---|
-| GEST-6 a 11 | Base multinegocio: negocios, planes y suscripciones, registro de negocios, Mercado Pago, superadmin, roles y API |
-| GEST-12 | Login y seguridad: intentos permitidos, bloqueo e historial de accesos |
-| GEST-13 y 14 | Menú lateral con todos los módulos y panel de inicio con indicadores |
-| GEST-15 a 17 | Clientes e interacciones |
-| GEST-18 a 20 | Productos, categorías, galería de imágenes y stock con alertas de mínimo |
-| GEST-21 a 23 | Pedidos, estados y tablero |
-| GEST-24 y 25 | Repartos: app del repartidor, mapa y zonas de entrega |
-| GEST-26 a 28 | Tienda online por negocio y pagos en línea |
-| GEST-29 a 32 | WhatsApp: conexión, bot, conversaciones y bandeja |
-| GEST-33 a 35 | Servicios: agenda, reserva del cliente y recordatorio |
-| GEST-36 y 37 | Punto de venta: venta rápida y métodos de pago |
-| GEST-38 y 39 | Comprobantes SUNAT: boleta, factura, notas de crédito y anulaciones |
-| GEST-40 y 41 | Reportes de ventas, delivery y repartidores, con exportación a Excel |
-| GEST-42 y 43 | Prospección de clientes (servicio en Python) |
-| GEST-44 y 45 | Campañas de WhatsApp y su programación |
-| GEST-46 y 47 | Mesas con QR y comandas a cocina |
-| GEST-48 | Sucursales con stock propio y traslados |
-| GEST-49 a 54 | Landing: funciones, precios, preguntas, chat, aviso emergente y Libro de Reclamaciones |
-| GEST-55 y 56 | Reseñas propias y de Google |
-| GEST-57 | Membresías para clientes |
-| GEST-58 y 59 | Notificaciones y aplicación instalable en el celular |
-| GEST-60 y 61 | Datos del negocio y horarios de atención |
-| GEST-62 | API con tokens y avisos de cambios en pedidos |
-| GEST-63 | Exportación de clientes a Excel |
-| GEST-64 | Nubefact en producción |
-| GEST-66 y 67 | Caja: ingresos, egresos, apertura y cierre |
-| GEST-68 | Rentabilidad mensual |
-| GEST-69 a 71 | Proveedores, órdenes de compra y alerta de insumos |
-| GEST-72 a 74 | Producción: recetas, costo de producción y lotes |
-| GEST-75 a 79 | Fidelización: puntos, canje, boletín a clientes inactivos y ranking |
-| GEST-80 a 84 | Mi página: galería, rubro, plantillas, logo y colores |
-| GEST-85 | Carrito abandonado |
-| GEST-86 | Lista de espera |
-| GEST-87 | Comparación con el periodo anterior |
-| GEST-88 y 97 a 99 | Editor de la landing: textos, precios, testimonios, blog y Google Tag Manager |
-| GEST-89 | Botones de prueba gratis |
-| GEST-90 y 96 | Leads y origen de campaña |
-| GEST-91 y 92 | Registro con 14 días de prueba y con Google |
-| GEST-93 a 95 | Pago del plan, Niubiz recurrente y pago manual |
-| GEST-100 | Barra del superadmin sobre la landing |
-| GEST-101 | Contenido real y editable de la landing (cifras y datos de la empresa) |
-| GEST-102 y 103 | Ficha del producto y configuración de la tienda |
-| GEST-104 | Horario de la tienda y pedidos programados |
-| GEST-105 | Variantes y venta por kilo |
-| GEST-106 y 107 | Carrito, pasos de compra y pedido registrado |
-| GEST-108 | Aviso del pedido nuevo |
-| GEST-109 | Formas de entrega |
-| GEST-110 | Editor de contenido de la tienda |
-| GEST-111 | Peso real en productos por kilo |
-| GEST-112 | SEO del producto (título y descripción para Google) |
+Las 119 tareas del tablero del proyecto (GEST-6 a GEST-112 y GEST-116 a GEST-127) están terminadas.
+
+| Tarea | Descripción | Dónde está en el sistema |
+|---|---|---|
+| GEST-6 | Configurar proyecto Laravel 12 con estructura multi-tenant | Base del proyecto, `TenantScope` |
+| GEST-7 | Crear migraciones de tablas SaaS (tenants, planes, suscripciones) | `database/migrations` |
+| GEST-8 | Implementar registro y onboarding de nuevos tenants | `/registro` y Asistente de inicio |
+| GEST-9 | Integrar Mercado Pago para cobro de suscripciones | Planes y facturación |
+| GEST-10 | Panel superadmin: gestión de tenants y planes | Plataforma > Negocios y planes |
+| GEST-11 | Configurar Spatie Laravel Permission con roles del proyecto | Roles admin, vendedor, cajero, repartidor |
+| GEST-12 | Login y autenticación con Sanctum | `/login` y API con tokens |
+| GEST-13 | Sidebar con 19 módulos y control por plan | Menú lateral del panel |
+| GEST-14 | Dashboard principal con KPIs en tiempo real | Inicio |
+| GEST-15 | CRUD completo de clientes CRM | Clientes |
+| GEST-16 | Importación masiva de clientes desde CSV/Excel | Clientes > Importar |
+| GEST-17 | Seguimiento de interacciones por cliente | Clientes > ficha del cliente |
+| GEST-18 | CRUD de categorías y productos con variantes | Productos |
+| GEST-19 | Galería de imágenes por producto | Productos > imágenes |
+| GEST-20 | Control de stock con alertas de mínimo | Productos e Inicio |
+| GEST-21 | CRUD de pedidos con cambio de estado | Pedidos |
+| GEST-22 | Vista kanban de pedidos por estado | Pedidos > tablero |
+| GEST-23 | Asignación de pedido a repartidor | Pedidos y Repartos |
+| GEST-24 | Tracking en tiempo real de delivery en mapa Leaflet | Repartos > mapa |
+| GEST-25 | Zonas de delivery con costo por zona | Repartos > zonas |
+| GEST-26 | Tienda virtual pública por tenant | `/tienda/{negocio}` |
+| GEST-27 | Pasarela de pago en tienda virtual (MP + Niubiz) | Tienda > pago |
+| GEST-28 | Yape QR y Plin en checkout | Tienda > pago |
+| GEST-29 | Integración Meta Cloud API WhatsApp | WhatsApp > conexión |
+| GEST-30 | Flujo chatbot: bienvenida, menú, pedidos y CRM | WhatsApp > bot |
+| GEST-31 | Sesiones y contexto de conversación WhatsApp | WhatsApp |
+| GEST-32 | Panel de conversaciones WhatsApp (inbox) | WhatsApp > bandeja |
+| GEST-33 | CRUD de servicios y agenda de citas | Servicios |
+| GEST-34 | Reserva de cita por cliente (portal público) | Página pública de reservas |
+| GEST-35 | Recordatorio automático de citas por WhatsApp | Servicios |
+| GEST-36 | POS: venta rápida con búsqueda de producto | Punto de venta |
+| GEST-37 | POS: métodos de pago efectivo, tarjeta, Yape, Plin | Punto de venta |
+| GEST-38 | Emisión de boleta y factura electrónica SUNAT | Comprobantes |
+| GEST-39 | Notas de crédito y anulaciones SUNAT | Comprobantes |
+| GEST-40 | Reportes de ventas por período y módulo | Reportes |
+| GEST-41 | Reporte de delivery: tiempos y repartidores | Reportes |
+| GEST-42 | Módulo de prospección IA con FastAPI | Servicio `prospeccion/` |
+| GEST-43 | Listado y gestión de prospectos scrapeados | Prospectos |
+| GEST-44 | Campañas de WhatsApp masivo a segmentos | WhatsApp > campañas |
+| GEST-45 | Programación de campañas (fecha y hora) | WhatsApp > campañas |
+| GEST-46 | Gestión de mesas y QR por mesa | Mesas y QR |
+| GEST-47 | Comandas desde mesa al panel de cocina | Cocina |
+| GEST-48 | Gestión de sucursales por tenant | Sucursales |
+| GEST-49 | Landing page administrable desde panel | `/landing` y Editor de la landing |
+| GEST-50 | SEO con IA para landing (OpenAI) | Editor de la landing |
+| GEST-51 | Libro de Reclamaciones INDECOPI en landing | `/landing` |
+| GEST-52 | Popup por tiempo en página y salida (landing SaaS) | `/landing` |
+| GEST-53 | Chatbot de captura de leads en landing | `/landing` y Leads |
+| GEST-54 | Sección de precios con toggle mensual/anual | `/landing` |
+| GEST-55 | Sistema de reseñas de clientes | Reseñas |
+| GEST-56 | Integración Google Reviews (lectura) | Reseñas |
+| GEST-57 | Suscripciones recurrentes para clientes finales | Membresías |
+| GEST-58 | Notificaciones en panel (bell icon) | Campana del panel |
+| GEST-59 | PWA: manifest y service worker básico | App instalable |
+| GEST-60 | Configuración de cuenta y perfil del negocio | Datos del negocio |
+| GEST-61 | Configuración de horarios de atención | Datos del negocio |
+| GEST-62 | API pública de pedidos para integración externa | API |
+| GEST-63 | Exportación de clientes a CSV/Excel | Clientes > Exportar |
+| GEST-64 | Integración Nubefact producción | Comprobantes |
+| GEST-65 | Tests unitarios y feature tests Laravel | `tests/`: 210 pruebas |
+| GEST-66 | Módulo finanzas: registro de ingresos y egresos | Caja y Cobros |
+| GEST-67 | Apertura y cierre de caja diaria | Caja |
+| GEST-68 | Gráfico de rentabilidad mensual | Reportes |
+| GEST-69 | CRUD de proveedores | Proveedores |
+| GEST-70 | Órdenes de compra a proveedores | Proveedores |
+| GEST-71 | Alerta de stock mínimo por insumo | Producción y Proveedores |
+| GEST-72 | Recetas y fichas técnicas de productos | Producción |
+| GEST-73 | Cálculo automático de costo de producción | Producción |
+| GEST-74 | Lotes de producción con trazabilidad | Producción |
+| GEST-75 | Configuración de programa de puntos | Fidelización |
+| GEST-76 | Acumulación de puntos en pedidos y ventas POS | Fidelización |
+| GEST-77 | Canje de puntos como descuento | Fidelización y Punto de venta |
+| GEST-78 | Boletín automático a clientes inactivos | Fidelización |
+| GEST-79 | Ranking de clientes frecuentes | Fidelización |
+| GEST-80 | CRUD galería de trabajos o portafolio | Mi página > galería |
+| GEST-81 | Galería visible en landing del negocio | `/web/{negocio}` |
+| GEST-82 | Onboarding: selección de rubro al registrarse | Registro y Asistente de inicio |
+| GEST-83 | Catálogo de plantillas por rubro | Mi página |
+| GEST-84 | Personalización básica de plantilla (logo, colores, textos) | Mi página |
+| GEST-85 | Recuperación de carrito abandonado por WhatsApp | Tienda online |
+| GEST-86 | Lista de espera automática en citas canceladas | Lista de espera |
+| GEST-87 | Comparativo de ventas mes anterior en reportes | Reportes |
+| GEST-88 | Migraciones v3.4: campos para landing SaaS y tienda CMS | `database/migrations` |
+| GEST-89 | Landing SaaS: maquetar en Blade desde el prototipo | `/landing` |
+| GEST-90 | Leads de la landing al CRM de la plataforma | Plataforma > Leads |
+| GEST-91 | Registro con prueba gratis de 14 días | `/registro` |
+| GEST-92 | Registro e ingreso con Google | `/registro` y `/login` |
+| GEST-93 | Checkout de suscripciones desde la landing | `/landing` > precios |
+| GEST-94 | Integrar Niubiz para cobro recurrente de suscripciones | Planes y facturación |
+| GEST-95 | Bandeja de pagos manuales (Yape, Plin, transferencia) | Plataforma > Pagos de suscripción |
+| GEST-96 | Lead de checkout abandonado | Plataforma > Leads |
+| GEST-97 | Bloque de blog WordPress con filtros | `/landing` > blog |
+| GEST-98 | Editor de landing SaaS en el panel del superadmin | Plataforma > Editor de la landing |
+| GEST-99 | Analítica de la landing (GTM y UTM) | Editor de la landing |
+| GEST-100 | Barra de superadmin en la landing | `/landing` con sesión de superadmin |
+| GEST-101 | Contenido real y editable de la landing (cifras y datos de la empresa) | Editor de la landing |
+| GEST-102 | Tienda CMS: maquetar en Blade desde la plantilla | `/tienda/{negocio}` |
+| GEST-103 | Datos de la tienda para la plantilla (TENANT_CONFIG) | Tienda online > configuración |
+| GEST-104 | Estado abierto o cerrado y pedidos programados | Tienda online |
+| GEST-105 | Variantes de producto y venta por kilo | Productos y Tienda online |
+| GEST-106 | Carrito y checkout en 3 pasos | Tienda online |
+| GEST-107 | Registrar pedido desde la tienda | Tienda online y Pedidos |
+| GEST-108 | Confirmación del pedido por WhatsApp y aviso en el panel | Pedidos |
+| GEST-109 | Formas de entrega configurables | Tienda online > entregas |
+| GEST-110 | Editor de contenido de la tienda en el CMS | Tienda online > contenido |
+| GEST-111 | Ajuste de peso real al despachar productos por kilo | Pedidos |
+| GEST-112 | SEO de la tienda del cliente | Productos y Tienda online |
+| GEST-116 | Configuración inicial del framework | Laravel 12, `composer.json` |
+| GEST-117 | Programación de la capa de seguridad multi-tenant | `TenantScope` y middleware |
+| GEST-118 | Vinculación del código a GitHub | Repositorio del curso |
+| GEST-119 | Diseño del esquema de base de datos | 88 tablas |
+| GEST-120 | Ejecución y verificación de migraciones | `php artisan esquema:revisar` |
+| GEST-121 | Creación de modelos y relaciones | `app/Models`: 61 modelos |
+| GEST-122 | Programación de la lógica de registro | `RegistroController` |
+| GEST-123 | Pruebas de la API | `ApiPedidosTest` |
+| GEST-124 | Instalación de dependencias | `composer install` y Docker |
+| GEST-125 | Creación de la estructura del Webhook | Webhooks de WhatsApp, Mercado Pago y API |
+| GEST-126 | Creación de controlador y rutas | `app/Http/Controllers` y `routes/` |
+| GEST-127 | Pruebas de integración y respuesta de datos | `tests/Feature` |
 
 ## Acceso de prueba
 
-- Correo: `admin@gestionahub.pe`
-- Contraseña: `Admin2026!`
+| Rol | Correo | Contraseña | Qué ve |
+|---|---|---|---|
+| Administrador | `admin@gestionahub.pe` | `Admin2026!` | Todo el panel del negocio |
+| Vendedor | `vendedor@gestionahub.pe` | `Vendedor2026!` | Pedidos, productos, clientes, tienda y punto de venta |
+| Cajero | `cajero@gestionahub.pe` | `Cajero2026!` | Caja, cobros, reportes, punto de venta y comprobantes |
+| Repartidor | `repartidor@gestionahub.pe` | `Repartidor2026!` | Solo su app con los pedidos asignados |
 
-El seeder crea este usuario y un negocio de ejemplo. **Cambia la contraseña antes de publicar en un servidor real.**
+El seeder crea estos usuarios y un negocio de ejemplo. Si la base ya existía, crea los usuarios por rol con `php artisan db:seed --class=RolesDemoSeeder --force` (no borra nada). **Cambia las contraseñas antes de publicar en un servidor real.**
 
 ## Instalación con Docker (Windows, PowerShell)
 

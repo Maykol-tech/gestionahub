@@ -12,7 +12,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
 ->withMiddleware(function (Middleware $middleware) {
-    $middleware->redirectUsersTo('/admin');
+    // Con sesión iniciada, /login (o "Atrás") lleva a la pantalla de inicio de cada rol
+    $middleware->redirectUsersTo(fn (\Illuminate\Http\Request $request) => \App\Support\Roles::inicio($request->user()) ?? '/admin');
     // GEST-94: Niubiz devuelve el pago con un POST desde su formulario (la URL va firmada)
     $middleware->validateCsrfTokens(except: ['pagos/niubiz/*']);
     $middleware->alias([
@@ -26,6 +27,10 @@ return Application::configure(basePath: dirname(__DIR__))
     // GEST-91: prueba vencida = panel en solo lectura. GEST-99: guarda los UTM 30 días.
     $middleware->appendToGroup('web', \App\Http\Middleware\SoloLecturaVencida::class);
     $middleware->appendToGroup('web', \App\Http\Middleware\CapturarUtm::class);
+    // Módulos que no están en el prototipo: fuera del panel (se reactivan con MODULOS_EXTRA=true)
+    $middleware->appendToGroup('web', \App\Http\Middleware\SoloModulosDelPrototipo::class);
+    // Botón Atrás: sin caché en login y panel (con sesión, "Atrás" no vuelve al login)
+    $middleware->appendToGroup('web', \App\Http\Middleware\SinCacheSesion::class);
     $middleware->appendToGroup('api', \App\Http\Middleware\SoloLecturaVencida::class);
 })
     ->withExceptions(function (Exceptions $exceptions): void {

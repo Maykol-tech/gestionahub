@@ -68,8 +68,6 @@
         .alert{display:flex;gap:10px;align-items:flex-start;padding:11px 13px;border-radius:9px;font-size:13px;margin-bottom:18px;}
         .alert-err{background:var(--redl);color:#991B1B;}
         .alert-ok{background:var(--greenl);color:#166534;}
-        .demo{margin-top:22px;border:1px dashed var(--border);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--fg2);background:#FAFBFC;}
-        .demo b{color:var(--fg);}
         .nueva-cuenta{margin-top:16px;font-size:14px;color:var(--fg2);text-align:center;}
         .nueva-cuenta a{color:var(--blue);font-weight:700;text-decoration:none;}
         .legal{margin-top:26px;font-size:12px;color:var(--fg3);text-align:center;}
@@ -157,12 +155,6 @@
 
             <p class="nueva-cuenta">¿Aún no tienes cuenta? <a href="{{ route('registro') }}">Crea tu negocio gratis por 14 días</a></p>
 
-            @if (app()->environment('local'))
-                <div class="demo">
-                    <b>Acceso de demostración</b><br>
-                    Correo: <b>admin@gestionahub.pe</b> · Contraseña: <b>Admin2026!</b>
-                </div>
-            @endif
 
             <p class="legal">Conexión segura · Tus datos están protegidos</p>
         </div>
@@ -244,6 +236,13 @@
         pintar();
     }
 })();
+</script>
+<script>
+    // Si el navegador muestra el login desde su memoria (botón Atrás), lo vuelve a pedir:
+    // con sesión iniciada el servidor redirige al panel.
+    window.addEventListener('pageshow', function (e) {
+        if (e.persisted) location.reload();
+    });
 </script>
 </body>
 </html>

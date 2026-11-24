@@ -6,7 +6,7 @@
     $pendientes = $layout['pedidos_pendientes'] ?? 0;
     $notificaciones = $layout['notificaciones'] ?? [];
     $actual = request()->route('modulo');
-    $ocultos = $layout['ocultos'] ?? [];
+    $ocultos = array_merge($layout['ocultos'] ?? [], \App\Support\ModulosPrototipo::ocultos());
 
     // [texto, icono, ruta o slug de modulo, (opcional) pestañas [[texto, destino], ...]]
     // Las pantallas parecidas van juntas en un solo item con pestañas arriba, asi el menu es corto.
@@ -24,29 +24,29 @@
         ],
         'Control' => [
             ['Punto de venta', 'cash', 'admin.pos'],
-            ['Caja', 'card', 'caja', [['Caja del día', 'caja'], ['Ingresos manuales', 'admin.ingresos']]],
+            ['Caja del día', 'card', 'caja', [['Caja del día', 'caja'], ['Ingresos manuales', 'admin.ingresos']]],
             ['Comprobantes', 'layers', 'admin.comprobantes'],
-            ['Cobros y Pagos', 'clock', 'cobros'],
             ['Reportes', 'chart', 'reportes'],
+            ['Cobros y Pagos', 'clock', 'cobros'],
             ['Repartos', 'truck', 'repartos', [['Repartos y mapa', 'repartos'], ['Repartidores', 'admin.repartidores.crud.index']]],
             ['Mesas y QR', 'grid', 'admin.mesas'],
             ['Cocina', 'clock', 'admin.cocina'],
             ['Producción', 'settings', 'produccion'],
-            ['Proveedores', 'home', 'proveedores'],
             ['Publicidad', 'activity', 'publicidad'],
+            ['Proveedores', 'home', 'proveedores'],
         ],
         'Presencia' => [
-            ['Mi página', 'globe', 'vitrina', [['Mi vitrina', 'vitrina'], ['Diseño y textos', 'admin.personalizacion'], ['Galería', 'admin.galeria']]],
-            ['Tienda online', 'home', 'tienda', [['Tienda', 'tienda'], ['Contenido y cupones', 'admin.tienda.contenido'], ['Entregas', 'admin.entregas'], ['Pagos por revisar', 'admin.pagos'], ['Carritos abandonados', 'admin.carritos']]],
+            ['Mi Vitrina', 'globe', 'vitrina', [['Mi vitrina', 'vitrina'], ['Diseño y textos', 'admin.personalizacion'], ['Galería', 'admin.galeria']]],
+            ['Tienda pública', 'home', 'tienda', [['Tienda', 'tienda'], ['Contenido y cupones', 'admin.tienda.contenido'], ['Entregas', 'admin.entregas'], ['Pagos por revisar', 'admin.pagos'], ['Carritos abandonados', 'admin.carritos']]],
             ['Reseñas', 'heart', 'admin.resenas'],
-            ['WhatsApp', 'bot', 'bot', [['Bot', 'bot'], ['Menús del bot', 'admin.bot.menus'], ['Flujos', 'admin.bot.flujos'], ['Campañas', 'admin.campanas']]],
-            ['Prospectos', 'search', 'admin.prospectos', [['Mis prospectos', 'admin.prospectos'], ['Buscar negocios', 'prospectar']]],
+            ['Bot WhatsApp', 'bot', 'bot', [['Bot', 'bot'], ['Menús del bot', 'admin.bot.menus'], ['Flujos', 'admin.bot.flujos'], ['Campañas', 'admin.campanas']]],
+            ['Prospectar', 'search', 'prospectar', [['Buscar negocios', 'prospectar'], ['Mis prospectos', 'admin.prospectos']]],
         ],
         'Cuenta' => [
-            ['Datos del negocio', 'pen', 'personalizar'],
-            ['Seguridad', 'shield', 'admin.seguridad'],
             ['Sucursales', 'map-pin', 'sucursales', [['Mis sucursales', 'sucursales'], ['Inventario por sucursal', 'admin.sucursales.inventario']]],
             ['Planes y facturación', 'briefcase', 'planes'],
+            ['Personalizar', 'pen', 'personalizar'],
+            ['Seguridad', 'shield', 'admin.seguridad'],
             ['API y conexiones', 'layers', 'admin.api'],
             ['Asistente de inicio', 'grid', 'admin.bienvenida'],
         ],
@@ -227,7 +227,7 @@
                 <div class="nav-av">{{ $iniciales }}</div>
                 <div>
                     <div class="nav-un">{{ $negocio }}</div>
-                    <a href="{{ route('admin.modulo', 'planes') }}" class="nav-up">{{ $plan }}</a>
+                    @if (\App\Support\Roles::ver('planes'))<a href="{{ route('admin.modulo', 'planes') }}" class="nav-up">{{ $plan }}</a>@else<span class="nav-up">{{ $plan }}</span>@endif
                 </div>
                 <form method="POST" action="{{ route('logout') }}" style="margin-left:auto;">
                     @csrf
@@ -281,8 +281,10 @@
                             <div style="font-size:12px;color:var(--fg3);overflow:hidden;text-overflow:ellipsis;">{{ auth()->user()?->email }}</div>
                             <div style="font-size:11px;color:var(--fg2);margin-top:4px;">{{ $negocio }}</div>
                         </div>
+                        @if (\App\Support\Roles::ver('personalizar'))
                         <a href="{{ route('admin.modulo', 'personalizar') }}" class="dd-item" @click="open = false" style="align-items:center;"><x-icon name="pen" size="15" /><span class="dd-ttl">Datos del negocio</span></a>
                         <a href="{{ route('admin.modulo', 'planes') }}" class="dd-item" @click="open = false" style="align-items:center;"><x-icon name="briefcase" size="15" /><span class="dd-ttl">Planes y facturación</span></a>
+                        @endif
                         <form method="POST" action="{{ route('logout') }}" style="margin:0;">
                             @csrf
                             <button type="submit" class="dd-item" style="width:100%;border:none;background:none;cursor:pointer;font-family:inherit;color:var(--red);align-items:center;text-align:left;"><x-icon name="logout" size="15" /><span class="dd-ttl">Cerrar sesión</span></button>
@@ -310,7 +312,7 @@
                             <b>Te {{ $prueba['dias'] === 1 ? 'queda 1 día' : 'quedan ' . $prueba['dias'] . ' días' }} de prueba gratis</b> (hasta el {{ $prueba['vence']->format('d/m') }}).
                         @endif
                     </span>
-                    @if (\Illuminate\Support\Facades\Route::has('admin.modulo'))
+                    @if (\Illuminate\Support\Facades\Route::has('admin.modulo') && \App\Support\Roles::ver('planes'))
                         <a href="{{ route('admin.modulo', 'planes') }}" class="btn btn-sm {{ $urgente ? 'btn-p' : 'btn-g' }}">{{ $prueba['solo_lectura'] ? 'Activar mi plan' : 'Ver planes' }}</a>
                     @endif
                 </div>
