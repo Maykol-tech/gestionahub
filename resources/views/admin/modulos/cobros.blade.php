@@ -11,9 +11,23 @@
 @endsection
 
 @section('contenido')
+<style>
+.capturas-aviso{display:flex;align-items:center;gap:10px;padding:12px 16px;margin-bottom:14px;border-radius:12px;border:1px solid color-mix(in srgb,var(--amber,#F59E0B) 45%,var(--border));background:color-mix(in srgb,var(--amber,#F59E0B) 9%,var(--surface,#fff));color:var(--fg);text-decoration:none;font-size:13px;transition:transform .2s,box-shadow .2s;}
+.capturas-aviso:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(26,35,50,.08);}
+.capturas-aviso > .ic{color:var(--amber,#F59E0B);flex:none;}
+</style>
 <div x-data="cobrosPage(@js($cobros), @js($puedeMarcar), @js($porPagar))" @exportar-cobros.window="exportar()">
 
     <x-ia modulo="cobros" />
+    @php($capturas = \Illuminate\Support\Facades\Schema::hasTable('pagos_manuales') ? \App\Models\PagoManual::query()->where('estado', 'pendiente')->count() : 0)
+    @if ($capturas)
+        {{-- Pagos por Yape/Plin que el cliente reportó con su captura: el cajero los confirma o rechaza --}}
+        <a href="{{ route('admin.pagos') }}" class="capturas-aviso fade-in">
+            <x-icon name="alert" size="16" />
+            <span><b>{{ $capturas === 1 ? '1 pago por revisar' : $capturas . ' pagos por revisar' }}.</b> Los clientes enviaron la captura de su Yape o Plin. Revísalos y confírmalos.</span>
+            <span class="btn btn-sm btn-p" style="margin-left:auto;">Revisar capturas</span>
+        </a>
+    @endif
     <div class="stat-row">
         <div class="stat fade-in">
             <div class="stat-lbl">Cobrado <span class="stat-ico" style="background:var(--greenl);color:var(--green)"><x-icon name="check-circle" size="14" /></span></div>

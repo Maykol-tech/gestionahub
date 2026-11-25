@@ -195,6 +195,10 @@
             </div>
         @endif
         @foreach ($menu as $seccion => $items)
+            {{-- Una sección sin opciones para este rol no muestra su título --}}
+            @continue(! collect($items)->contains(fn ($it) => ! empty($it[3])
+                ? collect($it[3])->contains(fn ($t) => $menuVisible($t[1]))
+                : $menuVisible($it[2])))
             <div class="nav-sec">
                 <div class="nav-sec-lbl">{{ $seccion }}</div>
                 @foreach ($items as $item)

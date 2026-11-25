@@ -34,7 +34,8 @@ class Roles
         'categorias' => 'productos',
         'repartidores' => 'repartos',
         'zonas' => 'repartos',
-        'pulso' => 'dashboard',   // aviso de pedidos nuevos (sonido), lo usan todos los roles del panel
+        'pulso' => 'dashboard',
+        'pagos' => 'cobros',      // capturas de Yape/Plin por revisar: las aprueba quien cobra (admin o cajero)   // aviso de pedidos nuevos (sonido), lo usan todos los roles del panel
     ];
 
     /** Rol principal del usuario (o null si no tiene ninguno). */
