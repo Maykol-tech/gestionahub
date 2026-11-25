@@ -16,6 +16,7 @@ abstract class TestCase extends BaseTestCase
         Cache::flush();
         \App\Support\AjustesNegocio::limpiarCache();
         \App\Support\Prueba::limpiarCache();
+        \App\Support\ColumnasLegado::olvidar();
         // Los ajustes del negocio se guardan en el disco local: cada prueba usa uno vacío
         \Illuminate\Support\Facades\Storage::fake('local');
     }

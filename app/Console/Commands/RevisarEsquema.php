@@ -33,6 +33,20 @@ class RevisarEsquema extends Command
             }
         }
 
+        // Columnas de una versión antigua que son obligatorias: el programa las llena solo al crear registros
+        $antiguas = [];
+        foreach (array_keys($esperado) as $tabla) {
+            if (Schema::hasTable($tabla)) {
+                foreach (array_keys(\App\Support\ColumnasLegado::obligatoriasAntiguas($tabla)) as $col) {
+                    $antiguas[] = [$tabla, $col];
+                }
+            }
+        }
+        if ($antiguas) {
+            $this->line('Columnas antiguas obligatorias (se llenan solas al guardar, no hay que hacer nada):');
+            $this->table(['Tabla', 'Columna antigua'], $antiguas);
+        }
+
         if (! $faltan) {
             $this->info('Todo en orden: la base de datos tiene todas las tablas y columnas (' . count($esperado) . ' tablas revisadas).');
 

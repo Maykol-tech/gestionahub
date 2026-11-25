@@ -9,6 +9,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /** Campana de publicidad con presupuesto, metricas de impacto y gastos registrados. */
 class CampanaPublicidad extends Model
 {
+    use \App\Models\Concerns\ColumnasAntiguas;
+
+    /** Columnas con otro nombre en bases antiguas (ver ColumnasAntiguas). */
+    protected const COLUMNAS_ANTIGUAS = ['canal' => 'plataforma', 'activo' => 'activa'];
+
     protected $table = 'campanas_publicidad';
 
     protected $fillable = [

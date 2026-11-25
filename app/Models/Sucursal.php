@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Sucursal extends Model
 {
+    use \App\Models\Concerns\ColumnasAntiguas;
+
+    /** Columnas con otro nombre en bases antiguas (ver ColumnasAntiguas). */
+    protected const COLUMNAS_ANTIGUAS = ['activo' => 'activa'];
+
     protected $table = 'sucursales';
 
     protected $fillable = ['tenant_id', 'nombre', 'direccion', 'telefono', 'email', 'horario', 'activo'];

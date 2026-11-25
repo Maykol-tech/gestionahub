@@ -99,7 +99,7 @@ Las 119 tareas del tablero del proyecto (GEST-6 a GEST-112 y GEST-116 a GEST-127
 | GEST-62 | API pública de pedidos para integración externa | API |
 | GEST-63 | Exportación de clientes a CSV/Excel | Clientes > Exportar |
 | GEST-64 | Integración Nubefact producción | Comprobantes |
-| GEST-65 | Tests unitarios y feature tests Laravel | `tests/`: 222 pruebas |
+| GEST-65 | Tests unitarios y feature tests Laravel | `tests/`: 225 pruebas |
 | GEST-66 | Módulo finanzas: registro de ingresos y egresos | Caja y Cobros |
 | GEST-67 | Apertura y cierre de caja diaria | Caja |
 | GEST-68 | Gráfico de rentabilidad mensual | Reportes |

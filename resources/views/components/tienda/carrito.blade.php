@@ -127,7 +127,7 @@
                 <div class="tot-l" x-show="paso > 0 && entregaSel()"><span>Envío</span><span x-text="resumen ? (resumen.envio > 0 ? dinero(resumen.envio) : 'Gratis') : '—'"></span></div>
                 <div class="tot-l verde" x-show="resumen?.descuento > 0"><span>Descuentos</span><span x-text="'-' + dinero(resumen?.descuento)"></span></div>
                 <div class="tot-l total"><span>Total</span><span x-text="dinero(resumen?.total ?? subtotalLocal())"></span></div>
-                <button type="button" class="btn-main" @click="siguiente()" :disabled="enviando || cotizando">
+                <button type="button" class="btn-main" @click="siguiente()" :disabled="enviando">
                     <span x-show="! enviando" x-text="['Continuar', 'Continuar al pago', 'Revisar pedido', 'Confirmar pedido'][paso]"></span>
                     <span x-show="enviando" x-cloak>Enviando tu pedido…</span>
                 </button>

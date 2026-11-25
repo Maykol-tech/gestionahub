@@ -13,6 +13,11 @@ use Illuminate\Support\Str;
  */
 class Repartidor extends Model
 {
+    use \App\Models\Concerns\ColumnasAntiguas;
+
+    /** Columnas con otro nombre en bases antiguas (ver ColumnasAntiguas). */
+    protected const COLUMNAS_ANTIGUAS = ['nombre' => 'nombre_completo'];
+
     use SoftDeletes;
 
     protected $table = 'repartidores';

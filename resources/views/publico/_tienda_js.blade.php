@@ -8,7 +8,7 @@ document.addEventListener('alpine:init', () => {
         panel: false, paso: 0, lineas: [],
         form: { nombre: '', telefono: '', entrega_id: null, zona_id: '', direccion: '', lat: null, lng: null, programado_para: '', metodo_pago: '', notas: '' },
         programar: false, cupon: '', usarPuntos: false,
-        resumen: null, error: '', recuperado: false, enviando: false, cotizando: false, ubicando: false,
+        resumen: null, turnoCotizar: 0, error: '', recuperado: false, enviando: false, cotizando: false, ubicando: false,
         salto: false, capturado: '',
 
         clave() { return 'gh_carrito_' + (this.cfg.negocio.slug || ''); },
@@ -102,10 +102,11 @@ document.addEventListener('alpine:init', () => {
         cambiar(k, d) {
             const l = this.lineas[k]; if (! l) return;
             l.cantidad = Math.max(1, Math.min(l.tope || 99, l.cantidad + d));
-            this.guardar(); this.cotizar();
+            // Mientras llega la cotización nueva se muestra el total calculado aquí, nunca el anterior
+            this.resumen = null; this.guardar(); this.cotizar();
         },
         quitar(k) {
-            this.lineas.splice(k, 1); this.guardar();
+            this.lineas.splice(k, 1); this.resumen = null; this.guardar();
             if (! this.lineas.length) { this.paso = 0; this.resumen = null; } else this.cotizar();
         },
         guardar() {
@@ -162,18 +163,22 @@ document.addEventListener('alpine:init', () => {
         async cotizar() {
             if (! this.lineas.length) return;
             this.cotizando = true;
+            // Solo vale la respuesta de la última cotización (si pulsan + rápido, una vieja puede llegar después)
+            const turno = this.turnoCotizar = (this.turnoCotizar || 0) + 1;
             try {
                 let r = await this.post(this.urls.cotizar, this.payload());
+                if (turno !== this.turnoCotizar) return;
                 if (! r.ok && r.data?.errors?.cupon) {
                     // Cupón no válido: avisamos y cotizamos sin él para no bloquear la compra
                     this.error = r.data.errors.cupon[0]; this.cupon = '';
                     r = await this.post(this.urls.cotizar, this.payload());
+                    if (turno !== this.turnoCotizar) return;
                     if (r.ok) { this.resumen = r.data; return; }
                 }
                 if (r.ok) { this.resumen = r.data; this.error = ''; }
                 else this.error = this.primerError(r.data).texto;
             } catch (e) { this.error = 'Sin conexión. Revisa tu internet.'; }
-            finally { this.cotizando = false; }
+            finally { if (turno === this.turnoCotizar) this.cotizando = false; }
         },
         // GEST-85: si deja su celular y no termina, guardamos el carrito para recordárselo
         async capturar() {
