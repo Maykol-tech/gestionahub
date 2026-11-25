@@ -85,6 +85,13 @@ class Produccion
                 DB::table('lote_consumos')->insert($consumos);
             }
 
+            // Lo producido entra al inventario del producto de la receta (si es un producto sin variantes)
+            if ($receta->producto_id) {
+                \App\Models\Producto::withoutGlobalScopes()->where('tenant_id', $lote->tenant_id)
+                    ->whereKey($receta->producto_id)->where('tiene_variantes', false)
+                    ->increment('stock', (int) $lote->cantidad);
+            }
+
             $lote->update([
                 'estado' => 'terminada',
                 'costo_total' => round($costo, 2),

@@ -119,6 +119,10 @@ class PedidosPanelController extends DashboardController
             if ($pedido->estado === 'cancelado') {
                 return [$pedido, 'cancelado'];
             }
+            // Un pedido entregado ya cerró su ciclo: no vuelve a la cocina ni al reparto
+            if ($pedido->estado === 'entregado' && $estado !== 'entregado') {
+                return [$pedido, 'entregado'];
+            }
 
             // Repetir el mismo estado (doble clic, dos pestañas abiertas) no cambia nada
             if ($pedido->estado === $estado) {
@@ -142,6 +146,9 @@ class PedidosPanelController extends DashboardController
 
         if ($resultadoMovimiento === 'cancelado') {
             return response()->json(['message' => 'El pedido está cancelado y no se puede mover.'], 422);
+        }
+        if ($resultadoMovimiento === 'entregado') {
+            return response()->json(['message' => 'El pedido ya fue entregado y no se puede regresar a otro estado.'], 422);
         }
         $pedido = $pedido->fresh(['cliente']);
 
@@ -182,6 +189,9 @@ class PedidosPanelController extends DashboardController
     public function marcarPagado($id)
     {
         $pedido = Pedido::findOrFail($id);
+        if ($pedido->estado === 'cancelado') {
+            return response()->json(['message' => 'Un pedido cancelado no se puede marcar como pagado.'], 422);
+        }
         $pedido->update(['pagado' => ! $pedido->pagado]);
 
         return response()->json([

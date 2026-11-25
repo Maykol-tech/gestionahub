@@ -8,17 +8,35 @@ Plataforma SaaS multinegocio para negocios pequeños del Perú (restaurantes, po
 
 | Menú | Módulos |
 |---|---|
-| Principal | Inicio, Pedidos (tablero), Productos y variantes, Clientes, Fidelización (puntos y canje), Membresías, Servicios (agenda) y Lista de espera |
-| Control | Punto de venta, Caja (apertura y cierre), Comprobantes SUNAT (Nubefact), Cobros y pagos, Reportes, Repartos y app del repartidor, Mesas con QR, Cocina, Producción (recetas y lotes), Proveedores y Publicidad |
-| Presencia | Mi página (plantillas y galería), Tienda online (carrito, pagos y entregas), Reseñas, WhatsApp (bot y campañas) y Prospectos |
-| Cuenta | Datos del negocio, Seguridad, Sucursales e inventario por sucursal, Planes y facturación, API y Asistente de inicio |
+| Principal | Inicio, Pedidos (tablero), Productos y variantes, Clientes, Fidelización (puntos y canje) y Servicios (agenda) |
+| Control | Caja del día (apertura y cierre), Reportes, Cobros y Pagos, Repartos y app del repartidor, Producción (recetas y lotes), Publicidad y Proveedores |
+| Presencia | Mi Vitrina (plantillas y galería), Tienda pública (carrito, pagos y entregas), Bot WhatsApp (bot y campañas) y Prospectar |
+| Cuenta | Sucursales e inventario por sucursal, Planes y facturación, Personalizar, Seguridad y Asistente de inicio |
 | Plataforma (superadmin) | Negocios y planes, Leads, Pagos de suscripción y Editor de la landing |
 
-Páginas públicas: landing de GestionaHub (`/landing`), registro con 14 días de prueba (`/registro`), web del negocio (`/web/{negocio}`), tienda online (`/tienda/{negocio}`), carta por QR de mesa, membresías y app del repartidor.
+El menú es el mismo del prototipo (GestionaHub_Panel_v3). Seguridad y Asistente de inicio se mantienen por pedido del profesor.
+
+Páginas públicas: landing de GestionaHub (`/landing`), registro con 14 días de prueba (`/registro`), web del negocio (`/web/{negocio}`), tienda online (`/tienda/{negocio}`) y app del repartidor.
+
+### Módulos ocultos por pedido del profesor
+
+Estos módulos no están en el prototipo, así que no aparecen en el menú y sus páginas responden 404. El código, las tablas y las pruebas siguen en el proyecto; no se borró nada.
+
+| Módulo | Tareas |
+|---|---|
+| Punto de venta | GEST-36, GEST-37 |
+| Comprobantes SUNAT (Nubefact) | GEST-38, GEST-39, GEST-64 |
+| Mesas con QR y Cocina | GEST-46, GEST-47 |
+| Reseñas y Google Reviews | GEST-55, GEST-56 |
+| Membresías | GEST-57 |
+| Lista de espera | GEST-86 |
+| API y conexiones (página del panel) | GEST-62 |
+
+Para volver a mostrarlos, agrega `MODULOS_EXTRA=true` al `.env` y ejecuta `php artisan optimize:clear`.
 
 ## Tareas realizadas
 
-Las 119 tareas del tablero del proyecto (GEST-6 a GEST-112 y GEST-116 a GEST-127) están terminadas.
+Las 119 tareas del tablero del proyecto (GEST-6 a GEST-112 y GEST-116 a GEST-127) están terminadas. Las de los módulos ocultos están listadas arriba.
 
 | Tarea | Descripción | Dónde está en el sistema |
 |---|---|---|
@@ -81,7 +99,7 @@ Las 119 tareas del tablero del proyecto (GEST-6 a GEST-112 y GEST-116 a GEST-127
 | GEST-62 | API pública de pedidos para integración externa | API |
 | GEST-63 | Exportación de clientes a CSV/Excel | Clientes > Exportar |
 | GEST-64 | Integración Nubefact producción | Comprobantes |
-| GEST-65 | Tests unitarios y feature tests Laravel | `tests/`: 210 pruebas |
+| GEST-65 | Tests unitarios y feature tests Laravel | `tests/`: 220 pruebas |
 | GEST-66 | Módulo finanzas: registro de ingresos y egresos | Caja y Cobros |
 | GEST-67 | Apertura y cierre de caja diaria | Caja |
 | GEST-68 | Gráfico de rentabilidad mensual | Reportes |
@@ -147,8 +165,8 @@ Las 119 tareas del tablero del proyecto (GEST-6 a GEST-112 y GEST-116 a GEST-127
 | Rol | Correo | Contraseña | Qué ve |
 |---|---|---|---|
 | Administrador | `admin@gestionahub.pe` | `Admin2026!` | Todo el panel del negocio |
-| Vendedor | `vendedor@gestionahub.pe` | `Vendedor2026!` | Pedidos, productos, clientes, tienda y punto de venta |
-| Cajero | `cajero@gestionahub.pe` | `Cajero2026!` | Caja, cobros, reportes, punto de venta y comprobantes |
+| Vendedor | `vendedor@gestionahub.pe` | `Vendedor2026!` | Pedidos, productos, clientes, fidelización, servicios y tienda |
+| Cajero | `cajero@gestionahub.pe` | `Cajero2026!` | Caja del día, cobros y pagos, pedidos y reportes |
 | Repartidor | `repartidor@gestionahub.pe` | `Repartidor2026!` | Solo su app con los pedidos asignados |
 
 El seeder crea estos usuarios y un negocio de ejemplo. Si la base ya existía, crea los usuarios por rol con `php artisan db:seed --class=RolesDemoSeeder --force` (no borra nada). **Cambia las contraseñas antes de publicar en un servidor real.**

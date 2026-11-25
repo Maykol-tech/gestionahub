@@ -98,6 +98,13 @@ class ServicioController extends DashboardController
         $duracion = (int) $datos['duracion_min'];
         $fin = $inicio->copy()->addMinutes($duracion);
 
+        // Una cita nueva no puede quedar en una hora que ya pasó
+        if (! $cita && $inicio->lt(now()->startOfMinute())) {
+            $mensaje = 'No puedes agendar una cita en una fecha u hora que ya pasó.';
+
+            return response()->json(['success' => false, 'message' => $mensaje, 'errors' => ['inicio' => [$mensaje]]], 422);
+        }
+
         if ($this->haySolape($inicio, $fin, $cita?->id)) {
             $mensaje = 'Ese horario ya está ocupado por otra cita.';
 

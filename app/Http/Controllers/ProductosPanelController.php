@@ -56,6 +56,16 @@ class ProductosPanelController extends DashboardController
         $producto = $this->producto($id);
         $nombre = $producto->nombre;
 
+        // Si está en pedidos que aún no se entregan, borrarlo rompería esos pedidos (y la devolución de stock)
+        $abiertos = DB::table('pedido_items')->join('pedidos', 'pedidos.id', '=', 'pedido_items.pedido_id')
+            ->where('pedido_items.producto_id', $producto->id)
+            ->whereNotIn('pedidos.estado', ['entregado', 'cancelado'])->distinct()->count('pedidos.id');
+        if ($abiertos) {
+            return response()->json([
+                'message' => "«{$nombre}» está en {$abiertos} pedido(s) sin entregar. Páusalo en lugar de eliminarlo.",
+            ], 422);
+        }
+
         DB::transaction(function () use ($producto) {
             // Borra las imagenes una por una para eliminar tambien los archivos
             ProductoImagen::where('producto_id', $producto->id)->get()->each->delete();
